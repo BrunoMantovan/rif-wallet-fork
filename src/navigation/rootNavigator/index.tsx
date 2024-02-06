@@ -17,7 +17,7 @@ import {
   ActivityScreen,
   ScanQRScreen,
   PinScreen,
-  WalletConnectScreenWithProvider,
+  Marketp2p,
 } from 'screens/index'
 import { OfflineScreen } from 'core/components/OfflineScreen'
 
@@ -97,7 +97,7 @@ export const RootNavigationComponent = () => {
               />
               <RootTabs.Screen
                 name={rootTabsRouteNames.WalletConnect}
-                component={WalletConnectScreenWithProvider}
+                component={Marketp2p}
               />
               <RootTabs.Screen
                 name={rootTabsRouteNames.Settings}

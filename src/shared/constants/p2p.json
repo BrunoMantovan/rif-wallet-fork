@@ -1,0 +1,70 @@
+{
+    "results": [
+        {
+            "username": "usuario 1",
+            "price": 1250,
+            "total": 1000000
+        },
+        {
+            "username": "usuario 2",
+            "price": 1254.3,
+            "total": 600000
+        },
+        {
+            "username": "usuario 3",
+            "price": 1251,
+            "total": 80000
+        },
+        {
+            "username": "usuario 4",
+            "price": 1250,
+            "total": 5000
+        },
+        {
+            "username": "usuario 5",
+            "price": 1232,
+            "total": 40000
+        },
+        {
+            "username": "usuario 6",
+            "price": 1233.9,
+            "total": 30000
+        },
+        {
+            "username": "usuario 7",
+            "price": 1242.7,
+            "total": 78000
+        },
+        {
+            "username": "usuario 8",
+            "price": 1239.4,
+            "total": 1000000
+        },
+        {
+            "username": "usuario 9",
+            "price": 1246,
+            "total": 37000
+        },
+        {
+            "username": "usuario 10",
+            "price": 1239,
+            "total": 68000
+        },
+        {
+            "username": "usuario 11",
+            "price": 1241,
+            "total": 43000
+        },
+        {
+            "username": "usuario 12",
+            "price": 1247,
+            "total": 5362797
+        },
+        {
+            "username": "usuario 13",
+            "price": 1240,
+            "total": 500000
+        }
+
+    ]
+}
