@@ -7,11 +7,11 @@ export default function AdCard(props) {
   return (
     <TouchableOpacity activeOpacity={0.6} style={styles.card}>
         <Text style={styles.user}>{props.username}</Text>
-        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <Text style={styles.price}>${props.price} <Text style={{fontSize: 15}}>ARS</Text></Text>
             <Text style={styles.total}>${props.total} <Text style={styles.user}>ARS</Text></Text>
         </View>
-        <Text style={styles.usdtTotal}>{usdtTotal} DoC</Text>
+        <Text style={styles.usdtTotal}>{usdtTotal} {props.crypto}</Text>
     </TouchableOpacity>
   )
 }
@@ -20,10 +20,12 @@ const styles = StyleSheet.create({
     card:{
         width: "100%",
         height: 100,
-        marginBottom:20,
-        backgroundColor: "#19A3FF",
-        padding: 10,
-        borderRadius: 20
+        marginVertical:10,
+        backgroundColor: "#19A3FF30",
+        paddingHorizontal: 30,
+        borderRadius: 20,
+        justifyContent:"space-between",
+        paddingVertical: 10,
     },
     price:{
         fontSize: 23,
