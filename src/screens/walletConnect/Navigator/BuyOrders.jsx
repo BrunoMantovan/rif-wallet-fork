@@ -1,7 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import AdCard from './AdCard';
+import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
+import CoinSelector from '../Components/CoinSelector';
+import firestore from '@react-native-firebase/firestore';
+import dataArray from "../../../shared/constants/p2pCopy.json"
 
 /* 
 interface Order {
@@ -10,22 +13,22 @@ interface Order {
     total: number;
   } */
 
-export default function PublicacionesDoc() {
+export default function BuyOrders() {
     const [orders, setOrders] = useState/* <Order[]> */([])
-    const [tipo, setTipo] = useState("compra")
+    const [tipo, setTipo] = useState("DoC")
 
     useFocusEffect(
         React.useCallback(() => {
-            tipo === "venta" & setTipo("compra")
+            tipo === "rBtc" & setTipo("DoC")
         }, [])
     );
     useEffect(() =>{
         const fetchData = async () => {
             try {
-                  if(tipo == "compra"){
+                  if(tipo == "DoC"){
                       const data = require('../../../shared/constants/p2p.json')
                       setOrders(data.results);
-                  }else if(tipo == "venta"){
+                  }else if(tipo == "rBtc"){
                       const data = require('../../../shared/constants/p2pCopy.json')
                       setOrders(data.results)
                   }
@@ -39,21 +42,18 @@ export default function PublicacionesDoc() {
     function handlePress(tipo){
         setTipo(tipo)
     }
-
+    const productos = dataArray.results;
+    
     return (
         <View style={styles.body}>
             <View  style={styles.buttonsHolder}>
-                <Pressable style={[styles.button, styles.button0]} onPress={() => {handlePress("compra")}}>
-                    <Text style={tipo === "compra" ? styles.activeText : styles.text}>Comprar</Text>
-                </Pressable>
-                <Pressable style={styles.button} onPress={() => {handlePress("venta")}}>
-                    <Text style={tipo === "venta" ? styles.activeText : styles.text}>Vender</Text>
-                </Pressable>
+                <CoinSelector type={tipo} function={handlePress}/>
             </View>
+
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={"DoC"}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={tipo}/>
                 ))}
             </ScrollView>
         </View>
@@ -72,18 +72,21 @@ const styles = StyleSheet.create({
     buttonsHolder: {
         width: "100%",
         flexDirection: "row",
-       
     },
     button: {
         paddingHorizontal: 10,
-        width: 100,
         height: 40,
         justifyContent: "center",
-        marginVertical: 10
+        alignItems: "center",
+        marginVertical: 10,
     },
     button0: {
         borderEndWidth: 1,
-        borderColor: "#00000070"
+        borderColor: "#00000070",
+    },
+    myAdsButton: {
+        borderColor: "#00000070",
+        borderStartWidth: 1,
     },
     text: {
         fontSize: 20,

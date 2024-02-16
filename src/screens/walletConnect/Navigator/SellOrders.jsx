@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import AdCard from './AdCard';
+import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
+import CoinSelector from '../Components/CoinSelector';
 
 
 /* 
@@ -11,27 +12,27 @@ interface Order {
     total: number;
   } */
 
-  export default function PublicacionesRBtc() {
+  export default function SellOrders() {
     const [orders, setOrders] = useState/* <Order[]> */([])
-    const [tipo, setTipo] = useState("compra")
+    const [tipo, setTipo] = useState("DoC")
 
     useFocusEffect(
         React.useCallback(() => {
-            tipo === "venta" & setTipo("compra")
+            tipo === "rBtc" & setTipo("DoC")
         }, [])
     );
     useEffect(() =>{
         const fetchData = async () => {
             try {
-                  if(tipo == "compra"){
-                      const data = require('../../../shared/constants/p2p.json')
-                      setOrders(data.results);
-                  }else if(tipo == "venta"){
-                      const data = require('../../../shared/constants/p2pCopy.json')
-                      setOrders(data.results)
-                  }
+                if(tipo == "DoC"){
+                    const data = require('../../../shared/constants/p2p.json')
+                    setOrders(data.results);
+                }else if(tipo == "rBtc"){
+                    const data = require('../../../shared/constants/p2pCopy.json')
+                    setOrders(data.results)
+                }
             } catch (error) {
-                  console.error('Error fetching data:', error)
+                console.error('Error fetching data:', error)
             }
         }
         fetchData()
@@ -44,17 +45,12 @@ interface Order {
     return (
         <View style={styles.body}>
             <View  style={styles.buttonsHolder}>
-                <Pressable style={styles.button} onPress={() => {handlePress("compra")}}>
-                    <Text style={tipo === "compra" ? styles.activeText : styles.text}>Comprar</Text>
-                </Pressable>
-                <Pressable style={styles.button} onPress={() => {handlePress("venta")}}>
-                    <Text style={tipo === "venta" ? styles.activeText : styles.text}>Vender</Text>
-                </Pressable>
+            <CoinSelector type={tipo} function={handlePress}/>
             </View>
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={"rBtc"}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={tipo}/>
                 ))}
             </ScrollView>
         </View>

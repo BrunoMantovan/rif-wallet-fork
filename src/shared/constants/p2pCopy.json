@@ -3,67 +3,80 @@
         {
             "username": "usuario 010",
             "price": 1250,
-            "total": 1000000
+            "total": 1000000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 020",
             "price": 1254.3,
-            "total": 600000
+            "total": 600000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 030",
             "price": 1251,
-            "total": 80000
+            "total": 80000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 040",
             "price": 1250,
-            "total": 5000
+            "total": 5000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 050",
             "price": 1232,
-            "total": 40000
+            "total": 40000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 060",
             "price": 1233.9,
-            "total": 30000
+            "total": 30000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 070",
             "price": 1242.7,
-            "total": 78000
+            "total": 78000,
+            "tipo": "rBtc"
         },
         {
             "username": "usuario 080",
             "price": 1239.4,
-            "total": 1000000
+            "total": 1000000,
+            "tipo": "DoC"
         },
         {
             "username": "usuario 090",
             "price": 1246,
-            "total": 37000
+            "total": 37000,
+            "tipo": "DoC"
         },
         {
             "username": "usuario 0100",
             "price": 1239,
-            "total": 68000
+            "total": 68000,
+            "tipo": "DoC"
         },
         {
             "username": "usuario 0110",
             "price": 1241,
-            "total": 43000
+            "total": 43000,
+            "tipo": "DoC"
         },
         {
             "username": "usuario 0120",
             "price": 1247,
-            "total": 5362797
+            "total": 5362797,
+            "tipo": "DoC"
         },
         {
             "username": "usuario 0130",
             "price": 1240,
-            "total": 500000
+            "total": 500000,
+            "tipo": "DoC"
         }
 
     ]

@@ -27,6 +27,7 @@ import { WalletContext } from 'shared/wallet'
 import { useStateSubscription } from './hooks/useStateSubscription'
 import { Cover } from './components/Cover'
 import { useIsOffline } from './hooks/useIsOffline'
+import MarketProvider from 'src/screens/walletConnect/MarketContext'
 
 export const navigationContainerRef =
   createNavigationContainerRef<RootTabsParamsList>()
@@ -58,6 +59,7 @@ export const Core = () => {
         <StatusBar backgroundColor={topColor} />
         {!active && <Cover />}
         <NavigationContainer ref={navigationContainerRef}>
+          <MarketProvider>
           <WalletConnect2Provider wallet={wallet}>
             {settings.loading && !unlocked ? (
               <LoadingScreen />
@@ -73,6 +75,7 @@ export const Core = () => {
               </>
             )}
           </WalletConnect2Provider>
+          </MarketProvider>
         </NavigationContainer>
       </View>
     </SafeAreaProvider>

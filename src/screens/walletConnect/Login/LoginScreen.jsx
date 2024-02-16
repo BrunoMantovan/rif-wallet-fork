@@ -2,13 +2,16 @@ import { View, Text, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import InputText from './InputText'
 import ButtonCustom from './ButtonCustom'
+import { useMarket } from '../MarketContext';
 
 
 export default function LoginScreen() {
 
+  const { setLogged } = useMarket();
+
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const onSignIn = () => { console.warn("hhhh")}
+  const onSignIn = () => { setLogged(true)}
   return (
     <View style={styles.body}>
       <InputText placeholder="username" value={username} setValue={setUsername}/>

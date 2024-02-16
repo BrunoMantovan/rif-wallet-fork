@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "480708953744",
+    "project_id": "rifp2p",
+    "storage_bucket": "rifp2p.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480708953744:android:adf8ed8541d757594d7a15",
+        "android_client_info": {
+          "package_name": "org.iovlabs.rif_wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqyf1SaqnStIMqGdILXhLbkOhL4EDphrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
