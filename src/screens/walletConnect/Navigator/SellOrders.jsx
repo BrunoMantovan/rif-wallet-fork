@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
 import CoinSelector from '../Components/CoinSelector';
+import firestore from '@react-native-firebase/firestore';
 
 
 /* 
@@ -23,19 +24,22 @@ interface Order {
     );
     useEffect(() =>{
         const fetchData = async () => {
+            const collection = "sell" + tipo
             try {
-                if(tipo == "DoC"){
-                    const data = require('../../../shared/constants/p2p.json')
-                    setOrders(data.results);
-                }else if(tipo == "rBtc"){
-                    const data = require('../../../shared/constants/p2pCopy.json')
-                    setOrders(data.results)
-                }
+                const querySnapshot = await firestore().collection(collection).get();
+                const orderData = [];
+                querySnapshot.forEach((doc) => {
+                    // Extract data from each document and add it to the array
+                    orderData.push(doc.data());
+                });
+                setOrders(orderData);
+
             } catch (error) {
-                console.error('Error fetching data:', error)
+              console.error('Error fetching orders:', error);
             }
-        }
-        fetchData()
+        };
+    
+        fetchData();
     }, [tipo])
     
     function handlePress(tipo){
@@ -50,7 +54,7 @@ interface Order {
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={tipo}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType}/>
                 ))}
             </ScrollView>
         </View>
@@ -60,7 +64,7 @@ interface Order {
 const styles = StyleSheet.create({
     body: {
         flex:1,
-        backgroundColor: "#00000020",
+        backgroundColor: "#00000005",
         paddingHorizontal: "5%",
     },
     scrollView:{

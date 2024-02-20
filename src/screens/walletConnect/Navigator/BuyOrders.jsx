@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, Button, } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,40 +20,54 @@ export default function BuyOrders() {
     useFocusEffect(
         React.useCallback(() => {
             tipo === "rBtc" & setTipo("DoC")
+
         }, [])
     );
     useEffect(() =>{
         const fetchData = async () => {
+            const collection = "buy" + tipo
             try {
-                  if(tipo == "DoC"){
-                      const data = require('../../../shared/constants/p2p.json')
-                      setOrders(data.results);
-                  }else if(tipo == "rBtc"){
-                      const data = require('../../../shared/constants/p2pCopy.json')
-                      setOrders(data.results)
-                  }
+                const querySnapshot = await firestore().collection(collection).get();
+                const orderData = [];
+                querySnapshot.forEach((doc) => {
+                    // Extract data from each document and add it to the array
+                    orderData.push(doc.data());
+                });
+                setOrders(orderData);
+
             } catch (error) {
-                  console.error('Error fetching data:', error)
+              console.error('Error fetching orders:', error);
             }
-        }
-        fetchData()
+        };
+    
+        fetchData();
     }, [tipo])
     
+    const productos = dataArray.results;
+    async function añadirProductos() {
+        productos.filter(c => c.crypto == "DoC").forEach(async (data) => {
+            firestore()
+            .collection('sellDoC')
+            .add(data);
+        });
+    }
+
+
     function handlePress(tipo){
         setTipo(tipo)
     }
-    const productos = dataArray.results;
+    
     
     return (
         <View style={styles.body}>
             <View  style={styles.buttonsHolder}>
                 <CoinSelector type={tipo} function={handlePress}/>
             </View>
-
+            <Button title= "hola" onPress={()=> añadirProductos()}/>
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={tipo}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType}/>
                 ))}
             </ScrollView>
         </View>
@@ -63,7 +77,7 @@ export default function BuyOrders() {
 const styles = StyleSheet.create({
     body: {
         flex:1,
-        backgroundColor: "#00000020",
+        backgroundColor: "#00000005",
         paddingHorizontal: "5%",
     },
     scrollView:{

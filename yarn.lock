@@ -10269,6 +10269,11 @@ react-native-screenshot-prevent@^1.1.9:
   resolved "https://registry.yarnpkg.com/react-native-screenshot-prevent/-/react-native-screenshot-prevent-1.1.9.tgz#937f41cd685c12c1e0ef20c8020a93600790cc92"
   integrity sha512-VGhW3MkuHw3fK9nJD4ijC8truQXv0pSDj9x+mmoA5xTNIeuSoFSfFhXZG+WFcFknK54iIniFLMoGToKuKXkB3g==
 
+react-native-select-dropdown@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-select-dropdown/-/react-native-select-dropdown-3.4.0.tgz#3ce31dc2e5ffa1abf4c47e3297bf0da7144f1ea3"
+  integrity sha512-9xK1z4tYpwMxp3hsM0y1+xfqq/JoMh+l7sBsJ81b2eikFwT6ZbndFBqupQXrsQ1akce9hgC/10Nkzj0LjVjeXQ==
+
 react-native-ssl-public-key-pinning@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/react-native-ssl-public-key-pinning/-/react-native-ssl-public-key-pinning-1.1.3.tgz#2dda6e751f4946550f0b12fa70c748305ba571f0"

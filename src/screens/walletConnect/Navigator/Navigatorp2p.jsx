@@ -7,14 +7,15 @@ import BuyOrders from "./BuyOrders"
 import SellOrders from './SellOrders'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import MyOrders from './MyOrders';
+import Title from '../Components/Title';
 
 const Tab = createMaterialTopTabNavigator();
 
 export const Navigatorp2p = ()=> {
   return (
     <View style={styles.body}>
-      
-      <Text style={styles.title}>Mercado de pares</Text>
+      <Title title="Mercado de Pares"/>
+      {/* <Text style={styles.title}>Mercado de pares</Text> */}
       <Tab.Navigator screenOptions={{   
         tabBarAndroidRipple: {borderless: false},     
         tabBarLabelStyle: { fontSize: 16, fontWeight: "500" },
@@ -37,11 +38,7 @@ const styles = StyleSheet.create({
   body:{
     flex:1,
     backgroundColor: "#f9fbfc",
-  },
-  title:{
-    fontSize: 25,
-    color: "black",
-    fontWeight: "800",
-    paddingHorizontal: "5%"
+    marginTop: "5%",
+    
   },
 })

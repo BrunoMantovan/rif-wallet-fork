@@ -3,15 +3,19 @@ import React from 'react'
 import { sharedColors } from 'src/shared/constants'
 
 export default function AdCard(props) {
-    const usdtTotal = (props.total / props.price).toFixed(2)
+    const cryptoTotal = (props.total / props.price).toFixed(2)
   return (
     <TouchableOpacity activeOpacity={0.6} style={styles.card}>
         <Text style={styles.user}>{props.username}</Text>
-        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
-            <Text style={styles.price}>${props.price} <Text style={{fontSize: 15}}>ARS</Text></Text>
-            <Text style={styles.total}>${props.total} <Text style={styles.user}>ARS</Text></Text>
+        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+            <View>
+                <Text style={styles.price}>${props.price} <Text style={{fontSize: 15}}>ARS</Text></Text>
+                <Text style={styles.total}><Text style={styles.user}>Límite:</Text> {props.orderType == "comprar" ? " $" + props.total : props.total * props.price} <Text style={styles.user}>ARS</Text></Text>
+                <Text style={styles.cryptoTotal}><Text style={styles.user}>Cantidad cripto:</Text> {props.orderType == "vender" ? props.total : cryptoTotal} {props.crypto}</Text>
+            </View>
+            <Text style={{color: props.orderType == "comprar" ? "green" : "#F84F4F", fontSize: 19, fontWeight:"600"}}>{props.orderType}</Text>
         </View>
-        <Text style={styles.usdtTotal}>{usdtTotal} {props.crypto}</Text>
+        
     </TouchableOpacity>
   )
 }
@@ -19,7 +23,6 @@ export default function AdCard(props) {
 const styles = StyleSheet.create({
     card:{
         width: "100%",
-        height: 100,
         marginVertical:10,
         backgroundColor: "#19A3FF30",
         paddingHorizontal: 30,
@@ -42,9 +45,9 @@ const styles = StyleSheet.create({
         color: "#003D66",
         fontWeight: "600"
     },
-    usdtTotal:{
+    cryptoTotal:{
         fontSize: 15,
         color: "#003D66",
-        fontWeight: "600"
+        fontWeight: "700"
     }
 })

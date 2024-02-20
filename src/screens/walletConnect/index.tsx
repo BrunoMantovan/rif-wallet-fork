@@ -8,7 +8,6 @@ import {
   RootTabsScreenProps,
 } from 'navigation/rootNavigator/types'
 import { Navigatorp2p } from './Navigator/Navigatorp2p'
-import { useState } from 'react'
 import LoginScreen from './Login/LoginScreen'
 import { useMarket } from './MarketContext'
 
@@ -37,6 +36,6 @@ export const Marketp2p: React.FC = (/* { route }: Props */) => {
 const styles = StyleSheet.create({
   body:{
     flex:1,
-    backgroundColor: "#ffff",
+    backgroundColor: "#f9fbfc",
   },
 })

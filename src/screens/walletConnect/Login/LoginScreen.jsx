@@ -23,10 +23,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-    body:{
-        flex: 1,
-        paddingHorizontal: "5%",
-        backgroundColor: "#19A3FF30",
-        justifyContent: "center",
-    }
+  body:{
+    flex: 1,
+    paddingHorizontal: "5%",
+    backgroundColor: "#19A3FF30",
+    justifyContent: "center",
+  },
 })
