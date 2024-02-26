@@ -79,7 +79,7 @@ export const TokenBalance = ({
   }, [contact, t])
 
   return (
-    <View style={[{ backgroundColor: color }, style, styles.container]}>
+    <View style={[{ backgroundColor: "transparent" }, style, styles.container]}>
       <View style={styles.leftColumn}>
         <View style={[sharedStyles.row, styles.balance]}>
           {firstValue.symbolType === 'icon' && (
@@ -98,7 +98,7 @@ export const TokenBalance = ({
             </View>
           )}
           {firstValue.symbolType === 'usd' && (
-            <DollarIcon size={30} color={sharedColors.white} />
+            <DollarIcon size={30} color={"#252627"} />
           )}
           <TextInput
             onChangeText={handleAmountChange}
@@ -175,7 +175,7 @@ export const TokenBalance = ({
             onPress={onHide}
             accessibilityLabel={testIDs.hide}>
             <View style={styles.badge}>
-              <EyeIcon color={sharedColors.white} size={25} isHidden={hide} />
+              <EyeIcon color="#252627" size={25} isHidden={hide} />
             </View>
           </AppTouchable>
         )}
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   }),
   input: castStyle.text({
-    color: sharedColors.white,
+    color: "#252627",
     fontWeight: '500',
     fontSize: 36,
     padding: 0,

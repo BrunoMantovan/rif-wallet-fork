@@ -63,7 +63,7 @@ export default function BuyOrders() {
             <View  style={styles.buttonsHolder}>
                 <CoinSelector type={tipo} function={handlePress}/>
             </View>
-            <Button title= "hola" onPress={()=> añadirProductos()}/>
+            
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (

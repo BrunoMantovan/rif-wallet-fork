@@ -38,6 +38,9 @@ import { WalletContext } from 'shared/wallet'
 import { HomeInformationBar } from './HomeInformationBar'
 import { getTokenColor } from './tokenColor'
 import { PortfolioComponent } from './PortfolioComponent'
+import { AppHeader } from 'src/ux/appHeader'
+import Svg, { Path } from 'react-native-svg';
+import LinearGradient from 'react-native-linear-gradient';
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -212,26 +215,46 @@ export const HomeScreen = ({
 
   return (
     <ScrollView style={styles.container} bounces={false}>
-      <TokenBalance
-        style={styles.tokenBalance}
-        firstValue={
-          selectedAddress === undefined
-            ? defaultFirstValue
-            : selectedTokenBalance
-        }
-        secondValue={
-          selectedAddress === undefined ? undefined : selectedTokenBalanceUsd
-        }
-        hideable={true}
-        hide={hideBalance}
-        onHide={() => dispatch(setHideBalance(!hideBalance))}
-        color={backgroundColor.backgroundColor}
-      />
-      <HomeBarButtonGroup
-        onPress={handleSendReceive}
-        isSendDisabled={balancesArray.length === 0}
-        color={backgroundColor.backgroundColor}
-      />
+      <LinearGradient colors={['#DCE6AAB2', '#C0DDF0B2']} style={styles.linearGradient}>
+        
+        <View style={styles.innerCard}>
+          
+          <AppHeader/>
+          <TokenBalance
+            style={styles.tokenBalance}
+            firstValue={
+              selectedAddress === undefined
+                ? defaultFirstValue
+                : selectedTokenBalance
+            }
+            secondValue={
+              selectedAddress === undefined ? undefined : selectedTokenBalanceUsd
+            }
+            hideable={true}
+            hide={hideBalance}
+            onHide={() => dispatch(setHideBalance(!hideBalance))}
+          />
+          <HomeBarButtonGroup
+            onPress={handleSendReceive}
+            isSendDisabled={balancesArray.length === 0}
+          />
+        </View>
+        <Svg
+                height="60%"
+                width="100%"
+                viewBox="0 0 1440 320"
+                style={styles.svg}
+                preserveAspectRatio="none"
+                style={[styles.svg, { transform: [{ rotateY: '180deg' }] }]}
+            >
+                <Path
+                    fill={sharedColors.mainWhite}
+                     d="M0,256L60,261.3C120,267,240,277,360,256C480,235,600,181,720,144C840,107,960,85,1080,90.7C1200,96,1320,128,1380,144L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+                />
+            </Svg>
+        
+          </LinearGradient>
+      
 
       {showInfoBar && !closed && <HomeInformationBar onClose={onClose} />}
 
@@ -283,6 +306,29 @@ const styles = StyleSheet.create({
   bodyContainer: castStyle.view({
     padding: 12,
   }),
+  linearGradient: castStyle.view({
+    width: "100%",
+    height: 250,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    position: "relative"
+  }),
+  svg: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+    bottom: 0,
+  },
+  innerCard: {
+    position: 'absolute',
+    backgroundColor: "#FFFFFF",
+    width: "90%",
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 16,
+    zIndex: 1,
+  },
   tokenBalance: castStyle.view({
     paddingLeft: 24,
     paddingRight: 18,
@@ -290,6 +336,7 @@ const styles = StyleSheet.create({
   emptyTransactionsLabel: castStyle.text({
     padding: 6,
     paddingTop: 10,
+    
   }),
   portfolioLabel: castStyle.text({
     padding: 6,
@@ -305,7 +352,7 @@ const styles = StyleSheet.create({
   }),
   container: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
   }),
   text: castStyle.text({
     textAlign: 'center',

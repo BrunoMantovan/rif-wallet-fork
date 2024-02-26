@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ContactsScreen, ContactDetails } from 'screens/contacts'
 import { ContactFormScreen } from 'screens/contacts/ContactFormScreen'
 import { sharedColors } from 'shared/constants'
-import { AppHeader } from 'src/ux/appHeader'
 
 import { contactsStackRouteNames, ContactStackParamsList } from './types'
 import { screenOptionsWithHeader } from '..'
@@ -29,7 +28,6 @@ export const ContactsNavigation = ({
       <Stack.Screen
         name={contactsStackRouteNames.ContactsList}
         component={ContactsScreen}
-        options={{ header: props => <AppHeader {...props} /> }}
       />
       <Stack.Screen
         name={contactsStackRouteNames.ContactForm}

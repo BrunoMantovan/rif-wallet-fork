@@ -28,7 +28,6 @@ import { SettingsNavigator } from '../settingsNavigator'
 import { ProfileNavigator } from '../profileNavigator'
 import {
   screenOptionsNoHeader,
-  screenOptionsWithAppHeader,
   screenOptionsWithHeader,
 } from '..'
 
@@ -78,7 +77,7 @@ export const RootNavigationComponent = () => {
           </>
         ) : (
           <RootTabs.Group>
-            <RootTabs.Group screenOptions={screenOptionsWithAppHeader}>
+            <RootTabs.Group >
               <RootTabs.Screen
                 name={rootTabsRouteNames.Home}
                 component={HomeNavigator}

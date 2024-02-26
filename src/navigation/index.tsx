@@ -5,7 +5,6 @@ import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs'
 
 import { AppTouchable, Typography } from 'components/index'
 import { sharedColors, sharedStyles } from 'shared/constants'
-import { AppHeader } from 'src/ux/appHeader'
 import { StepperComponent } from 'components/profile'
 import { castStyle } from 'shared/utils'
 
@@ -61,15 +60,11 @@ export const screenOptionsWithHeader = (
   }
 }
 
-export const screenOptionsWithAppHeader: HeaderProps = {
-  headerShown: true,
-  header: props => <AppHeader {...props} />,
-  tabBarHideOnKeyboard: true,
-}
+
 
 export const headerStyles = StyleSheet.create({
   headerStyle: castStyle.view({
-    backgroundColor: sharedColors.primary,
+    backgroundColor: sharedColors.white,
     height: 100,
   }),
   title: castStyle.text({

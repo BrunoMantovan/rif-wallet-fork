@@ -1,5 +1,5 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { AppTouchable } from 'components/appTouchable'
@@ -13,7 +13,7 @@ import { ScanIcon } from 'src/components/icons/ScanIcon'
 import TransactionsIcon from 'src/components/icons/TransactionsIcon'
 import UsersIcon from 'src/components/icons/UsersIcon'
 
-const buttonWidth = 52
+const buttonWidth = 64
 
 export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
   const { bottom } = useSafeAreaInsets()
@@ -37,23 +37,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         }
         accessibilityLabel="home">
         <HomeIcon active={currentRouteName === rootTabsRouteNames.Home} />
-      </AppTouchable>
-
-      <AppTouchable
-        width={buttonWidth}
-        onPress={() => navigation.navigate(rootTabsRouteNames.Activity)}
-        accessibilityLabel="activity">
-        <TransactionsIcon
-          active={currentRouteName === rootTabsRouteNames.Activity}
-          style={styles.rotation}
-        />
-      </AppTouchable>
-
-      <AppTouchable
-        width={buttonWidth}
-        onPress={() => navigation.navigate(rootTabsRouteNames.ScanQR)}
-        accessibilityLabel="scan">
-        <ScanIcon active={currentRouteName === rootTabsRouteNames.ScanQR} />
+        <Text>Inicio</Text>
       </AppTouchable>
 
       <AppTouchable
@@ -61,8 +45,8 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         onPress={() => navigation.navigate(rootTabsRouteNames.WalletConnect)}
         accessibilityLabel="dapps">
         <NetworkIcon
-          active={currentRouteName === rootTabsRouteNames.WalletConnect}
-        />
+          active={currentRouteName === rootTabsRouteNames.WalletConnect}/>
+          <Text>P2P</Text>
       </AppTouchable>
 
       <AppTouchable
@@ -70,6 +54,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         onPress={() => navigation.navigate(rootTabsRouteNames.Contacts)}
         accessibilityLabel="contacts">
         <UsersIcon active={currentRouteName === rootTabsRouteNames.Contacts} />
+        <Text>Contactos</Text>
       </AppTouchable>
     </View>
   )
@@ -80,15 +65,15 @@ const styles = StyleSheet.create({
     padding: 10,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: sharedColors.black,
+    justifyContent: 'space-evenly',
+    backgroundColor: sharedColors.white,
   }),
   walletIcon: {
     height: 20,
     resizeMode: 'contain',
   },
   centralButton: castStyle.view({
-    backgroundColor: sharedColors.primary,
+    backgroundColor: sharedColors.white,
     borderRadius: 26,
   }),
   rotation: {

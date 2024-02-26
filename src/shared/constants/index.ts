@@ -37,6 +37,8 @@ export const sharedColors = {
   errorBackground: '#FF3559',
   lightPurple: '#DAE2FF',
   blue: '#6053F8',
+  mainWhite: "#F9F9FF",
+  grey: "#6F7980"
 }
 
 export const tokenColors = {

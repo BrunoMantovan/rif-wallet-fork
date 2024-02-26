@@ -6,7 +6,7 @@ import { HomeScreen, ReceiveScreen, SendScreen } from 'screens/index'
 
 import { rootTabsRouteNames, RootTabsScreenProps } from '../rootNavigator'
 import { HomeStackParamsList, homeStackRouteNames } from './types'
-import { screenOptionsWithAppHeader, screenOptionsWithHeader } from '..'
+import { screenOptionsWithHeader } from '..'
 
 const HomeStack = createStackNavigator<HomeStackParamsList>()
 
@@ -26,7 +26,7 @@ export const HomeNavigator = ({
       <HomeStack.Screen
         name={homeStackRouteNames.Main}
         component={HomeScreen}
-        options={screenOptionsWithAppHeader}
+        
       />
       <HomeStack.Screen
         name={homeStackRouteNames.Send}

@@ -37,12 +37,13 @@ export const ProfileHandler = ({ navigation }: Props) => {
           <Icon
             name="person-circle-sharp"
             size={20}
-            color={sharedColors.white}
+            color={sharedColors.grey}
           />
 
           <View style={styles.textAlignment}>
             <Typography
               type="h4"
+              color={sharedColors.grey}
               style={styles.profileName}
               accessibilityLabel="noUsername">
               {t('header_no_username')}

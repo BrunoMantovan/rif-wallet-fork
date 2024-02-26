@@ -39,14 +39,14 @@ export const AppHeader = ({ navigation, route }: HeaderProps) => {
     <View
       style={[
         styles.row,
-        { backgroundColor: topColor, paddingTop: insets.top + 5 },
+        { backgroundColor: "transparent", paddingTop: insets.top + 5 },
       ]}>
       <View style={[styles.column, styles.walletInfo]}>
         {wallet && <ProfileHandler wallet={wallet} navigation={navigation} />}
       </View>
       {chainId === 31 && (
         <View>
-          <Typography type="h4">TESTNET</Typography>
+          <Typography type="h4" color={sharedColors.grey}>TESTNET</Typography>
         </View>
       )}
       <View style={styles.columnMenu}>
@@ -68,6 +68,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     display: 'flex',
     flexDirection: 'row',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   }),
   column: castStyle.view({
     flex: 5,

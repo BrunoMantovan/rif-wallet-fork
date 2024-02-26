@@ -41,10 +41,12 @@ export default function MyOrders() {
           <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.tipo} orderType={order.orderType}/>
         ))}
       </ScrollView> : 
-      <View style={styles.innerBody}>
+      /* <View style={styles.innerBody}>
         <Text style={styles.text}>No tienes ninguna orden activa</Text>
         <ButtonCustom type="tertiary" text="Crear una orden"/>
-      </View>
+      </View> */
+
+      <CreateOrder/>
       }
     </View>
   )
