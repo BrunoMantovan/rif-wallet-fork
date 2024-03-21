@@ -129,12 +129,12 @@ export const PortfolioCard = ({
 
 const styles = StyleSheet.create({
   topContainer: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 72,
     borderRadius: 10,
-    margin: 5,
-    padding: 12,
-    backgroundColor: sharedColors.inputInactive,
+    margin: 8,
+    padding: 10,
+    backgroundColor: sharedColors.white,
   },
 })
 
@@ -152,12 +152,22 @@ const selectedCardStyles = StyleSheet.create({
     width: 20,
   }),
   primaryText: castStyle.text({
-    color: sharedColors.white,
-    fontSize: 22,
+    color: "#002C5C",
+    fontSize: 16,
+    lineHeight: 16,
+    fontWeight: "500",
+    letterSpacing: 0.16,
+    fontFamily: "Roboto-Medium",
     paddingTop: 3,
   }),
   primaryTextLong: castStyle.text({
-    fontSize: 18,
+    color: "#002C5C",
+    fontSize: 16,
+    lineHeight: 16,
+    fontWeight: "500",
+    letterSpacing: 0.16,
+    fontFamily: "Roboto-Medium",
+    paddingTop: 3,
   }),
 })
 
@@ -179,12 +189,21 @@ const nonSelectedCardStyles = StyleSheet.create({
     marginRight: 3,
   }),
   primaryText: castStyle.text({
-    color: sharedColors.white,
+    color: "#002C5C",
     fontSize: 16,
+    lineHeight: 16,
+    fontWeight: "500",
+    letterSpacing: 0.16,
+    fontFamily: "Roboto-Medium",
+    paddingTop: 3,
   }),
   secondaryText: castStyle.text({
-    color: sharedColors.white,
+    color: "#002C5C",
     fontSize: 16,
-    right: 0,
+    lineHeight: 16,
+    fontWeight: "500",
+    letterSpacing: 0.16,
+    fontFamily: "Roboto-Medium",
+    paddingTop: 3,
   }),
 })

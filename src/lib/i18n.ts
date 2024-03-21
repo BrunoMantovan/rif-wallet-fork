@@ -95,7 +95,7 @@ const resources = {
       TOTAL: 'TOTAL',
       search_placeholder: 'Search by username or email',
       home_screen_portfolio: 'Portfolio',
-      home_screen_transactions: 'Transactions',
+      home_screen_transactions: 'Actividad',
       home_screen_empty_transactions: 'Transaction list is empty',
       home_screen_no_transactions_created:
         'You have not created any transactions yet',

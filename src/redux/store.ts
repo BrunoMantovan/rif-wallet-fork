@@ -28,7 +28,6 @@ export const createStore = (preloadedState = {}) =>
       return middlewares
     },
   })
-
 export const store = createStore()
 
 export const createNewStore = () => {

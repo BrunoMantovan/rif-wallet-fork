@@ -2,6 +2,14 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/BalooTammudu.ttf",
+      "sha1": "b828fe748fddc6c8416cf5e938f1fe93ce25f6da"
+    },
+    {
+      "path": "assets/fonts/Roboto-Medium.ttf",
+      "sha1": "3c6a09fcc6a454924c81af7dff94fc6d399ed79b"
+    },
+    {
       "path": "assets/fonts/Sora-Bold.ttf",
       "sha1": "34256bc34281fd98b79f1831caffa5fb488fbbcb"
     },

@@ -29,7 +29,7 @@ export const sharedColors = {
   inputLabelColor: '#B8B8B8',
   borderColor: '#575757',
   primaryDark: '#4250CC',
-  labelLight: '#B8B8B8',
+  labelLight: '#51595E',
   subTitle: '#FBFBFB',
   tokenBackground: '#1E1E1E',
   black: '#000000',
@@ -42,7 +42,7 @@ export const sharedColors = {
 }
 
 export const tokenColors = {
-  rbtc: '#71BD35',
+  rbtc: '#EB7D00',
   btc: '#EB7D00',
   rif: '#4152E6',
   rdoc: '#11B55C',

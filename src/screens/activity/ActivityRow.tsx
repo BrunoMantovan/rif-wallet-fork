@@ -56,7 +56,7 @@ export const ActivityBasicRow = ({
     price,
     id,
   } = activityDetails
-
+  
   const { t } = useTranslation()
 
   // Contact
@@ -136,6 +136,8 @@ export const ActivityBasicRow = ({
         backScreen,
       })
     }
+    
+    
   }, [navigation, txSummary, backScreen])
 
   return (

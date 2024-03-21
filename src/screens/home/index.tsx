@@ -157,6 +157,7 @@ export const HomeScreen = ({
   )
 
   useEffect(() => {
+    
     if (isFocused) {
       dispatch(changeTopColor(selectedColor))
     }
@@ -265,7 +266,7 @@ export const HomeScreen = ({
         <PortfolioComponent
           selectedAddress={selectedAddress}
           setSelectedAddress={setSelectedAddress}
-          balances={balancesArray}
+          balances={balancesArray.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain")}
           totalUsdBalance={totalUsdBalance}
         />
 
@@ -336,19 +337,25 @@ const styles = StyleSheet.create({
   emptyTransactionsLabel: castStyle.text({
     padding: 6,
     paddingTop: 10,
-    
   }),
   portfolioLabel: castStyle.text({
-    padding: 6,
-    paddingTop: 10,
-    color: sharedColors.inputLabelColor,
+    fontSize: 16,
+    fontFamily: "BalooTammudu",
+    lineHeight: 16,
+    color: "#000000",
+    fontWeight: "500"
   }),
   transactionItem: castStyle.view({
     paddingHorizontal: 6,
   }),
   transactionsLabel: castStyle.text({
-    padding: 6,
-    color: sharedColors.inputLabelColor,
+    paddingTop: 24,
+    paddingBottom: 16,
+    fontSize: 16,
+    fontFamily: "BalooTammudu",
+    lineHeight: 16,
+    color: "#000000",
+    fontWeight: "500"
   }),
   container: castStyle.view({
     flex: 1,

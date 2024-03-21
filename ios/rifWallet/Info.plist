@@ -40,7 +40,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>$PRODUCT_NAME will use your FACE ID to retrieve and store your secret</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please give us access to your photo library to verify you.</string>
 	<key>UIAppFonts</key>
@@ -68,6 +68,8 @@
 		<string>Sora-Regular.ttf</string>
 		<string>Sora-SemiBold.ttf</string>
 		<string>Sora-Thin.ttf</string>
+		<string>Roboto-Medium.ttf</string>
+		<string>BalooTammudu.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>BootSplash</string>

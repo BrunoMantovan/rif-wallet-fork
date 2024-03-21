@@ -56,7 +56,7 @@ export const Core = () => {
   return (
     <SafeAreaProvider>
       <View style={sharedStyles.flex}>
-        <StatusBar backgroundColor={topColor} />
+        <StatusBar backgroundColor={"transparent"} />
         {!active && <Cover />}
         <NavigationContainer ref={navigationContainerRef}>
           <MarketProvider>

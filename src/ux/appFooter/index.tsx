@@ -46,7 +46,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         accessibilityLabel="dapps">
         <NetworkIcon
           active={currentRouteName === rootTabsRouteNames.WalletConnect}/>
-          <Text>P2P</Text>
+          <Text>Mercado</Text>
       </AppTouchable>
 
       <AppTouchable

@@ -20,7 +20,7 @@ export enum rootTabsRouteNames {
   ActivityDetails = 'ActivityDetails',
   ScanQR = 'ScanQR',
   Contacts = 'Contacts',
-  WalletConnect = 'WalletConnect',
+  WalletConnect = 'Mercado',
   Settings = 'Settings',
   Profile = 'Profile',
   TransactionSummary = 'TransactionSummary',

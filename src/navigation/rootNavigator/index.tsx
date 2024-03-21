@@ -50,7 +50,8 @@ export const RootNavigationComponent = () => {
   return (
     <View style={sharedStyles.flex}>
       <RootTabs.Navigator
-        tabBar={props => (!isShown ? null : <AppFooterMenu {...props} />)}>
+        tabBar={props => (!isShown ? null : <AppFooterMenu {...props} />)}
+        screenOptions={{ headerShown: false }}>
         {!unlocked ? (
           <>
             <RootTabs.Screen

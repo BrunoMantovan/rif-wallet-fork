@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     height: 20,
   }),
   subTitle: castStyle.text({
-    color: sharedColors.subTitle,
+    color: "#252627",
     opacity: 0.7,
   }),
   error: castStyle.text({
