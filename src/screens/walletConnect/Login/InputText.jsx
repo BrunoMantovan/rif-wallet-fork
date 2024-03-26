@@ -21,10 +21,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     width: "100%",
     borderColor: "#e8e8e8",
-    borderRadius: 5,
+    borderRadius: 16,
     borderWidth: 1,
-    paddingHorizontal: 15,
-    marginVertical: 10,
+    padding: 4,
+    paddingLeft: 16,
+    marginVertical: 16,
   },
   input:{
     fontSize: 19

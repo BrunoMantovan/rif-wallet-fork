@@ -18,7 +18,6 @@ export default function CreateOrder() {
   const orderTypes = ["vender", "comprar"]
   function hola(){
     const num1 = parseFloat(num);
-    console.log(typeof num1);
   }
 
   const handleNumberChange = (inputValue, input) => {

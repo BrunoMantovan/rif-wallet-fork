@@ -10,6 +10,7 @@ import {
 import { Navigatorp2p } from './Navigator/Navigatorp2p'
 import LoginScreen from './Login/LoginScreen'
 import { useMarket } from './MarketContext'
+import SignUpScreen from './Login/SignUpScreen'
 
 /* import { WalletContext } from 'shared/wallet'
 
@@ -28,7 +29,7 @@ export const Marketp2p: React.FC = (/* { route }: Props */) => {
   return (
 
     <View style={styles.body}>      
-      {logged ? <Navigatorp2p /> : <LoginScreen/>}
+      {logged ? <Navigatorp2p /> : <SignUpScreen/>}
     </View>
   )
 }

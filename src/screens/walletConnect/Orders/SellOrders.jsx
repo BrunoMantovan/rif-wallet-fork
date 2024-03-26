@@ -4,7 +4,8 @@ import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
 import CoinSelector from '../Components/CoinSelector';
 import firestore from '@react-native-firebase/firestore';
-
+import { useNavigation } from '@react-navigation/native';
+import { useMarket } from '../MarketContext';
 
 /* 
 interface Order {
@@ -16,10 +17,12 @@ interface Order {
   export default function SellOrders() {
     const [orders, setOrders] = useState/* <Order[]> */([])
     const [tipo, setTipo] = useState("DoC")
-
+    const navigation = useNavigation()
+    const { setHideTab } = useMarket();
     useFocusEffect(
         React.useCallback(() => {
             tipo === "rBtc" & setTipo("DoC")
+            setHideTab(false)
         }, [])
     );
     useEffect(() =>{
@@ -46,6 +49,11 @@ interface Order {
         setTipo(tipo)
     }
 
+    const handleCardPress = (order) => {
+        navigation.navigate('OrderDetails', {order})
+        setHideTab(true)
+    } 
+
     return (
         <View style={styles.body}>
             <View  style={styles.buttonsHolder}>
@@ -54,7 +62,7 @@ interface Order {
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
                 ))}
             </ScrollView>
         </View>

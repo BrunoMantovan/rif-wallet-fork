@@ -61,7 +61,7 @@ export const SendScreen = ({
     ? balances.filter(b =>
         isContactBitcoin ? isAssetBitcoin(b) : !isAssetBitcoin(b),
       )
-    : balances
+    : balances.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token")
 
   const contractAddress = route.params?.contractAddress || assets[0]
 

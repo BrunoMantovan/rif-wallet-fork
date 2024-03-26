@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, Button, } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, Button, Touchable, TouchableOpacity, } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
 import CoinSelector from '../Components/CoinSelector';
 import firestore from '@react-native-firebase/firestore';
 import dataArray from "../../../shared/constants/p2pCopy.json"
-
+import { useNavigation } from '@react-navigation/native';
+import { useMarket } from '../MarketContext';
 /* 
 interface Order {
     username: string;
@@ -16,11 +17,13 @@ interface Order {
 export default function BuyOrders() {
     const [orders, setOrders] = useState/* <Order[]> */([])
     const [tipo, setTipo] = useState("DoC")
+    const navigation = useNavigation()
+    const { setHideTab } = useMarket();
 
     useFocusEffect(
         React.useCallback(() => {
             tipo === "rBtc" & setTipo("DoC")
-
+            setHideTab(false)
         }, [])
     );
     useEffect(() =>{
@@ -39,10 +42,11 @@ export default function BuyOrders() {
               console.error('Error fetching orders:', error);
             }
         };
-    
+        
         fetchData();
     }, [tipo])
     
+
     const productos = dataArray.results;
     async function añadirProductos() {
         productos.filter(c => c.crypto == "DoC").forEach(async (data) => {
@@ -57,22 +61,27 @@ export default function BuyOrders() {
         setTipo(tipo)
     }
     
-    
+    const handleCardPress = (order) => {
+        navigation.navigate('OrderDetails', {order})
+        setHideTab(true)
+    }    
+
+
     return (
         <View style={styles.body}>
             <View  style={styles.buttonsHolder}>
                 <CoinSelector type={tipo} function={handlePress}/>
             </View>
-            
             <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                 {orders.sort((a, b) => a.price - b.price)
                 .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType}/>
+                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
                 ))}
             </ScrollView>
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     body: {
@@ -111,4 +120,4 @@ const styles = StyleSheet.create({
         color: "#000000",
         fontWeight: "500"
     }
-  })
+})
