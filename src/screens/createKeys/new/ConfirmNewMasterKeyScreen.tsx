@@ -221,7 +221,7 @@ export const ConfirmNewMasterKeyScreen = ({
 const styles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.main,
     paddingHorizontal: 24,
   }),
   titleText: castStyle.text({ marginTop: 58, letterSpacing: -0.3 }),

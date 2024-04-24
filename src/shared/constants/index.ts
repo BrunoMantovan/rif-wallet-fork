@@ -38,7 +38,10 @@ export const sharedColors = {
   lightPurple: '#DAE2FF',
   blue: '#6053F8',
   mainWhite: "#F9F9FF",
-  grey: "#6F7980"
+  grey: "#6F7980",
+  bablue: "#0A3F7A",
+  balightblue: "#73B9EA",
+  bagreen: "#B7CD49",
 }
 
 export const tokenColors = {
@@ -92,7 +95,7 @@ export const sharedStyles = StyleSheet.create({
   }),
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 24,
   }),
   noPadding: castStyle.view({ padding: 0 }),

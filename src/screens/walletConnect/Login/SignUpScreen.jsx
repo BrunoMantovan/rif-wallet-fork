@@ -23,7 +23,6 @@ export default function SignUpScreen() {
         <InputText placeholder="Contraseña" value={password} setValue={setPassword} hidden={true}/>
         <InputText placeholder="Repetir contraseña" value={repeatPassword} setValue={setRepeatPassword} hidden={true}/>
         <ButtonCustom  text="Crear cuenta" type="secondary" />
-        <ButtonCustom  text="Olvidé mi contraseña" type="tertiary" />
       </View>
     </ScrollView>
   )

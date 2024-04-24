@@ -3,25 +3,47 @@ import React from 'react'
 import { sharedColors } from 'src/shared/constants'
 
 export default function AdCard(props) {
-    const cryptoTotal = (props.total / props.price).toFixed(2)
+    const cryptoTotal = (props.total / props.price).toFixed(4)
+    const numberFormatOptions = {
+        // Specify the dot as the thousands separator
+        useGrouping: true,
+        maximumFractionDigits: 2, // Optional: specify the maximum number of fraction digits
+    };
+
+    const formatNumberWithDots = (number) => {
+        // Convert the number to a string
+        let numString = number.toString();
+        // Split the string into integer and decimal parts
+        const [integerPart, decimalPart] = numString.split('.');
+        // Add commas to the integer part (thousands separator)
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        // Return the formatted number with optional decimal part
+        return decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger;
+      };
+
   return (
     <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={props.onPress}>
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
             <Text style={styles.user}>{props.username}</Text>
+            <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 15}}>ARS</Text></Text>
             <TouchableOpacity style={{alignItems: "center", justifyContent: "center", display: props.display}}>
                 <Text style={{fontWeight:"600"}}>Eliminar</Text>
             </TouchableOpacity>
         </View>
         
-        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <View>
-                <Text style={styles.price}>${props.price} <Text style={{fontSize: 15}}>ARS</Text></Text>
-                <Text style={styles.total}><Text style={styles.user}>Límite:</Text> {props.orderType == "comprar" ? " $" + props.total : props.total * props.price} <Text style={styles.user}>ARS</Text></Text>
-                <Text style={styles.cryptoTotal}><Text style={styles.user}>Cantidad cripto:</Text> {props.orderType == "vender" ? props.total : cryptoTotal} {props.crypto}</Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.orderType == "comprar" ? " $" + formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>ARS</Text></Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.orderType == "vender" ? props.total : cryptoTotal} {props.crypto}</Text>
+                <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                    <View style={styles.payMethods}>
+                        <Text>Transferencia</Text>
+                    </View>
+                </View>
             </View>
-            <View style={[styles.buysellbtn, {backgroundColor: props.orderType == "comprar" ? "#0ecb81" : "#f6465d"}]}>
-                <Text style={{color: "#fef6ff", fontSize: 16, fontWeight:"600"}}>{props.orderType}</Text>
+            <View style={styles.buysellbtn}>
+                <Text style={styles.buyselltxt}>{props.orderType + " " + props.crypto}</Text>
             </View>
         </View>
         
@@ -32,38 +54,71 @@ export default function AdCard(props) {
 const styles = StyleSheet.create({
     card:{
         width: "100%",
-        marginVertical:10,
-        backgroundColor: "#19A3FF30",
-        paddingHorizontal: 30,
-        borderRadius: 20,
+        marginVertical: 8,
+        backgroundColor: "#ffffff",
+        padding: 16,
+        borderRadius: 16,
         justifyContent:"space-between",
-        paddingVertical: 10,
     },
     price:{
-        fontSize: 23,
-        color: "#001E33",
-        fontWeight: "800"
+        fontSize: 14,
+        color: "#1b1e1e",
+        fontFamily: "Roboto-Medium",
+        fontWeight: "500",
+        letterSpacing: 0.1,
+        lineHeight: 20,
     },
     user:{
-        fontSize: 13,
-        color: "#003D66",
-        fontWeight: "600"
+        fontSize: 14,
+        color: "#464d51",
+        fontFamily: "Roboto-Medium",
+        fontWeight: "400",
+        letterSpacing: 0.25,
+        lineHeight: 20,
     },
-    total:{
-        fontSize: 15,
-        color: "#003D66",
-        fontWeight: "600"
+    limitsTxt:{
+        fontSize: 11,
+        color: "#b0b3b5",
+        fontFamily:"Robot-Medium",
+        fontWeight: "500",
+        letterSpacing: 0.5,
+        lineHeight: 16,
     },
-    cryptoTotal:{
-        fontSize: 15,
-        color: "#003D66",
-        fontWeight: "700"
+    limitsNum:{
+        fontSize: 12,
+        color: "#1b1e1e",
+        fontFamily:"Robot-Medium",
+        fontWeight: "400",
+        letterSpacing: 0.4,
+        lineHeight: 16,
+        marginTop: 8,
     },
     buysellbtn:{
-        width: 90,
-        height: 35,
-        borderRadius: 6,
+        minWidth: 110,
+        height: 24,
+        borderRadius: 100,
         justifyContent: "center",
         alignItems:"center",
+        backgroundColor: "#b7cd49",
+    },
+    buyselltxt:{
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontFamily:"Roboto-Medium",
+        fontWeight: "500",
+        letterSpacing: 0.1,
+        lineHeight: 20,
+    },
+    payMethods:{
+        backgroundColor: "#F4F4F4",
+        padding: 4,
+        color: "#5B6369",
+        fontSize: 8,
+        fontFamily: "Roboto-Medium",
+        fontWeight: "500",
+        letterSpacing: 0.5,
+        lineHeight: 16,
+        marginTop: 8,
+        borderRadius: 4,
     },
 })

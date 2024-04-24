@@ -8,11 +8,14 @@ export default function Title(props) {
 }
 
 const styles = StyleSheet.create({
-    title:{
-      fontSize: 25,
-      color: "black",
-      fontWeight: "800",
-      paddingHorizontal: "5%",
-      marginVertical: 15,
-    },
-  })
+  title:{
+    fontSize: 25,
+    color: "#0A3F7A",
+    fontWeight: "800",
+    paddingHorizontal: "5%",
+    marginVertical: "11%",
+    fontFamily: "Roboto-Medium",
+    alignSelf: "flex-start",
+    fontWeight: "900"
+  },
+})

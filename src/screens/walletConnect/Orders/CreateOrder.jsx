@@ -5,6 +5,8 @@ import SelectDropdown from 'react-native-select-dropdown'
 import ButtonCustom from '../Login/ButtonCustom'
 import Title from '../Components/Title'
 import firestore from '@react-native-firebase/firestore';
+import Dropdown from '../Components/Dropdown'
+import { sharedColors } from 'src/shared/constants'
 
 export default function CreateOrder() {
 
@@ -57,23 +59,23 @@ export default function CreateOrder() {
       <Title title="Crear una orden"/>
       <View style={{height:100, width: "100%",}}>
         <Text style={styles.subtitle}>Tipo de orden</Text>
-        <SelectDropdown data={orderTypes} onSelect={(e)=> setType(e)} buttonStyle={styles.dropdown} dropdownStyle={{borderColor: "#e8e8e8", borderRadius: 5,}} defaultButtonText="Elija una..."buttonTextStyle={{textAlign:"left", fontSize: 19}} rowTextStyle={{textAlign:"left"}}/>
+        <Dropdown data={orderTypes} placeholder="Elija una..." function={(e)=> setType(e)}/>
       </View>
       
       <View style={styles.wrapper}>
         <View style={{height:100, width: "50%", paddingRight: "2%"}}>
           <Text style={styles.subtitle}>Criptomoneda</Text>
-          <SelectDropdown data={cryptos} onSelect={(e)=> setCrypto(e)} buttonStyle={styles.dropdown} dropdownStyle={{borderColor: "#e8e8e8", borderRadius: 5,}} defaultButtonText="Elija una..." buttonTextStyle={{textAlign:"left", fontSize: 19}} rowTextStyle={{textAlign:"left"}}/>
+          <Dropdown data={cryptos} placeholder="Elija una..." function={(e)=> setCrypto(e)}/>
         </View>
-        <View style={{height:100, width: "50%", paddingLeft: "2%"}}>
+        <View style={{height:100, width: "50%", paddingLeft: "2%", alignContent: "center"}}>
           <Text style={styles.subtitle}>Precio</Text>
-          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="precio" keyboard="numeric" style={styles.input}/>
+          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="Precio" keyboard="numeric" style={styles.input}/>
         </View>
       </View>
 
       <View style={{height:100, width: "100%"}}>
         <Text style={styles.subtitle}>Total {type && crypto ? type == "comprar" ? "de ARS para comprar" : "de " + crypto + " para vender" : ""}</Text>
-        <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="precio" keyboard="numeric"/>
+        <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="Total" keyboard="numeric"/>
       </View>
       <ButtonCustom onPress={handleSubmit} text="Publicar Orden" type="primary" />
     </View>
@@ -84,7 +86,7 @@ export default function CreateOrder() {
 const styles = StyleSheet.create({
   body:{
     paddingHorizontal: "5%",
-    backgroundColor: "#00000005",
+    backgroundColor: "transparent",
   },
   subtitle:{
     fontSize: 16,
@@ -93,12 +95,14 @@ const styles = StyleSheet.create({
   },
   dropdown:{
     width: "100%",
+    height: 56,
     backgroundColor: "white",
-    borderColor: "#e8e8e8",
-    borderRadius: 5,
+    borderColor: "#D2E6F799",
+    borderRadius: 16,
     borderWidth: 1,
-    paddingHorizontal: 15,
-    marginVertical: 10,
+    paddingHorizontal: 16,
+    marginVertical: 16,
+    paddingVertical: 12,
   },
   wrapper:{
     flexDirection: "row"

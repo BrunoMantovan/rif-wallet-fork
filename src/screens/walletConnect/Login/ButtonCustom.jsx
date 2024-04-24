@@ -10,7 +10,7 @@ export default function ButtonCustom(props) {
 
 
   return (
-    <TouchableOpacity activeOpacity={0.5} style={[styles.container, styles[`container_${props.type}`], props.bgColor ? {backgroundColor: props.bgColor, borderWidth: 1, borderColor: props.bdrColor} : {}]} onPress={props.onPress}>
+    <TouchableOpacity activeOpacity={props.activeOpacity ? props.activeOpacity : 0.5} style={[styles.container, styles[`container_${props.type}`], props.bgColor ? {backgroundColor: props.bgColor, borderWidth: 1, borderColor: props.bdrColor} : {}]} onPress={props.onPress}>
         {imageSource && <Image source={imageSource} style={{marginRight: 8,}}/>}
         <Text style={[styles.text, styles[`text_${props.type}`], props.fgColor ? {color: props.fgColor} : {}]}>{props.text}</Text>
     </TouchableOpacity>
@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
     },
     container_tertiary:{
         backgroundColor: "transparent"
+    },
+    container_disabled:{
+        backgroundColor: "#1D1B201F"
     },
     text:{
         fontWeight: "bold",

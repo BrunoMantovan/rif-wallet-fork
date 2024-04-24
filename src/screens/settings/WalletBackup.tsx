@@ -51,7 +51,7 @@ export const WalletBackup = (_: Props) => {
 
 const styles = StyleSheet.create({
   container: castStyle.view({
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 24,
   }),
   content: castStyle.view({

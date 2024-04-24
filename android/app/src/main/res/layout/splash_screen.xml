@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#F9F9FF">
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -23,14 +23,5 @@
         android:text="@string/splash_title"
         android:textColor="#FFFFFF"
         android:textSize="36sp" />
-
-    <ImageView
-        android:id="@+id/poweredBy"
-        android:layout_width="199dp"
-        android:layout_height="21dp"
-        android:layout_below="@+id/titleTextView"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="18dp"
-        android:src="@drawable/powered" />
 
 </RelativeLayout>

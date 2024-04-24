@@ -428,7 +428,7 @@ export const PinScreen = ({ navigation, route }: Props) => {
           <AppButton
             style={[
               sharedStyles.appButtonBottom,
-              { backgroundColor: sharedColors.black },
+              { backgroundColor: sharedColors.bablue },
             ]}
             onPress={focusInput}
             title={t('pin_settings_open_keyboard_btn')}
@@ -456,10 +456,10 @@ const styles = StyleSheet.create({
     marginRight: 24,
   }),
   dotActive: castStyle.view({
-    backgroundColor: sharedColors.primary,
+    backgroundColor: sharedColors.bagreen,
   }),
   dotInactive: castStyle.view({
-    backgroundColor: sharedColors.inputInactive,
+    backgroundColor: sharedColors.bablue,
   }),
   androidInputWorkaround: castStyle.text({
     display: 'flex',

@@ -273,7 +273,7 @@ const StatusIcon = ({ status }: { status: StatusActions }) => {
 
 const styles = StyleSheet.create({
   parent: castStyle.view({
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainw,
     flex: 1,
     paddingHorizontal: 24,
   }),

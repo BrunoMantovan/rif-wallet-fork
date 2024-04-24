@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import InputText from './InputText'
 import ButtonCustom from './ButtonCustom'
 import { useMarket } from '../MarketContext';
-
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
 
@@ -11,7 +11,11 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const navigation = useNavigation()
   const onSignIn = () => { setLogged(true)}
+  const onSignUp = () => {
+    navigation.navigate('signUp')
+  }
   return (
     <ScrollView>
       <View style={styles.body}>
@@ -20,8 +24,8 @@ export default function LoginScreen() {
         <InputText placeholder="Correo electrónico" value={email} setValue={setEmail}/>
         <InputText placeholder="password" value={password} setValue={setPassword} hidden={true} />
         <ButtonCustom onPress={onSignIn} text="Iniciar sesión" type="primary" />
-        <ButtonCustom onPress={onSignIn} text="Crear cuenta" type="secondary" />
-        <ButtonCustom  text="Iniciar sesión con Google" type="primary" bgColor="tansparent" bdrColor="#737781" fgColor="#0a3f7a" image="google"/>
+        <ButtonCustom onPress={onSignUp} text="Crear cuenta" type="secondary" />
+        <ButtonCustom onPress={onSignIn} text="Iniciar sesión con Google" type="primary" bgColor="tansparent" bdrColor="#737781" fgColor="#0a3f7a" image="google"/>
         <ButtonCustom onPress={onSignIn} text="Olvidé mi contraseña" type="tertiary" />
       </View>
     </ScrollView>

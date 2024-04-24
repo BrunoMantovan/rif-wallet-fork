@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 import AdCard from '../Components/AdCard';
 import CreateOrder from './CreateOrder';
 import ButtonCustom from '../Login/ButtonCustom';
+import { sharedColors } from 'src/shared/constants';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
@@ -55,7 +56,7 @@ export default function MyOrders() {
 const styles = StyleSheet.create({
   body: {
     flex:1,
-    backgroundColor: "#00000005",
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: "5%",
   },
   innerBody:{

@@ -244,15 +244,14 @@ export const HomeScreen = ({
                 height="60%"
                 width="100%"
                 viewBox="0 0 1440 320"
-                style={styles.svg}
                 preserveAspectRatio="none"
                 style={[styles.svg, { transform: [{ rotateY: '180deg' }] }]}
-            >
+              >
                 <Path
                     fill={sharedColors.mainWhite}
                      d="M0,256L60,261.3C120,267,240,277,360,256C480,235,600,181,720,144C840,107,960,85,1080,90.7C1200,96,1320,128,1380,144L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
                 />
-            </Svg>
+          </Svg>
         
           </LinearGradient>
       
@@ -309,7 +308,7 @@ const styles = StyleSheet.create({
   }),
   linearGradient: castStyle.view({
     width: "100%",
-    height: 250,
+    height: 225,
     justifyContent: "flex-start",
     alignItems: "center",
     position: "relative"
@@ -339,11 +338,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   }),
   portfolioLabel: castStyle.text({
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "BalooTammudu",
-    lineHeight: 16,
+    lineHeight: 27,
     color: "#000000",
-    fontWeight: "500"
+    fontWeight: "500",
+    zIndex: 4,
+    paddingTop: 15
   }),
   transactionItem: castStyle.view({
     paddingHorizontal: 6,
@@ -351,9 +352,9 @@ const styles = StyleSheet.create({
   transactionsLabel: castStyle.text({
     paddingTop: 24,
     paddingBottom: 16,
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "BalooTammudu",
-    lineHeight: 16,
+    lineHeight: 27,
     color: "#000000",
     fontWeight: "500"
   }),
