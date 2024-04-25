@@ -39,6 +39,7 @@ import { contactsStackRouteNames } from 'src/navigation/contactsNavigator'
 
 import { TokenImage, TokenSymbol } from '../home/TokenImage'
 import { PortfolioComponent } from '../home/PortfolioComponent'
+import { getTokenColor } from '../home/tokenColor'
 
 interface Props {
   onConfirm: (
@@ -118,7 +119,8 @@ export const TransactionForm = ({
   const insets = useSafeAreaInsets()
   const { recipient, asset, amount: initialAmount } = initialValues
   const { t } = useTranslation()
-  const [showTxSelector, setShowTxSelector] = useState(false)
+  // const [showTxSelector, setShowTxSelector] = useState(true) // para toggle de activos a cambiar (ver de habilitar componentes que vayan con esto)
+  const showTxSelector = true
   // const [showTxFeeSelector, setShowTxFeeSelector] = useState(false)
   const [selectedToken, setSelectedToken] = useState<TokenBalanceObject>(
     asset || tokenList[0],
@@ -263,7 +265,7 @@ export const TransactionForm = ({
         // setSelectedFeeToken(token)
 
         handleAmountChange('', balanceInverted)
-        setShowTxSelector(false)
+        // setShowTxSelector(false) //para toggle de mostrar activos a cambiar
       }
     },
     [
@@ -291,9 +293,9 @@ export const TransactionForm = ({
     })
   }, [secondBalance, handleAmountChange])
 
-  const toggleShowTx = useCallback(() => {
+  /* const toggleShowTx = useCallback(() => { 
     setShowTxSelector(prev => !prev)
-  }, [])
+  }, []) */ // para toggle de activos a cambiar
 
   // const toggleShowTxFee = useCallback(() => {
   //   setShowTxFeeSelector(prev => !prev)
@@ -348,6 +350,7 @@ export const TransactionForm = ({
     return undefined
   }, [isBitcoinToken, t])
 
+
   return (
     <>
       <ScrollView scrollIndicatorInsets={{ right: -8 }}>
@@ -397,7 +400,7 @@ export const TransactionForm = ({
             style={styles.marginTop10}
             firstValue={firstBalance}
             secondValue={secondBalance}
-            color={sharedColors.black}
+            color={sharedColors.white}
             error={hasEnoughBalance ? t('transaction_form_error_balance') : ''}
             onSwap={onSwapBalance}
             editable
@@ -408,27 +411,26 @@ export const TransactionForm = ({
           <Input
             containerStyle={styles.marginTop10}
             inputName={'balance'}
-            label={`${selectedToken.symbol} ${t(
-              'transaction_form_balance_label',
-            )}`}
+            label={`${t('transaction_form_balance_label',)} de ${selectedToken.symbol}`}
             placeholder={`${currentBalance} ${selectedToken.symbol}`}
             isReadOnly
             rightIcon={AlertIconIfBalanceBtc}
           />
           <AppTouchable
             width={'100%'}
-            onPress={toggleShowTx}
+            // onPress={toggleShowTx} //para toggle de activos a cambiar
             accessibilityLabel={'ChangeTxAsset'}
             style={styles.assetToggleRow}>
             <>
               <Typography type={'h3'}>
                 {t('transaction_form_tx_dropdown')}
               </Typography>
-              <Icon
+              
+              {/* <Icon
                 name={showTxSelector ? 'chevron-up' : 'chevron-down'}
                 size={20}
-                color={sharedColors.white}
-              />
+                color={sharedColors.bablue}
+              /> */}
             </>
           </AppTouchable>
           {showTxSelector ? (
@@ -446,7 +448,7 @@ export const TransactionForm = ({
               inputName={'fee'}
               label={t('transaction_form_fee_input_label')}
               placeholder={`${feeToken.symbol}`}
-              leftIcon={<TokenImage symbol={feeToken.symbol} size={32} />}
+              leftIcon={<TokenImage symbol={feeToken.symbol} size={32}/>}
               isReadOnly
             />
           ) : null}
@@ -499,8 +501,8 @@ export const TransactionForm = ({
             amount === 0 ||
             hasEnoughBalance
           }
-          color={sharedColors.white}
-          textColor={sharedColors.black}
+          color={sharedColors.balightblue}
+          textColor={sharedColors.white}
         />
         <AppButton
           style={styles.buttonCancel}
@@ -519,8 +521,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   }),
   buttonCancel: castStyle.view({
-    marginTop: 10,
-    backgroundColor: sharedColors.black,
+    marginVertical: 10,
+    backgroundColor: sharedColors.bablue,
   }),
   assetToggleRow: castStyle.view({
     flexDirection: 'row',

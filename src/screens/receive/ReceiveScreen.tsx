@@ -65,7 +65,8 @@ export const ReceiveScreen = ({
   const [address, setAddress] = useState<string>('')
   const [isAddressLoading, setIsAddressLoading] = useState(false)
 
-  const [shouldShowAssets, setShouldShowAssets] = useState(false)
+  // const [shouldShowAssets, setShouldShowAssets] = useState(false)
+  const shouldShowAssets = true
 
   const { wallet } = useContext(WalletContext)
   const chainId = useAppSelector(selectChainId)
@@ -90,10 +91,10 @@ export const ReceiveScreen = ({
     })
   }, [address])
 
-  const onChevronAssetShowTap = useCallback(
+  /* const onChevronAssetShowTap = useCallback(
     () => setShouldShowAssets(curr => !curr),
     [],
-  )
+  ) */
 
   // Function to get the address
   const onGetAddress = useCallback(
@@ -140,25 +141,25 @@ export const ReceiveScreen = ({
       <FormProvider {...methods}>
         {/* Change Asset Component */}
         <View style={styles.flexRow}>
-          <Typography type="h4">{t('change_asset')}</Typography>
-          <FontAwesome5Icon
+          <Typography type="h2">{t('change_asset')}</Typography>
+          {/* <FontAwesome5Icon
             name={shouldShowAssets ? 'chevron-up' : 'chevron-down'}
             size={14}
-            color="white"
+            color="blue"
             onPress={onChevronAssetShowTap}
             style={styles.assetsChevronText}
-          />
+          /> */}
         </View>
         {shouldShowAssets && (
           <ScrollView horizontal>
-            {Object.values(tokenBalances).map(asset => {
+            {Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token").map(asset => {
               const isSelected =
                 selectedAsset !== undefined &&
                 selectedAsset.symbol === asset.symbol
 
               const color = isSelected
                 ? getTokenColor(asset.symbol)
-                : sharedColors.inputInactive
+                : sharedColors.white
 
               return (
                 <PortfolioCard
@@ -203,7 +204,7 @@ export const ReceiveScreen = ({
               <Ionicons
                 name="share-outline"
                 size={20}
-                color={sharedColors.white}
+                color={sharedColors.bablue}
                 onPress={onShareUsername}
                 testID={TestID.ShareUsernameButton}
                 disabled
@@ -232,7 +233,7 @@ export const ReceiveScreen = ({
               <Ionicons
                 name="share-outline"
                 size={20}
-                color="white"
+                color={sharedColors.bablue}
                 onPress={onShareAddress}
                 testID={TestID.ShareAddressButton}
               />
@@ -250,9 +251,9 @@ export const ReceiveScreen = ({
 
 const styles = StyleSheet.create({
   parent: castStyle.view({
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
   }),
   qrView: castStyle.view({
     paddingHorizontal: 35,

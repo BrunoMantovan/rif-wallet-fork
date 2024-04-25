@@ -27,6 +27,7 @@ import { ContactsNavigation } from '../contactsNavigator'
 import { SettingsNavigator } from '../settingsNavigator'
 import { ProfileNavigator } from '../profileNavigator'
 import {
+  headerStyles,
   screenOptionsNoHeader,
   screenOptionsWithHeader,
 } from '..'
@@ -94,6 +95,7 @@ export const RootNavigationComponent = () => {
               <RootTabs.Screen
                 name={rootTabsRouteNames.Contacts}
                 component={ContactsNavigation}
+                
               />
               <RootTabs.Screen
                 name={rootTabsRouteNames.WalletConnect}

@@ -213,15 +213,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: sharedColors.inputInactive,
+    backgroundColor: sharedColors.white,
     paddingLeft: 16,
     paddingRight: 16,
     marginTop: 12,
-    borderRadius: 10,
+    borderRadius: 16,
     minHeight: 80,
+    borderColor: "#8C9094",
+    borderWidth: 1,
   }),
   containerActive: castStyle.view({
-    backgroundColor: sharedColors.inputActive,
+    backgroundColor: sharedColors.white,
   }),
   contentPadding: castStyle.view({
     paddingBottom: 18,
@@ -230,6 +232,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 4,
     color: sharedColors.inputLabelColor,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
   }),
   valueContainer: castStyle.view({
     flex: 1,
@@ -244,16 +248,21 @@ const styles = StyleSheet.create({
   }),
   subtitle: castStyle.text({
     color: sharedColors.inputLabelColor,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
   }),
   rightIcon: castStyle.text({
     padding: defaultIconSize,
+    color: sharedColors.bablue,
   }),
   placeholderText: castStyle.text({
     flex: 1,
     color: sharedColors.inputLabelColor,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
   }),
   valueText: castStyle.text({
     marginTop: 14,
-    color: sharedColors.white,
+    color: sharedColors.inputText,
   }),
 })

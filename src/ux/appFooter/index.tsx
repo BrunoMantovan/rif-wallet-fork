@@ -9,6 +9,7 @@ import { sharedColors, sharedStyles } from 'shared/constants'
 import { castStyle } from 'shared/utils'
 import HomeIcon from 'src/components/icons/HomeIcon'
 import NetworkIcon from 'src/components/icons/NetworkIcon'
+import GearIcon from 'src/components/icons/GearIcon'
 import { ScanIcon } from 'src/components/icons/ScanIcon'
 import TransactionsIcon from 'src/components/icons/TransactionsIcon'
 import UsersIcon from 'src/components/icons/UsersIcon'
@@ -37,7 +38,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         }
         accessibilityLabel="home">
         <HomeIcon active={currentRouteName === rootTabsRouteNames.Home} />
-        <Text>Inicio</Text>
+        {/* <Text>Inicio</Text> */}
       </AppTouchable>
 
       <AppTouchable
@@ -46,7 +47,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         accessibilityLabel="dapps">
         <NetworkIcon
           active={currentRouteName === rootTabsRouteNames.WalletConnect}/>
-          <Text>Mercado</Text>
+          {/* <Text>Mercado</Text> */}
       </AppTouchable>
 
       <AppTouchable
@@ -54,7 +55,16 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         onPress={() => navigation.navigate(rootTabsRouteNames.Contacts)}
         accessibilityLabel="contacts">
         <UsersIcon active={currentRouteName === rootTabsRouteNames.Contacts} />
-        <Text>Contactos</Text>
+        {/* <Text>Contactos</Text> */}
+      </AppTouchable>
+
+      <AppTouchable
+        width={buttonWidth}
+        onPress={() => navigation.navigate(rootTabsRouteNames.Settings)}
+        accessibilityLabel="settings">
+        <GearIcon
+          active={currentRouteName === rootTabsRouteNames.Settings}/>
+          {/* <Text>configuración</Text> */}
       </AppTouchable>
     </View>
   )

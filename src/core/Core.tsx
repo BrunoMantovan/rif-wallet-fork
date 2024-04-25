@@ -20,7 +20,7 @@ import {
   selectWholeSettingsState,
   unlockApp,
 } from 'store/slices/settingsSlice'
-import { sharedStyles } from 'shared/constants'
+import { sharedColors, sharedStyles } from 'shared/constants'
 import { WalletConnect2Provider } from 'screens/walletConnect/WalletConnect2Context'
 import { WalletContext } from 'shared/wallet'
 
@@ -56,7 +56,7 @@ export const Core = () => {
   return (
     <SafeAreaProvider>
       <View style={sharedStyles.flex}>
-        <StatusBar backgroundColor={"transparent"} />
+        <StatusBar backgroundColor={sharedColors.bablue} />
         {!active && <Cover />}
         <NavigationContainer ref={navigationContainerRef}>
           <MarketProvider>

@@ -17,8 +17,8 @@ import { contactsStackRouteNames } from '../contactsNavigator'
 
 export enum homeStackRouteNames {
   Main = 'Main',
-  Send = 'Send',
-  Receive = 'Receive',
+  Send = 'Enviar',
+  Receive = 'Recibir',
   Balances = 'Balances',
 }
 

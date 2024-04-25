@@ -337,7 +337,7 @@ export const AddressInput = ({
         autoCorrect={false}
         autoCapitalize={'none'}
         placeholder={placeholder}
-        placeholderTextColor={sharedColors.inputLabelColor}
+        placeholderTextColor={sharedColors.inputText}
         rightIcon={
           !(value.address || value.displayAddress)
             ? {
@@ -346,6 +346,7 @@ export const AddressInput = ({
               }
             : undefined
         }
+        
         onRightIconPress={handlePasteClick}
         leftIcon={
           value.displayAddress && domainFound ? (

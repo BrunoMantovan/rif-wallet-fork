@@ -18,7 +18,7 @@ export const sharedHeaderLeftOptions = (goBack?: () => void) => (
     onPress={goBack}
     style={sharedStyles.marginLeft24}
     accessibilityLabel="backButton">
-    <Icon name={'chevron-left'} size={20} color={sharedColors.white} />
+    <Icon name={'chevron-left'} size={20} color={sharedColors.bagreen} />
   </AppTouchable>
 )
 

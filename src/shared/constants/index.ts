@@ -24,7 +24,7 @@ export const sharedColors = {
   danger: '#E94141',
   dangerLight: '#ED6060',
   white: '#FFFFFF',
-  inputInactive: '#252525',
+  inputInactive: '#C7E3F6',
   inputActive: '#3A3A3A',
   inputLabelColor: '#B8B8B8',
   borderColor: '#575757',
@@ -42,6 +42,7 @@ export const sharedColors = {
   bablue: "#0A3F7A",
   balightblue: "#73B9EA",
   bagreen: "#B7CD49",
+  inputText: "#464D51",
 }
 
 export const tokenColors = {
@@ -96,7 +97,7 @@ export const sharedStyles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
     backgroundColor: sharedColors.mainWhite,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
   }),
   noPadding: castStyle.view({ padding: 0 }),
   selfCenter: castStyle.view({

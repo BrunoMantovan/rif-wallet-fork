@@ -152,7 +152,7 @@ const selectedCardStyles = StyleSheet.create({
     width: 20,
   }),
   primaryText: castStyle.text({
-    color: "#002C5C",
+    color: sharedColors.white,
     fontSize: 16,
     lineHeight: 16,
     fontWeight: "500",
