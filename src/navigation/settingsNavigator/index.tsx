@@ -62,11 +62,11 @@ export const SettingsNavigator = ({
           t('settings_screen_wallet_backup'),
         )}
       />
-      <SettingsStack.Screen
+      {/* <SettingsStack.Screen
         name={settingsStackRouteNames.ExampleScreen}
         component={ExampleScreen}
         options={screenOptionsWithHeader(top, t('Example Screen'))}
-      />
+      /> */}
 
       <SettingsStack.Screen
         name={settingsStackRouteNames.ChangePinScreen}

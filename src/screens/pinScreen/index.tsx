@@ -426,10 +426,7 @@ export const PinScreen = ({ navigation, route }: Props) => {
             </View>
           )}
           <AppButton
-            style={[
-              sharedStyles.appButtonBottom,
-              { backgroundColor: sharedColors.bablue },
-            ]}
+            style={styles.appButtonBottom}
             onPress={focusInput}
             title={t('pin_settings_open_keyboard_btn')}
             textColor={sharedColors.white}
@@ -467,4 +464,10 @@ const styles = StyleSheet.create({
     bottom: -1000,
   }),
   errorIcon: castStyle.text({ marginTop: 82, alignSelf: 'center' }),
+  appButtonBottom: castStyle.view({
+    backgroundColor: sharedColors.bablue,
+    position: "absolute",
+    bottom: 30,
+    alignSelf: "center",
+  })
 })

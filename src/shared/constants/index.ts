@@ -43,6 +43,7 @@ export const sharedColors = {
   balightblue: "#73B9EA",
   bagreen: "#B7CD49",
   inputText: "#464D51",
+  inputBorder: "#8C9094",
 }
 
 export const tokenColors = {
@@ -116,8 +117,7 @@ export const sharedStyles = StyleSheet.create({
     backgroundColor: sharedColors.white,
     position: 'absolute',
     bottom: 30,
-    left: 24,
-    right: 24,
+    alignSelf: "center",
   }),
   /* GRID */
   column12: {

@@ -1,6 +1,7 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 import moment from 'moment'
+moment.locale("es")
 
 import { abiEnhancer } from 'core/setup'
 import { ApiTransactionWithExtras } from 'src/redux/slices/transactionsSlice'

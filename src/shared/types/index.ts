@@ -17,6 +17,7 @@ export interface Contact {
   address: string
   displayAddress: string
   isEditable?: boolean
+  date: string
 }
 
 export type Contacts = Record<string, Contact>

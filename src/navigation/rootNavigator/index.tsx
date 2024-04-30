@@ -95,7 +95,6 @@ export const RootNavigationComponent = () => {
               <RootTabs.Screen
                 name={rootTabsRouteNames.Contacts}
                 component={ContactsNavigation}
-                
               />
               <RootTabs.Screen
                 name={rootTabsRouteNames.WalletConnect}

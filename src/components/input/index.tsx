@@ -158,12 +158,12 @@ export const Input = ({
                   ref={inputRef}
                   {...textInputProps}>
                   <Typography
+                    type={!value ? (isReadOnly ? 'body2' : 'body3') : 'body2'}
                     style={[
                       styles.placeholderText,
                       value || isReadOnly ? styles.valueText : null,
                       placeholderStyle,
-                    ]}
-                    type={!value ? (isReadOnly ? 'body2' : 'body3') : 'body2'}>
+                    ]}>
                     {placeholder && !focused && !value
                       ? placeholder
                       : propValue ?? value}

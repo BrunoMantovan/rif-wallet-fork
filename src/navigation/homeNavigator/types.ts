@@ -20,6 +20,7 @@ export enum homeStackRouteNames {
   Send = 'Enviar',
   Receive = 'Recibir',
   Balances = 'Balances',
+  Settings = "Configuración"
 }
 
 export type HomeStackParamsList = {

@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   }),
   h2: castStyle.text({
     ...fonts.regular,
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 28.8,
   }),
   h3: castStyle.text({

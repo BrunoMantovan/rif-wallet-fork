@@ -7,6 +7,7 @@ import {
   Share,
   FlatList,
   ScrollView,
+  Text,
 } from 'react-native'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { useIsFocused } from '@react-navigation/native'
@@ -43,6 +44,7 @@ import { addContact, deleteContactByAddress } from 'store/slices/contactsSlice'
 import { selectTransactions } from 'store/slices/transactionsSlice'
 import { getRnsResolver } from 'src/core/setup'
 import { WalletContext } from 'src/shared/wallet'
+import HorizontalRule from 'src/components/HorizontalRule/HorizontalRule'
 
 const copyButtonConfig = { name: 'copy', size: 18, color: sharedColors.white }
 
@@ -126,17 +128,23 @@ export const ContactDetails = ({
       headerRight: _ => (
         <AppTouchable
           width={24}
-          onPress={onDeleteContact}
+          onPress={() =>
+            navigation.navigate(contactsStackRouteNames.ContactForm, {
+              initialValue: contact,
+              proposed: false,
+            })
+          }
+          
           style={sharedStyles.marginRight24}>
           <FontAwesome5Icon
-            name={'trash-alt'}
+            name={'pen'}
             size={20}
-            color={sharedColors.white}
+            color={sharedColors.bablue}
           />
         </AppTouchable>
       ),
       headerStyle: {
-        backgroundColor: sharedColors.inputActive,
+        backgroundColor: sharedColors.mainWhite,
       },
       headerRightContainerStyle: {
         paddingTop: 0,
@@ -184,20 +192,26 @@ export const ContactDetails = ({
         cancelText={t('Cancel')}
         onOk={onConfirmDeleteContact}
         onCancel={onHideConfirmDeleteModal}
+        color={sharedColors.balightblue}
       />
       <ScrollView contentContainerStyle={styles.scrollviewContainer}>
         <View style={styles.contactDetailsView}>
-          <Avatar name={contact.name} size={52} />
           <View style={styles.nameAddressView}>
-            <Typography type={'h2'} color={sharedColors.white}>
-              {contact.name}
-            </Typography>
-            <Typography type={'h4'} color={sharedColors.labelLight}>
-              {contact.displayAddress || contact.address}
-            </Typography>
+            <Avatar name={contact.name} size={52} />
+            <View style={styles.contactInfo}>
+              <Typography type={'h2'} color={sharedColors.inputText} style={styles.contactName}>
+                {contact.name}
+              </Typography>
+              <Text>Agregado el {contact.date ? contact.date : null}</Text>
+            </View>
           </View>
+          <HorizontalRule/>
+          <Text style={{fontSize: 12, lineHeight: 16,fontFamily: "Robot-Medium", fontWeight: "500", color: sharedColors.inputText, letterSpacing: 0.5}}>Dirección</Text>
+          <Typography type={'h4'} color={sharedColors.labelLight} style={styles.adress}>
+            {contact.displayAddress || contact.address}
+          </Typography>
         </View>
-        <BarButtonGroupContainer backgroundColor={sharedColors.inputActive}>
+        {/* <BarButtonGroupContainer backgroundColor={sharedColors.inputActive}>
           <BarButtonGroupIcon
             onPress={onSendToContact}
             iconName={'north-east'}
@@ -208,7 +222,7 @@ export const ContactDetails = ({
             iconName={'share-alt'}
             IconComponent={FontAwesome5Icon}
           />
-        </BarButtonGroupContainer>
+        </BarButtonGroupContainer> */}
         <View style={sharedStyles.screen}>
           <FormProvider {...methods}>
             <Input
@@ -253,14 +267,9 @@ export const ContactDetails = ({
         </View>
       </ScrollView>
       <AppButton
-        style={styles.editContactButton}
-        title={t('contacts_details_edit_contact')}
-        onPress={() =>
-          navigation.navigate(contactsStackRouteNames.ContactForm, {
-            initialValue: contact,
-            proposed: false,
-          })
-        }
+        style={styles.newContactButton}
+        title={t('Delete')}
+        onPress={onDeleteContact}
         color={sharedColors.white}
         textColor={sharedColors.black}
       />
@@ -271,20 +280,24 @@ export const ContactDetails = ({
 const styles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
+    paddingHorizontal: 12,
   }),
   scrollviewContainer: castStyle.view({
     paddingBottom: 144,
   }),
   contactDetailsView: castStyle.view({
-    backgroundColor: sharedColors.inputActive,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 167,
-    flexDirection: 'row',
-    paddingHorizontal: 30,
+    backgroundColor: sharedColors.white,
+    justifyContent: "space-between",
+    height: 168,
+    width: "100%",
+    marginTop: 6,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: sharedColors.inputBorder,
   }),
-  nameAddressView: castStyle.view({ flex: 1, marginLeft: 18 }),
+  nameAddressView: castStyle.view({flexDirection: "row"}),
   usernameInputContainer: castStyle.view({ marginTop: 25 }),
   addressInputContainer: castStyle.view({ marginTop: 10 }),
   transactionList: castStyle.view({ height: 300 }),
@@ -295,4 +308,29 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     bottom: 30,
   }),
+  contactName: castStyle.text({
+    fontSize: 28,
+    lineHeight: 36,
+  }),
+  contactInfo: castStyle.view({
+    marginLeft: 16,
+
+  }),
+  adress: castStyle.text({
+    fontSize: 13,
+    letterSpacing: 0.5,
+    lineHeight: 16,
+    color: sharedColors.inputBorder,
+  }),
+  newContactButton: castStyle.view({
+    position: 'absolute',
+    bottom: 30,
+    right: 12,
+    backgroundColor: "#7DC3F4",
+    width: 113,
+    height: 56,
+    paddingVertical: 16,
+    paddingRight: 20,
+    paddingLeft: 16,
+  })
 })

@@ -28,21 +28,52 @@ export const ContactsNavigation = ({
       <Stack.Screen
         name={contactsStackRouteNames.ContactsList}
         component={ContactsScreen}
-        options={{headerShown: false}}
+        options={{
+          headerStyle: {
+            backgroundColor: sharedColors.mainWhite
+          },
+          headerTintColor: '#B7CD49',
+          headerTitleStyle: {
+            fontFamily: "BalooTammudu",
+            fontWeight: '400',
+            color: sharedColors.bablue,
+            fontSize: 22,
+            paddingTop: 8,
+          },
+        }}
       />
       <Stack.Screen
         name={contactsStackRouteNames.ContactForm}
         component={ContactFormScreen}
-        options={screenOptionsWithHeader(top, undefined, sharedColors.black)}
+        options={{
+          headerStyle: {
+            backgroundColor: sharedColors.mainWhite
+          },
+          headerTintColor: '#B7CD49',
+          headerTitleStyle: {
+            fontFamily: "BalooTammudu",
+            fontWeight: '400',
+            color: sharedColors.bablue,
+            fontSize: 22,
+          },
+        }}
       />
       <Stack.Screen
         name={contactsStackRouteNames.ContactDetails}
         component={ContactDetails}
-        options={screenOptionsWithHeader(
-          top,
-          undefined,
-          sharedColors.inputInactive,
-        )}
+        options={{
+          headerStyle: {
+            backgroundColor: sharedColors.mainWhite,
+          },
+          headerTintColor: '#B7CD49',
+          headerTitleStyle: {
+            fontFamily: "BalooTammudu",
+            fontWeight: '400',
+            color: sharedColors.bablue,
+            fontSize: 22,
+            paddingTop: 8,
+          },
+        }}
       />
     </Stack.Navigator>
   )

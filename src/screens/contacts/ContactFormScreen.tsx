@@ -75,6 +75,9 @@ export const ContactFormScreen = ({
   const [rnsLoading, setRnsLoading] = useState(false)
   const isFocused = useIsFocused()
 
+
+
+
   const schema = useMemo(
     () =>
       yup.object({
@@ -144,11 +147,14 @@ export const ContactFormScreen = ({
     },
     [setValue],
   )
-
+  
   const saveContact = useCallback(
     ({ name, address: { address, displayAddress } }: FormValues) => {
       const lAddress = address.toLowerCase()
       const trimmedName = name.trim()
+      const currentDate = new Date();
+      const date = `${currentDate.getDate()}/${currentDate.getMonth()}/${currentDate.getFullYear() % 100}`
+
 
       let contactsToEvaluate: Contact[] = contacts
 
@@ -165,9 +171,11 @@ export const ContactFormScreen = ({
         name: trimmedName,
         address: lAddress,
         displayAddress,
+        date: date,
       }
+      
       const contactExists = checkIfContactExists(
-        displayAddress && lAddress,
+        lAddress,
         trimmedName,
         contactsToEvaluate,
       )
@@ -200,9 +208,16 @@ export const ContactFormScreen = ({
       headerTitle: editMode
         ? t('contact_form_title_edit')
         : t('contact_form_title_create'),
-      headerTintColor: sharedColors.white,
+      headerTintColor: '#B7CD49',
       headerStyle: {
-        backgroundColor: sharedColors.black,
+        backgroundColor: sharedColors.mainWhite,
+      },
+      headerTitleStyle: {
+        fontFamily: "BalooTammudu",
+        fontWeight: '400',
+        color: sharedColors.bablue,
+        fontSize: 22,
+        paddingTop: 8,
       },
       headerRightContainerStyle: {
         paddingTop: 0,
@@ -210,7 +225,7 @@ export const ContactFormScreen = ({
       headerLeftContainerStyle: {
         paddingTop: 0,
       },
-      headerLeftLabelVisible: editMode,
+      headerLeftLabelVisible: false,
       headerLeft: proposed
         ? () =>
             sharedHeaderLeftOptions(() => {
@@ -235,22 +250,7 @@ export const ContactFormScreen = ({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView>
         <FormProvider {...methods}>
-          <AddressInput
-            label={t('address_rns_placeholder')}
-            placeholder={t('address_rns_placeholder')}
-            inputName={'address'}
-            testID={testIDs.addressInput}
-            accessibilityLabel={testIDs.addressInput}
-            value={addressObj}
-            resetValue={() =>
-              setValue('address', { address: '', displayAddress: '' })
-            }
-            onChangeAddress={handleAddressChange}
-            chainId={chainId}
-            isBitcoin={false}
-            onSetLoadingRNS={setRnsLoading}
-          />
-          <Input
+        <Input
             label={t('contact_form_name')}
             inputName={'name'}
             testID={testIDs.nameInput}
@@ -258,7 +258,27 @@ export const ContactFormScreen = ({
             subtitle={errors.name?.message}
             subtitleStyle={styles.fieldError}
             placeholder={t('contact_form_name')}
+            placeholderStyle={{
+              fontSize: 16,
+              lineHeight: 24,
+              letterSpacing: 0.5,
+            }}
             resetValue={() => setValue('name', '')}
+          />
+          <AddressInput
+            label={t('address_rns_placeholder')}
+            inputName={'address'}
+            testID={testIDs.addressInput}
+            accessibilityLabel={testIDs.addressInput}
+            value={addressObj}
+            resetValue={() =>
+              setValue('address', { address: '', displayAddress: '' })
+            }
+            placeholder={t('address_rns_placeholder')}
+            onChangeAddress={handleAddressChange}
+            chainId={chainId}
+            isBitcoin={false}
+            onSetLoadingRNS={setRnsLoading}
           />
         </FormProvider>
       </ScrollView>
@@ -267,7 +287,7 @@ export const ContactFormScreen = ({
         accessibilityLabel={testIDs.saveButton}
         title={t('contact_form_button_save')}
         onPress={handleSubmit(saveContact)}
-        style={sharedStyles.appButtonBottom}
+        style={[sharedStyles.appButtonBottom, {backgroundColor: sharedColors.bablue}]}
         textColor={sharedColors.inputInactive}
         disabled={hasErrors || rnsLoading}
       />

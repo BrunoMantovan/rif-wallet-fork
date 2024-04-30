@@ -12,9 +12,9 @@ export type ContactsStackScreenProps<T extends keyof ContactStackParamsList> =
   >
 
 export enum contactsStackRouteNames {
-  ContactsList = 'ContactsLists',
-  ContactForm = 'ContactForm',
-  ContactDetails = 'Contact details',
+  ContactsList = 'Contactos',
+  ContactForm = 'Nuevo Contacto',
+  ContactDetails = 'Detalles',
 }
 
 export type ContactStackParamsList = {

@@ -40,7 +40,7 @@ export const screenOptionsWithHeader = (
           ),
     headerTitle: props => (
       <View style={sharedStyles.contentCenter}>
-        <Typography type={'h3'} style={props.style}>
+        <Typography type={'h2'} style={{fontFamily: "BalooTammudu", marginTop: 8}}>
           {title ?? props.children}
         </Typography>
         {stepper && (
@@ -53,7 +53,7 @@ export const screenOptionsWithHeader = (
       </View>
     ),
     headerStyle: {
-      height: 64 + topInset,
+      height: 64,
       backgroundColor: color ?? sharedColors.mainWhite,
     },
     headerShadowVisible: false,

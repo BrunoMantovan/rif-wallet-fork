@@ -58,14 +58,14 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         {/* <Text>Contactos</Text> */}
       </AppTouchable>
 
-      <AppTouchable
+      {/* <AppTouchable
         width={buttonWidth}
         onPress={() => navigation.navigate(rootTabsRouteNames.Settings)}
         accessibilityLabel="settings">
         <GearIcon
           active={currentRouteName === rootTabsRouteNames.Settings}/>
-          {/* <Text>configuración</Text> */}
-      </AppTouchable>
+          <Text>configuración</Text>
+      </AppTouchable> */}
     </View>
   )
 }

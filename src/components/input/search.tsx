@@ -5,11 +5,11 @@ import { Input, InputProps } from './index'
 export const Search = (props: InputProps) => {
   return (
     <Input
-      leftIcon={{
+      /* leftIcon={{
         name: 'search',
         size: 16,
         color: sharedColors.inputLabelColor,
-      }}
+      }} */
       {...props}
     />
   )

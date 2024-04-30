@@ -300,8 +300,8 @@ export const TransactionSummaryComponent = ({
           <AppButton
             onPress={goBack}
             title={t('transaction_summary_default_button_text')}
-            color={sharedColors.white}
-            textColor={sharedColors.black}
+            color={sharedColors.balightblue}
+            textColor={sharedColors.white}
             accessibilityLabel="Close"
           />
         )}
@@ -313,7 +313,7 @@ export const TransactionSummaryComponent = ({
 const styles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 22,
   }),
   contentPadding: castStyle.view({ paddingBottom: 114 }),

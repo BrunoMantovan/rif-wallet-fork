@@ -41,6 +41,11 @@ import { PortfolioComponent } from './PortfolioComponent'
 import { AppHeader } from 'src/ux/appHeader'
 import Svg, { Path } from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
+import { AppTouchable } from 'src/components'
+import { rootTabsRouteNames } from 'src/navigation/rootNavigator'
+import GearIcon from 'src/components/icons/GearIcon'
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -219,7 +224,17 @@ export const HomeScreen = ({
       <LinearGradient colors={['#DCE6AAB2', '#C0DDF0B2']} style={styles.linearGradient}>
         
         <View style={styles.innerCard}>
-          
+          <AppTouchable
+            width={32}
+            onPress={() => navigation.navigate(rootTabsRouteNames.Settings)}
+            accessibilityLabel="settings"
+            style={{position: "absolute", top: "3%", right: "1%", height: 32, zIndex:20}}>
+            <Icon
+            name={'cog'}
+            size={24}
+            color={sharedColors.black}
+          />
+          </AppTouchable>
           <AppHeader/>
           <TokenBalance
             style={styles.tokenBalance}
@@ -258,6 +273,7 @@ export const HomeScreen = ({
 
       {showInfoBar && !closed && <HomeInformationBar onClose={onClose} />}
 
+      
       <View style={styles.bodyContainer}>
         <Typography style={styles.portfolioLabel} type={'h3'}>
           {t('home_screen_portfolio')}

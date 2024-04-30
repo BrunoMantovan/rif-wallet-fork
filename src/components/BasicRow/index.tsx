@@ -4,6 +4,7 @@ import {
   ImageSourcePropType,
   StyleProp,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle,
 } from 'react-native'
@@ -45,6 +46,7 @@ export interface BasicRowProps {
   error?: string
   usdAmount?: number
   style?: StyleProp<ViewStyle>
+  textStyle?: StyleProp<TextStyle>
   symbol?: string
 }
 export const BasicRow = ({
@@ -58,6 +60,7 @@ export const BasicRow = ({
   style,
   avatar,
   symbol,
+  textStyle,
 }: BasicRowProps) => (
   <View style={[styles.container, style]}>
     <View style={styles.firstView}>
@@ -72,7 +75,7 @@ export const BasicRow = ({
     <View style={styles.secondView}>
       <Typography
         type="body2"
-        style={styles.bold}
+        style={[styles.bold, textStyle]}
         accessibilityLabel={`label-${index}`}
         numberOfLines={1}
         ellipsizeMode="tail"

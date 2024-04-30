@@ -50,12 +50,7 @@ export const AppHeader = ({ navigation, route }: HeaderProps) => {
         </View>
       )}
       <View style={styles.columnMenu}>
-        <AppTouchable
-          width={16}
-          onPress={openMenu}
-          accessibilityLabel="settings">
-          <OIcon name="gear" size={16} color={sharedColors.white} />
-        </AppTouchable>
+        
       </View>
     </View>
   )

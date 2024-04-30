@@ -337,6 +337,12 @@ export const AddressInput = ({
         autoCorrect={false}
         autoCapitalize={'none'}
         placeholder={placeholder}
+        placeholderStyle={{
+          fontSize: 16,
+          lineHeight: 24,
+          letterSpacing: 0.5,
+          display: "flex",
+        }}
         placeholderTextColor={sharedColors.inputText}
         rightIcon={
           !(value.address || value.displayAddress)

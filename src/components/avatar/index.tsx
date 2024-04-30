@@ -44,7 +44,7 @@ export const Avatar = ({
   }, [name])
 
   const backgroundColor =
-    icon || imageSource ? 'transparent' : sharedColors.primary
+    icon || imageSource ? 'transparent' : "#D2E6F7"
 
   return (
     <View
@@ -59,7 +59,7 @@ export const Avatar = ({
             styles.letter,
             {
               fontSize: halfSize,
-              color: letterColor ? letterColor : sharedColors.white,
+              color: letterColor ? letterColor : "#727F9E",
             },
           ]}>
           {firstCapital}
