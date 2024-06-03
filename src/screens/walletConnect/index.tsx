@@ -29,7 +29,8 @@ export const Marketp2p: React.FC = (/* { route }: Props */) => {
   const { logged } = useMarket();
   return (
 
-    <View style={styles.body}>      
+    <View style={styles.body}> 
+      {/* <Navigatorp2p />  */}    
       {logged ? <Navigatorp2p /> : <NavigatorLogin/>}
     </View>
   )

@@ -14,6 +14,8 @@ import { useMarket } from '../MarketContext';
 import OrderTaken from '../Orders/OrderTaken';
 import { sharedColors } from 'src/shared/constants';
 import SignUpScreen from '../Login/SignUpScreen';
+import CreateOrder from '../Orders/CreateOrder';
+import OrderSummary from '../Orders/OrderSummary';
 
 const Tab = createMaterialTopTabNavigator()
 const Stack = createStackNavigator()
@@ -30,12 +32,30 @@ const MarketStack = () => (
       color: "#0A3F7A"
     },}}>
     <Stack.Screen name="Market" component={Market} options={{ headerShown: false }} />
+    <Stack.Screen name="Mercado" component={OrderSearch}/>
     <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ title: false }}/>
     <Stack.Screen name="OrderTaken" component={OrderTaken} options={{ title: false }}/>
-    <Stack.Screen name="Mercado" component={OrderSearch}/>
     <Stack.Screen name="signUp" component={SignUpScreen} options={{ title: false }}/>
   </Stack.Navigator>
 );
+
+const MyOrdersStack = () => (
+  <Stack.Navigator screenOptions={{
+    headerStyle: {
+      backgroundColor: sharedColors.mainWhite,
+    },
+    headerTintColor: '#A4B741',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      fontFamily: "Roboto-Medium",
+      color: "#0A3F7A"
+    },}}>
+    <Stack.Screen name="MyOrders" component={MyOrders} options={{ headerShown: false }} />
+    <Stack.Screen name="Crear Publicación" component={CreateOrder}/>
+    <Stack.Screen name="Resumen" component={OrderSummary}/>
+  </Stack.Navigator>
+);
+
 
 export const Navigatorp2p = ()=> {
   const { hideTab } = useMarket();
@@ -54,7 +74,7 @@ export const Navigatorp2p = ()=> {
         }}>        
           <Tab.Screen name="Mercado de pares" component={MarketStack} />
          {/*  <Tab.Screen name="Venta" component={SellOrders} /> */}
-          <Tab.Screen name="Mis Publicaciones" component={MyOrders} />
+          <Tab.Screen name="Mis Publicaciones" component={MyOrdersStack} />
         </Tab.Navigator>
     </View>
   )
@@ -64,6 +84,6 @@ const styles = StyleSheet.create({
   body:{
     flex:1,
     backgroundColor: "#f9fbfc",
-    marginTop: "5%",
+    marginTop: "1%",
   },
 })

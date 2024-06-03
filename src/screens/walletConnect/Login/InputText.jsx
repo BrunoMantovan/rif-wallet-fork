@@ -11,6 +11,7 @@ export default function InputText(props) {
         placeholder={props.placeholder}
         secureTextEntry={props.hidden}
         keyboardType={props.keyboard}
+        maxLength={props.maxLength}
       />
     </View>
   )
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 4,
     paddingLeft: 16,
-    marginVertical: 16,
+    marginVertical: 12,
   },
   input:{
     fontSize: 18

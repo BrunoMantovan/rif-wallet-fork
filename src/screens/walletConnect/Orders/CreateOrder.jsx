@@ -1,23 +1,39 @@
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, StyleSheet, Button, Pressable } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import InputText from '../Login/InputText'
 import SelectDropdown from 'react-native-select-dropdown'
 import ButtonCustom from '../Login/ButtonCustom'
-import Title from '../Components/Title'
 import firestore from '@react-native-firebase/firestore';
 import Dropdown from '../Components/Dropdown'
 import { sharedColors } from 'src/shared/constants'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import BottomSheet from '../Components/BottomSheet'
+import { useNavigation } from '@react-navigation/native'
+import { useMarket } from '../MarketContext'
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated'
 
 export default function CreateOrder() {
 
-  const [price, setPrice] = useState()
-  const [type, setType] = useState(null)
-  const [crypto, setCrypto] = useState(null)
+  const [price, setPrice] = useState(null)
+  const [type, setType] = useState("Vender")
+  const [crypto, setCrypto] = useState("DoC")
+  const [cryptoPlaceholder, setCryptoPlaceholder] = useState('DoC');
+  const [specs, setSpecs] = useState(false);
+  const [specs2, setSpecs2] = useState(false);
   const [total, setTotal] = useState()
-
+  const [minAmm, setMinAmm] = useState()
+  const [maxAmm, setMaxAmm] = useState()
   const username = "usuario 987"
-  const cryptos = ["DoC", "rBtc"]
-  const orderTypes = ["vender", "comprar"]
+  const cryptos = [
+    {text: "rBtc", image: require('../../../images/slides/rbtc.png')},
+    {text: "DoC", image: require('../../../images/slides/doc.png')}
+]
+  const [open, setOpen] = useState(null)
+  const [step1, setStep1] = useState(false)
+  const { setHideTab } = useMarket()
+  const navigation = useNavigation()
+  const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
   function hola(){
     const num1 = parseFloat(num);
   }
@@ -29,13 +45,29 @@ export default function CreateOrder() {
     }else if(input == 2){
       const sanitizedValue = inputValue.replace(/,/g, '.');
       setTotal(sanitizedValue);
+    }else if(input == 3){
+      const sanitizedValue = inputValue.replace(/,/g, '.');
+      setMinAmm(sanitizedValue);
+    }else if(input == 4){
+      const sanitizedValue = inputValue.replace(/,/g, '.');
+      setMaxAmm(sanitizedValue);
     }
   };
 
-  function handleSubmit(){
+  useEffect(() => {
+    if (type && crypto && price) {
+      setSpecs(true);
+    } else {
+      setSpecs(false);
+    }
+    if(total && minAmm && maxAmm >= minAmm){
+      setSpecs2(true);
+    }else {setSpecs2(false);}
+  }, [type, crypto, price, maxAmm, minAmm, total]);
+
+  /* function handleSubmit(){
     const order = {
       price: price,
-      total: total,
       crypto: crypto,
       username: username,
       orderType: type,
@@ -52,33 +84,115 @@ export default function CreateOrder() {
     firestore()
     .collection(collection)
     .add(order);
+  } */
+
+  function onPressing(){
+    if(step1){
+      const typeForSelf = type == "Comprar" ? "Vender" : "Comprar"
+      const order = {
+        price: price,
+        crypto: crypto,
+        username: username,
+        orderType: type,
+        total: total,
+        minAmm: minAmm,
+        maxAmm: maxAmm,
+        orderTypeForSelf: typeForSelf
+      }
+      
+      navigation.navigate('Resumen', { order: order })
+      setHideTab(true)
+    }else if(!step1){
+      setStep1(true)
+    }
   }
 
+  function toggleOpen(){    
+    setOpen(!open)        
+  }
+  function selectType(value){
+    setType(value)
+  }
+  function handleSelect(value){
+    setCrypto(value)
+    setCryptoPlaceholder(value);
+    setOpen(null);
+  }
   return (
-    <View style={styles.body}>
-      <Title title="Crear una orden"/>
-      <View style={{height:100, width: "100%",}}>
-        <Text style={styles.subtitle}>Tipo de orden</Text>
-        <Dropdown data={orderTypes} placeholder="Elija una..." function={(e)=> setType(e)}/>
-      </View>
-      
-      <View style={styles.wrapper}>
-        <View style={{height:100, width: "50%", paddingRight: "2%"}}>
-          <Text style={styles.subtitle}>Criptomoneda</Text>
-          <Dropdown data={cryptos} placeholder="Elija una..." function={(e)=> setCrypto(e)}/>
+    !step1 ? (<GestureHandlerRootView style={{flex: 1}}>
+      <View style={styles.body}>
+        <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
+          <Pressable onPress={()=> selectType("Vender")} style={[styles.orderSelector, type === "Vender" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, type === "Vender" ? styles.selectedText : null]}>Comprar</Text>
+          </Pressable>
+          <Pressable onPress={()=> selectType("Comprar")} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>Vender</Text>
+          </Pressable>
         </View>
-        <View style={{height:100, width: "50%", paddingLeft: "2%", alignContent: "center"}}>
-          <Text style={styles.subtitle}>Precio</Text>
-          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="Precio" keyboard="numeric" style={styles.input}/>
+        
+        <View style={styles.wrapper}>
+          <View style={{flexDirection: "row", marginBottom: 24}}>
+            <View style={{height:100, width: "50%", paddingRight: "2%"}}>
+              <Text style={styles.span}>Crypto</Text>
+              <Dropdown placeholder={cryptoPlaceholder} onPress={() => toggleOpen()} image={cryptoPlaceholder === "rBtc" ? require('../../../images/slides/rbtc.png') : require('../../../images/slides/doc.png')}/>
+            </View>
+            <View style={{height:100, width: "50%", paddingRight: "2%"}}>
+              <Text style={styles.span}>Por</Text>
+              <Dropdown placeholder="ARS" image={require('../../../images/slides/rbtc.png')}/>
+            </View>
+          </View>
+        </View>
+
+        <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
+          <Text style={styles.subtitle}>PRECIO</Text>
+          <Text style={styles.span}>¿A qué precio querés {type === "Vender" ? "comprar" : "Vender"} {crypto}?</Text>
+          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="0" keyboard="numeric" style={styles.input}/>
+          <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>ARS</Text>
+        </View>
+
+        <View style={{flex: 1, justifyContent: "flex-end"}}>
+          <ButtonCustom onPress={specs ? onPressing : undefined} text="Continuar" type={specs ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
+        </View>
+      </View>
+      {open && (
+        <>
+          <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
+          <BottomSheet data={cryptos} title={'Elegir moneda'} onSelect={handleSelect}/>
+        </>
+      )}
+    </GestureHandlerRootView>) : 
+
+    //cuando esta step1
+
+    (
+    <View style={styles.body}>
+
+      <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
+        <Text style={styles.subtitle}>CANTIDAD TOTAL</Text>
+        <Text style={styles.span}>¿Cuánto {crypto} querés {type === "Vender" ? "comprar" : "Vender"}?</Text>
+        <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="0" keyboard="numeric" style={styles.input}/>
+        <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>{crypto}</Text>
+      </View>
+
+      <Text style={styles.subtitle}>CANTIDAD POR TRANSACCIÓN</Text>
+      <View style={{width: "100%", justifyContent: "space-between", marginBottom: 24, flexDirection: "row"}}>
+        <View style={{width: "49%"}}>
+          <Text style={styles.span}>Cant. mínima</Text>
+          <InputText value={minAmm} setValue={(value) => handleNumberChange(value, 3)} placeholder="0" keyboard="numeric" style={styles.input}/>
+          <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
+        </View>
+        <View style={{width: "49%", position: "relative"}}>
+          <Text style={styles.span}>Cant. máxima</Text>
+          <InputText value={maxAmm} setValue={(value) => handleNumberChange(value, 4)} placeholder="0" keyboard="numeric" style={styles.input}/>
+          <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
         </View>
       </View>
 
-      <View style={{height:100, width: "100%"}}>
-        <Text style={styles.subtitle}>Total {type && crypto ? type == "comprar" ? "de ARS para comprar" : "de " + crypto + " para vender" : ""}</Text>
-        <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="Total" keyboard="numeric"/>
+      <View style={{flex: 1, justifyContent: "flex-end"}}>
+        <ButtonCustom onPress={specs2 ? onPressing : undefined} text="Continuar" type={specs2 ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
       </View>
-      <ButtonCustom onPress={handleSubmit} text="Publicar Orden" type="primary" />
     </View>
+    )
   )
 }
 
@@ -86,12 +200,17 @@ export default function CreateOrder() {
 const styles = StyleSheet.create({
   body:{
     paddingHorizontal: "5%",
-    backgroundColor: "transparent",
+    backgroundColor: sharedColors.mainWhite,
+    paddingTop: "5%",
+    flex: 1
   },
   subtitle:{
-    fontSize: 16,
-    color: "black",
-    fontWeight: "700",
+    fontSize: 18,
+    color: sharedColors.inputText,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
+    letterSpacing: 0.1,
+    marginVertical: 24
   },
   dropdown:{
     width: "100%",
@@ -106,5 +225,39 @@ const styles = StyleSheet.create({
   },
   wrapper:{
     flexDirection: "row"
+  },
+  orderSelector:{
+    height: 40,
+    width: "50%",
+    backgroundColor: "transparent",
+    borderColor: "#D2E6F799",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 8
+  },
+  orderText:{
+    textAlign: "center",
+    fontSize: 16,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
+    color: "#727F9E",
+  },
+  selectedOrder: {
+    backgroundColor: "#D2E6F7",
+  },
+  selectedText:{
+    color: sharedColors.bablue,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+  },
+  span:{
+    color: sharedColors.inputBorder,
+    letterSpacing: 0.5,
+    fontFamily: "Robot-Medium",
+    fontWeight: "400",
+    fontSize: 16
   },
 })

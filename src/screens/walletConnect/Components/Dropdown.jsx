@@ -1,12 +1,13 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native'
 import React from 'react'
 import SelectDropdown from 'react-native-select-dropdown'
 
 export default function Dropdown(props) {
   return (
-    <View>
-      <SelectDropdown data={props.data} onSelect={props.function} buttonStyle={styles.dropdown} dropdownStyle={{borderColor: "#e8e8e8", borderBottomStartRadius: 16, borderBottomEndRadius: 16}} defaultButtonText={props.placeholder} buttonTextStyle={{textAlign:"left", fontSize: 19, color: "#8C9094", letterSpacing: 0.25, lineHeight: 20}} rowTextStyle={{textAlign:"left"}  }/>
-    </View>
+    <Pressable style={[styles.dropdown, props.width ? {width: props.width} : {}, props.right ? {borderBottomRightRadius: 0, borderTopRightRadius: 0} : {}]} onPress={props.onPress}>
+      {props.image && <Image source={props.image} style={styles.image}/>}
+      <Text>{props.placeholder}</Text>
+    </Pressable>
   )
 }
 
@@ -21,5 +22,12 @@ const styles = StyleSheet.create({
       paddingHorizontal: 16,
       marginVertical: 16,
       paddingVertical: 12,
+      alignItems: "center",
+      flexDirection: "row",
+    },
+    image: {
+      width: 24,
+      height: 24,
+      marginRight: 12,
     },
   })

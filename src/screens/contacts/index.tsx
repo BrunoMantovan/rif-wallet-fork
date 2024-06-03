@@ -271,7 +271,6 @@ const styles = StyleSheet.create({
   fontAwesomeStyle : castStyle.text({
     textAlign: "center",
     width: 32,
-    
   })
 })
 

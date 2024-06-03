@@ -3,7 +3,7 @@ import React from 'react'
 import { sharedColors } from 'src/shared/constants'
 
 export default function AdCard(props) {
-    const cryptoTotal = (props.total / props.price).toFixed(4)
+    const cryptoTotal = (props.total * props.price)
     const numberFormatOptions = {
         // Specify the dot as the thousands separator
         useGrouping: true,
@@ -19,7 +19,7 @@ export default function AdCard(props) {
         const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         // Return the formatted number with optional decimal part
         return decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger;
-      };
+    };
 
   return (
     <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={props.onPress}>
@@ -27,15 +27,15 @@ export default function AdCard(props) {
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
             <Text style={styles.user}>{props.username}</Text>
             <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 15}}>ARS</Text></Text>
-            <TouchableOpacity style={{alignItems: "center", justifyContent: "center", display: props.display}}>
+            <TouchableOpacity onPress={props.onPressDelete} style={{alignItems: "center", justifyContent: "center", display: props.display}}>
                 <Text style={{fontWeight:"600"}}>Eliminar</Text>
             </TouchableOpacity>
         </View>
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <View>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.orderType == "comprar" ? " $" + formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>ARS</Text></Text>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.orderType == "vender" ? props.total : cryptoTotal} {props.crypto}</Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.orderType == "Comprar" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.orderType == "Comprar" ? props.crypto : "ARS"}</Text></Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.orderType == "Vender" ? props.total + props.crypto : formatNumberWithDots(cryptoTotal) + " ARS"}</Text>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <View style={styles.payMethods}>
                         <Text>Transferencia</Text>

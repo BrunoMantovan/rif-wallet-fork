@@ -4,7 +4,7 @@ import AdCard from '../Components/AdCard';
 import { useFocusEffect } from '@react-navigation/native';
 import CoinSelector from '../Components/CoinSelector';
 import firestore from '@react-native-firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import { useMarket } from '../MarketContext';
 import { sharedColors } from 'src/shared/constants';
 
@@ -15,12 +15,13 @@ interface Order {
     total: number;
   } */
 
-  export default function SellOrders({route}) {
-    const {search} = route.params 
+  export default function OrderSearch({route}) {
+    
     const [orders, setOrders] = useState/* <Order[]> */([])
     const navigation = useNavigation()
     const { setHideTab } = useMarket();
-
+    const {search} = route.params
+    
     useEffect(() =>{
         const fetchData = async () => {
             const collection = search.type + search.crypto
@@ -38,7 +39,7 @@ interface Order {
             }
         };
         fetchData();
-    }, [])
+    }, [search])
     
     function handlePress(tipo){
         setTipo(tipo)

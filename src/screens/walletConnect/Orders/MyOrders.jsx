@@ -1,19 +1,26 @@
-import { View, Text, StyleSheet, RefreshControl, ScrollView, } from 'react-native'
+import { View, StyleSheet, RefreshControl, ScrollView, Text, Pressable, } from 'react-native'
 import React, { useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
 import firestore from '@react-native-firebase/firestore';
 import AdCard from '../Components/AdCard';
-import CreateOrder from './CreateOrder';
 import ButtonCustom from '../Login/ButtonCustom';
-import { sharedColors } from 'src/shared/constants';
+import { sharedColors, testIDs } from 'src/shared/constants';
+import { AppButton } from 'src/components';
+import { castStyle } from 'src/shared/utils';
+import { useTranslation } from 'react-i18next'
+import { t } from 'i18next';
+import { useNavigation } from '@react-navigation/native';
+import { useMarket } from '../MarketContext';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
-
+  const navigation = useNavigation()
+  const { setHideTab } = useMarket();
   const username = "usuario 987"
 
   useFocusEffect(
     React.useCallback(() => {
+      setHideTab(false)
       const fetchData = async () => {
         try {
           const userDoc = await firestore().collection('Users').doc(username).get();
@@ -33,22 +40,54 @@ export default function MyOrders() {
     }, [])
 );
 
+
+
+  const handleDelete = async (index) => {
+    try {
+      const updatedOrders = [...orders];
+      updatedOrders.splice(index, 1);
+      setOrders(updatedOrders);
+
+      await firestore().collection('Users').doc(username).update({
+        orders: updatedOrders
+      });
+    } catch (error) {
+      console.error('Error deleting order:', error);
+    }
+  };
+
+  function createOrderNavigate(){
+    navigation.navigate('Crear Publicación');
+    setHideTab(true);
+  }
+
+
   return (
     <View style={styles.body}>
       {orders.length >=1 ? 
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.tipo} orderType={order.orderType}/>
+          <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderTypeForSelf} onPressDelete={() => handleDelete(index)}/>
         ))}
+        
       </ScrollView> : 
-      /* <View style={styles.innerBody}>
-        <Text style={styles.text}>No tienes ninguna orden activa</Text>
-        <ButtonCustom type="tertiary" text="Crear una orden"/>
-      </View> */
-
-      <CreateOrder/>
-      }
+      
+      <View style={styles.innerBody}>
+        <Text style={styles.text}>No has publicado ninguna orden</Text>
+      </View>
+      
+    }
+    <AppButton
+        accessibilityLabel={testIDs.newContact}
+        onPress={() => createOrderNavigate()}
+        style={styles.newContactButton}
+        leftIcon={{
+          name: "plus",
+          size: 24,
+        }}
+        textColor={sharedColors.mainWhite}
+        />
     </View>
   )
 }
@@ -56,18 +95,28 @@ export default function MyOrders() {
 const styles = StyleSheet.create({
   body: {
     flex:1,
-    backgroundColor: sharedColors.mainWhite,
-    paddingHorizontal: "5%",
+    backgroundColor: sharedColors.white,
   },
   innerBody:{
     flex:1,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: "25%"
   },
   text:{
     fontSize: 25,
     color: "#4FA0F8",
-    fontWeight: 500
-  }
+    fontFamily: "BalooTammudu"
+  },
+  newContactButton: castStyle.view({
+    position: 'absolute',
+    bottom: 30,
+    right: 12,
+    backgroundColor: "#7DC3F4",
+    width: 60,
+    height: 60,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center"
+  }),
 })
