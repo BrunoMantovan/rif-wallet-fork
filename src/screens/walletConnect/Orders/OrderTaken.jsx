@@ -9,6 +9,7 @@ import firestore from '@react-native-firebase/firestore';
 import Title from '../Components/Title'
 import { LoadingScreen } from 'src/components/loading/LoadingScreen'
 import ButtonCustom from '../Login/ButtonCustom'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default function OrderTaken({route, navigation}) {
   const {orderConfirmed} = route.params
@@ -34,8 +35,9 @@ export default function OrderTaken({route, navigation}) {
           setLoading(false);
         }
       );
-      
-    orderConfirmed && unsubscribe();
+    if (orderConfirmed) {
+    return () => unsubscribe();
+    }
 
     /* const fetchData = async () => {
       const collection = orderId.collection
@@ -67,21 +69,38 @@ export default function OrderTaken({route, navigation}) {
 
   return (
     loading ? <LoadingScreen/> : order.status == "completed" ? (
-      <View style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%", justifyContent: "center", alignItems: "center"}}>
-        <AppButton
-          accessibilityLabel={testIDs.newContact}
-          onPress={() => navigation.navigate("Market")}
-          style={styles.newContactButton}
-          leftIcon={{
-            name: "times",
-            size: 30,
-          }}
-          textColor={sharedColors.black}
-        />
-        <Text style={styles.awaitingTxt}>Order completed</Text>
+      <View style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
+        <View style={{flex: 5, justifyContent: "center", alignItems: "center"}}>
+          <AppButton
+            accessibilityLabel={testIDs.newContact}
+            onPress={() => navigation.navigate("Market")}
+            style={styles.newContactButton}
+            leftIcon={{
+              name: "times",
+              size: 30,
+            }}
+            textColor={sharedColors.black}
+          />
+          <View style={{justifyContent: "center", alignItems: "center"}}>
+            <Icon
+              name={"check-circle-o"}
+              size={150}
+              color={"#19AD79"}
+            />
+            <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 8}}>
+              <Text style={[styles.mainText, {fontSize: 30}]}>{order.orderConfirmed.cryptoTotal} </Text>                
+              <Text style={[styles.mainText, {fontSize: 30}]}>{order.crypto}</Text>
+            </View>
+            <Text style={[styles.mainText, {fontSize: 18, letterSpacing: 0.25, marginTop: 8, textAlign: "center"}]}>Tus crypto fueron depositadas en tu cuenta exitosamente</Text>
+          </View>
+        </View>
+        
+        <View style={{flex: 1, justifyContent: "flex-end"}}>
+          <ButtonCustom text="Volver al inicio" type={"green"} onPress={() => navigation.navigate("Market")} />          
+        </View>
       </View>
     ) : (
-      <ScrollView style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
+      <View style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
         <AppButton
           accessibilityLabel={testIDs.newContact}
           onPress={() => navigation.navigate("Market")}
@@ -95,7 +114,7 @@ export default function OrderTaken({route, navigation}) {
         <Title title={"Pago"}/>
         
         
-        <View>
+        <View style={{flex: 1}}>
             <View style={styles.total}>
               <Text style={styles.mainText}>{order.orderConfirmed.cryptoTotal}</Text>
               <Text style={[styles.mainText, {fontSize: 18, letterSpacing: 0.25}]}>{order.crypto}</Text>
@@ -161,10 +180,12 @@ export default function OrderTaken({route, navigation}) {
             </View>
           ) : null}
         </View>
-        <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-          <ButtonCustom text="Marcar pagado" type={"green"} onPress={() => changeStatus(order.status)} />
+
+        <View style={{flex: 1, justifyContent: "flex-end"}}>
+          <ButtonCustom text="Continuar" type={"green"} onPress={()=>changeStatus(order.status)} />          
         </View>
-      </ScrollView>
+        
+      </View>
     )
   )
 }
@@ -206,7 +227,6 @@ const styles = StyleSheet.create({
   },
   awaitingPayment:{
     marginTop: 8,
-    flex: 1
   },
   awaitingTxt:{
     fontSize: 22,
