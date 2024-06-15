@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, Button, Pressable } from 'react-native'
+import { View, Text, TextInput, StyleSheet, Button, Pressable, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import InputText from '../Login/InputText'
 import SelectDropdown from 'react-native-select-dropdown'
@@ -28,11 +28,15 @@ export default function CreateOrder() {
     {text: "rBtc", image: require('../../../images/slides/rbtc.png')},
     {text: "DoC", image: require('../../../images/slides/doc.png')}
 ]
+  const [paymentMethod, setPaymentMethod] = useState("Método de pago")
+  const [data, setData] = useState(null)
   const [open, setOpen] = useState(null)
   const [step1, setStep1] = useState(false)
+  const [maxHeight, setMaxHeight] = useState(null)
   const { setHideTab } = useMarket()
   const navigation = useNavigation()
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+  const { addPayment, payments} = useMarket();
 
   function hola(){
     const num1 = parseFloat(num);
@@ -60,10 +64,10 @@ export default function CreateOrder() {
     } else {
       setSpecs(false);
     }
-    if(total && minAmm && maxAmm >= minAmm){
+    if(total && minAmm && maxAmm >= minAmm && paymentMethod != "Método de pago"){
       setSpecs2(true);
     }else {setSpecs2(false);}
-  }, [type, crypto, price, maxAmm, minAmm, total]);
+  }, [type, crypto, price, maxAmm, minAmm, total, paymentMethod]);
 
   /* function handleSubmit(){
     const order = {
@@ -97,7 +101,8 @@ export default function CreateOrder() {
         total: total,
         minAmm: minAmm,
         maxAmm: maxAmm,
-        orderTypeForSelf: typeForSelf
+        orderTypeForSelf: typeForSelf,
+        paymentMethod: payments.find((e => e.text == paymentMethod))
       }
       
       navigation.navigate('Resumen', { order: order })
@@ -114,9 +119,30 @@ export default function CreateOrder() {
     setType(value)
   }
   function handleSelect(value){
-    setCrypto(value)
-    setCryptoPlaceholder(value);
-    setOpen(null);
+    if(!step1){
+      setCrypto(value)
+      setCryptoPlaceholder(value);
+      setOpen(null);
+    }else{
+      setPaymentMethod(value)
+      toggleOpen()
+    }
+  }
+  function toggleOpen(maxHeight, value){
+    value === 1 ? setData(value) : setData(payments)
+    maxHeight ? setMaxHeight(maxHeight) : setMaxHeight(null)
+    setOpen(!open)
+  }
+  function handleConfirm(cbu, alias, ref){
+    const payment = {
+      cbu: cbu,
+      alias: alias,
+      text: ref + "("+ alias +")",
+      titular: owner,
+      bacno: ref,
+    }
+    addPayment(payment); 
+    toggleOpen();
   }
   return (
     !step1 ? (<GestureHandlerRootView style={{flex: 1}}>
@@ -164,35 +190,50 @@ export default function CreateOrder() {
 
     //cuando esta step1
 
-    (
-    <View style={styles.body}>
+    (<GestureHandlerRootView style={{flex: 1}}>
+      <View style={styles.body}>
 
-      <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
-        <Text style={styles.subtitle}>CANTIDAD TOTAL</Text>
-        <Text style={styles.span}>¿Cuánto {crypto} querés {type === "Vender" ? "comprar" : "Vender"}?</Text>
-        <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="0" keyboard="numeric" style={styles.input}/>
-        <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>{crypto}</Text>
-      </View>
-
-      <Text style={styles.subtitle}>CANTIDAD POR TRANSACCIÓN</Text>
-      <View style={{width: "100%", justifyContent: "space-between", marginBottom: 24, flexDirection: "row"}}>
-        <View style={{width: "49%"}}>
-          <Text style={styles.span}>Cant. mínima</Text>
-          <InputText value={minAmm} setValue={(value) => handleNumberChange(value, 3)} placeholder="0" keyboard="numeric" style={styles.input}/>
-          <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
+        <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
+          <Text style={styles.subtitle}>CANTIDAD TOTAL</Text>
+          <Text style={styles.span}>¿Cuánto {crypto} querés {type === "Vender" ? "comprar" : "Vender"}?</Text>
+          <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="0" keyboard="numeric" style={styles.input}/>
+          <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>{crypto}</Text>
         </View>
-        <View style={{width: "49%", position: "relative"}}>
-          <Text style={styles.span}>Cant. máxima</Text>
-          <InputText value={maxAmm} setValue={(value) => handleNumberChange(value, 4)} placeholder="0" keyboard="numeric" style={styles.input}/>
-          <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
+
+        <Text style={styles.subtitle}>CANTIDAD POR TRANSACCIÓN</Text>
+        <View style={{width: "100%", justifyContent: "space-between", marginBottom: 24, flexDirection: "row"}}>
+          <View style={{width: "49%"}}>
+            <Text style={styles.span}>Cant. mínima</Text>
+            <InputText value={minAmm} setValue={(value) => handleNumberChange(value, 3)} placeholder="0" keyboard="numeric" style={styles.input}/>
+            <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
+          </View>
+          <View style={{width: "49%", position: "relative"}}>
+            <Text style={styles.span}>Cant. máxima</Text>
+            <InputText value={maxAmm} setValue={(value) => handleNumberChange(value, 4)} placeholder="0" keyboard="numeric" style={styles.input}/>
+            <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
+          </View>
+        </View>
+        {type === "Comprar" ? (
+          <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
+          <Dropdown onPress={() => toggleOpen(700)} placeholder={paymentMethod} width={"85%"} right={true}/>
+          <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
+            <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
+          </TouchableOpacity>
+        </View>) : null}
+
+        <View style={{flex: 1, justifyContent: "flex-end"}}>
+          <ButtonCustom onPress={specs2 ? onPressing : undefined} text="Continuar" type={specs2 ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
         </View>
       </View>
 
-      <View style={{flex: 1, justifyContent: "flex-end"}}>
-        <ButtonCustom onPress={specs2 ? onPressing : undefined} text="Continuar" type={specs2 ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
-      </View>
-    </View>
-    )
+      {open && (
+        <>
+          <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
+          <BottomSheet data={data} title={'Elegí tu método de pago'} maxHeight={maxHeight} onSelect={handleSelect} onConfirm={handleConfirm}/>
+        </>
+      )} 
+
+    </GestureHandlerRootView>)
   )
 }
 
@@ -259,5 +300,16 @@ const styles = StyleSheet.create({
     fontFamily: "Robot-Medium",
     fontWeight: "400",
     fontSize: 16
+  },
+  addPayment:{
+    width: 56,
+    height: 56,
+    backgroundColor: "white",
+    borderColor: "#e8e8e8",
+    borderBottomRightRadius: 16,
+    borderTopRightRadius: 16,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 })

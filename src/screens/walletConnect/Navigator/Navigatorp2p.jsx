@@ -33,8 +33,8 @@ const MarketStack = () => (
     },}}>
     <Stack.Screen name="Market" component={Market} options={{ headerShown: false }} />
     <Stack.Screen name="Mercado" component={OrderSearch}/>
-    <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ title: false }}/>
-    <Stack.Screen name="OrderTaken" component={OrderTaken} options={{ title: false }}/>
+    <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ title: "Detalles de la orden" }}/>
+    <Stack.Screen name="OrderTaken" component={OrderTaken} options={{ headerShown: false }}/>
     <Stack.Screen name="signUp" component={SignUpScreen} options={{ title: false }}/>
   </Stack.Navigator>
 );

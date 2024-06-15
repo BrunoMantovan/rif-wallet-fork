@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: "#0A3F7A",
     fontWeight: "800",
-    paddingHorizontal: "5%",
     marginVertical: "11%",
     fontFamily: "Roboto-Medium",
     alignSelf: "flex-start",

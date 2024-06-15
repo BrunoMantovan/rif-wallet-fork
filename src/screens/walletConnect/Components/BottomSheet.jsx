@@ -1,7 +1,7 @@
 import { View, Text, Dimensions, StyleSheet, Pressable, Image, ScrollView, KeyboardAvoidingView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler'
-import Animated, { SlideInDown, SlideOutDown, useAnimatedStyle, useSharedValue } from 'react-native-reanimated'
+import Animated, { SlideInDown, SlideOutDown, set, useAnimatedStyle, useSharedValue } from 'react-native-reanimated'
 import { sharedColors } from 'src/shared/constants'
 import ButtonCustom from '../Login/ButtonCustom'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
@@ -18,6 +18,7 @@ export default function BottomSheet(props) {
     const [cbu, setCbu] = useState()
     const [alias, setAlias] = useState()
     const [reference, setReference] = useState()
+    const [owner, setOwner] = useState()
     const [infoBool, setInfoBool] = useState(false)
     const array = props.data ? props.data : null
 
@@ -28,14 +29,15 @@ export default function BottomSheet(props) {
             setAlias(value)
         }else if(input == 3){
             setReference(value)
+        }else if(input == 4){
+            setOwner(value)
         }
     };
     useEffect(()=>{
-        if(cbu?.toString().length === 22 && alias && reference){
+        if(cbu?.toString().length === 22 && alias && reference && owner){
             setInfoBool(true)
         }
-        console.log(infoBool);
-    }, [cbu, alias, reference])
+    }, [cbu, alias, reference, owner])
     
     return (
         <Animated.View style={[styles.bottomSheetContainer, props.maxHeight ? {maxHeight: props.maxHeight} : {}]} entering={SlideInDown.springify().damping(17)} exiting={SlideOutDown}>
@@ -58,20 +60,21 @@ export default function BottomSheet(props) {
                         </Pressable>
                     ))}
                 </ScrollView> : props.data === 1 ?
-                <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                <KeyboardAvoidingView behavior="padding" style={{ height: 300}}>
                     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                         <View>
                             <Text style={styles.bankTxt}>Cuenta bancaria</Text>
                             <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#464D51" }]}>
                                 Ingrese los datos de la cuenta donde desea recibir el dinero
                             </Text>
-                            <InputText value={reference} setValue={(value) => handleNumberChange(value, 3)} placeholder="Referencia" />
+                            <InputText value={owner} setValue={(value) => handleNumberChange(value, 4)} placeholder="Titular" />
+                            <InputText value={reference} setValue={(value) => handleNumberChange(value, 3)} placeholder="Banco/Billetera virtual" />
                             <InputText value={cbu} setValue={(value) => handleNumberChange(value, 1)} placeholder="CBU" keyboard="numeric" maxLength={22}/>
                             <InputText value={alias} setValue={(value) => handleNumberChange(value, 2)} placeholder="Alias" />
                         </View>
                         <View style={{flexDirection:"row", justifyContent: "space-between"}}>
                             <ButtonCustom text="Cancelar" type="tertiary" borderColor="#8C9094" width="49%" onPress={props.onCancel}/>
-                            <ButtonCustom text="Confirmar" type={infoBool ? "green" : "disabled"} width="49%" onPress={()=>props.onConfirm(cbu, alias, reference)}/>    
+                            <ButtonCustom text="Confirmar" type={infoBool ? "green" : "disabled"} width="49%" onPress={()=>props.onConfirm(cbu, alias, reference, owner)}/>    
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView> :
@@ -92,6 +95,11 @@ export default function BottomSheet(props) {
                         <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Método de pago</Text>
                         <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.paymentMethod}</Text>
                     </View>
+                    <View style={{flexDirection: "row", justifyContent: "space-between",}}>
+                        <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Dirección de destino</Text>
+                        <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.address}</Text>
+                    </View>
+                        <ButtonCustom text="Confirmar" type={"green"} width="100%" onPress={()=>props.onClick()}/>
                 </View>
             }
         </Animated.View>

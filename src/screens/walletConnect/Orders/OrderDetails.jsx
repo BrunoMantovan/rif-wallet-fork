@@ -1,15 +1,23 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Pressable } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import InputText from '../Login/InputText'
 import SelectDropdown from 'react-native-select-dropdown'
 import { sharedColors } from 'src/shared/constants'
 import Dropdown from '../Components/Dropdown'
 import BottomSheet from '../Components/BottomSheet'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, log, or } from 'react-native-reanimated'
 import { useMarket } from '../MarketContext'
 import ButtonCustom from '../Login/ButtonCustom'
-
+import { useForm } from 'react-hook-form'
+import { useAppSelector } from 'src/redux/storeUtils'
+import { getAddressDisplayText } from 'src/components'
+import { selectBitcoin, selectChainId } from 'src/redux/slices/settingsSlice'
+import { selectBalances } from 'src/redux/slices/balancesSlice'
+import { selectProfile, selectUsername } from 'src/redux/slices/profileSlice'
+import { WalletContext } from 'src/shared/wallet'
+import { shortAddress } from 'src/lib/utils'
+import firestore from '@react-native-firebase/firestore';
 
 export default function OrderDetails({route, navigation}) {
 
@@ -25,10 +33,8 @@ export default function OrderDetails({route, navigation}) {
   const [maxHeight, setMaxHeight] = useState(null)
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
   const [data, setData] = useState(null)
-  const { addPayment, payments } = useMarket();
-  useEffect(() => {
-    console.log(payments)
-  }, [payments]);
+  const { addPayment, payments, setOrderId} = useMarket();
+  
   useEffect(() => {
     setAmmount(null)
   }, [type]);
@@ -46,7 +52,6 @@ export default function OrderDetails({route, navigation}) {
     if(input == 1){
       const sanitizedValue = inputValue.replace(/,/g, '.');
       setAmmount(sanitizedValue);
-      console.log(ammount);
     }
   };
 
@@ -66,17 +71,19 @@ export default function OrderDetails({route, navigation}) {
     return decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger;
   };
 
-  function toggleOpen(maxHeight, value ){
+  function toggleOpen(maxHeight, value){
     value === 1 ? setData(value) : value === 2 ? setData(value) : setData(payments)
     maxHeight ? setMaxHeight(maxHeight) : setMaxHeight(null)
     setOpen(!open)
   }
 
-  function handleConfirm(cbu, alias, ref){
+  function handleConfirm(cbu, alias, ref, owner){
     const payment = {
       cbu: cbu,
       alias: alias,
-      text: ref,
+      text: ref + " ("+ alias +")",
+      titular: owner,
+      banco: ref,
     }
     addPayment(payment); 
     toggleOpen();
@@ -85,8 +92,119 @@ export default function OrderDetails({route, navigation}) {
     setPaymentMethod(value)
     toggleOpen()
   }
+  
+  function handleClick(){
+    setOrderId({
+      "id": order.id,
+      "collection": order.orderType + order.crypto,
+    })
+    const orderConfirmed = {
+      address: address,
+      paymentMethod: payments.find((e => e.text == paymentMethod)),
+      cryptoTotal: cryptoTotal,
+      fiatTotal: fiatTotal,
+    }
+    const collection = order.orderType + order.crypto
+    firestore()
+    .collection(collection)
+    .doc(order.id)
+    .update({
+      orderConfirmed,
+      status: "pendingLock"
+    })
+    .then(() => {
+      navigation.replace('OrderTaken', {orderConfirmed})
+    })
+  }
+
+
+  const methods = useForm();
+  const bitcoinCore = useAppSelector(selectBitcoin);
+
+  const tokenBalances = useAppSelector(selectBalances);
+  
+  
+  
+  const username = useAppSelector(selectUsername);
+    
+  const { token, networkId } = route.params;
+  const [selectedAsset, setSelectedAsset] = useState(
+    (networkId && bitcoinCore?.networksMap[networkId]) ||
+    token ||
+    Object.values(tokenBalances)[0],
+  );
+  
+  const [address, setAddress] = useState('');
+  const [isAddressLoading, setIsAddressLoading] = useState(false);
+
+  const shouldShowAssets = true;
+
+  const { wallet } = useContext(WalletContext);
+  const chainId = useAppSelector(selectChainId);
+  const profile = useAppSelector(selectProfile);
+
+  const rskAddress = useMemo(() => {
+    if (wallet && chainId) {
+      return getAddressDisplayText(wallet.smartWalletAddress, chainId);
+    }
+    return null;
+  }, [wallet, chainId]);
+
+  useEffect(() => {
+    const tokenSelected = Object.values(tokenBalances).find(e => 
+      order.crypto == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
+    );
+    setSelectedAsset(tokenSelected);
+  }, [order.crypto, tokenBalances]);
+
+  const onShareUsername = useCallback(() => {
+    Share.share({
+      message: profile?.alias || '',
+    });
+  }, [profile?.alias]);
+
+  const onShareAddress = useCallback(() => {
+    Share.share({
+      message: address,
+    });
+  }, [address]);
+
+  const onGetAddress = useCallback(
+    (asset) => {
+      console.log('onGetAddress called with asset:', asset);
+      if (asset) {
+        setIsAddressLoading(true);
+        if ('bips' in asset) {
+          asset.bips[0]
+            .fetchExternalAvailableAddress({})
+            .then((addressReturned) => {
+              console.log('Fetched address:', addressReturned);
+              setAddress(addressReturned);
+            })
+            .finally(() => {
+              setIsAddressLoading(false);
+              console.log('Address loading finished');
+            });
+        } else {
+          setAddress(rskAddress?.checksumAddress || '');
+          setIsAddressLoading(false);
+          console.log('RSK address set:', rskAddress?.checksumAddress);
+        }
+      }
+    },
+    [rskAddress?.checksumAddress],
+  );
+
+  useEffect(() => {
+    if (selectedAsset) {
+      onGetAddress(selectedAsset);
+    }
+  }, [onGetAddress, selectedAsset]);
+
+
+
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: sharedColors.mainWhite}}>
       <View style={styles.container}>
         <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 16 }}>
           <Text style={styles.simpleText}>Precio del {order.crypto}:</Text>
@@ -127,17 +245,29 @@ export default function OrderDetails({route, navigation}) {
           </View>
         </View>
         
-      </View>
-          <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-            <ButtonCustom text="Continuar" type="green" onPress={()=>toggleOpen(null, 2)}/>
+        {/* {order.orderType == "Comprar" && (
+          <View>
+            <Text style={[styles.simpleText, {fontSize: 18}]}>Introducir la dirección de la billetera </Text>
+            <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
+            <Text style={[styles.simpleText, {fontSize: 18}]}>Introducir la dirección de la billetera </Text>
+            <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
           </View>
+        )} */}
+        
+      </View>
+      
+      <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
+        <ButtonCustom text="Continuar" type={(ammount>0 && paymentMethod != "Método de pago") ? "green" : "disabled"} 
+        onPress={(ammount>0 && paymentMethod != "Método de pago")? () => toggleOpen(null, 2) : null} 
+        activeOpacity={(ammount>0 && paymentMethod != "Método de pago") ? false : 1}/>
+      </View>
       {open && (
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
           <BottomSheet data={data} maxHeight={maxHeight} title="Elegí tu método de pago" 
           onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.price)}
           cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} paymentMethod={paymentMethod} type={order.orderType == "Vender" ? "recibir" : "pagar"}
-          crypto={order.crypto}/>
+          crypto={order.crypto} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
         </>
       )}
     </GestureHandlerRootView>

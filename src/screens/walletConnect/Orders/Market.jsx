@@ -53,7 +53,7 @@ export default function BuyOrders() {
             setMethod(null)
             setTypePlaceholder('Tipo de orden');
             setCryptoPlaceholder('Criptomoneda');
-            setMethodPlaceholder('Método de pago');
+            setMethodPlaceholder('Método de pago');            
         }, [])
     );
 

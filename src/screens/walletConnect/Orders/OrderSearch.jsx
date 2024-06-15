@@ -7,6 +7,7 @@ import firestore from '@react-native-firebase/firestore';
 import { useNavigation} from '@react-navigation/native';
 import { useMarket } from '../MarketContext';
 import { sharedColors } from 'src/shared/constants';
+import { LoadingScreen } from 'src/components/loading/LoadingScreen';
 
 /* 
 interface Order {
@@ -17,7 +18,7 @@ interface Order {
 
   export default function OrderSearch({route}) {
     
-    const [orders, setOrders] = useState/* <Order[]> */([])
+    const [orders, setOrders] = useState/* <Order[]> */(null)
     const navigation = useNavigation()
     const { setHideTab } = useMarket();
     const {search} = route.params
@@ -30,10 +31,10 @@ interface Order {
                 const orderData = [];
                 querySnapshot.forEach((doc) => {
                     // Extract data from each document and add it to the array
-                    orderData.push(doc.data());
+                    orderData.push({ id: doc.id, ...doc.data() });
                 });
                 setOrders(orderData);
-
+                
             } catch (error) {
               console.error('Error fetching orders:', error);
             }
@@ -51,14 +52,15 @@ interface Order {
     } 
 
     return (
-        <View style={styles.body}>
-            <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
-                {orders.sort((a, b) => a.price - b.price)
-                .map((order, index) => (
-                    <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
-                ))}
-            </ScrollView>
-        </View>
+        orders ?    <View style={styles.body}>
+                        <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
+                            {orders.sort((a, b) => a.price - b.price)
+                            .map((order, index) => (
+                                <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
+                            ))}
+                        </ScrollView>
+                    </View>
+        : <LoadingScreen/> 
     )
 }
 

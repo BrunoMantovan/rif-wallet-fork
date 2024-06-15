@@ -8,7 +8,7 @@ export default function OrderSummary({route, navigation}) {
 
   const {order} = route.params
   const username = "usuario 987"
-  console.log(order.price +  typeof(order.price));
+  
 
   const newOrder = {
     price: order.price,
@@ -18,9 +18,10 @@ export default function OrderSummary({route, navigation}) {
     total: order.total,
     minAmm: order.minAmm,
     maxAmm: order.maxAmm,
-    orderTypeForSelf: order.orderTypeForSelf
+    orderTypeForSelf: order.orderTypeForSelf,
+    paymentMethod: order.paymentMethod
   }
-console.log(newOrder);
+
   function handleSubmit(){
     firestore()
     .collection('Users')
@@ -45,6 +46,7 @@ console.log(newOrder);
       <Text style={styles.text}>Cantidad total: <Text style={styles.innetText}>{order.total} {order.crypto}</Text></Text>
       <Text style={styles.text}>Cantidad mínima por transacción: <Text style={styles.innetText}>{order.minAmm} {order.crypto}</Text></Text>
       <Text style={styles.text}>Cantidad máxima por transacción: <Text style={styles.innetText}>{order.maxAmm} {order.crypto}</Text></Text>
+      <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.paymentMethod.text}</Text></Text>
       <View style={{flex: 1, justifyContent: "flex-end"}}><ButtonCustom onPress={()=> handleSubmit()} text="Publicar" type="green"/></View>
     </View>
   )
