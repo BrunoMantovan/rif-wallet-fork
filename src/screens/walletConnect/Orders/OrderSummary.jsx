@@ -19,22 +19,39 @@ export default function OrderSummary({route, navigation}) {
     minAmm: order.minAmm,
     maxAmm: order.maxAmm,
     orderTypeForSelf: order.orderTypeForSelf,
-    paymentMethod: order.paymentMethod
+    ...(order.paymentMethod !== undefined && { paymentMethod: order.paymentMethod }) 
   }
 
-  function handleSubmit(){
-    firestore()
-    .collection('Users')
-    .doc(username)
-    .update({
-      orders: firestore.FieldValue.arrayUnion(newOrder) // Add the new order to the orders array
-    })
-
-    const collection = order.orderType + order.crypto
-    firestore()
-    .collection(collection)
-    .add(newOrder);
-    navigation.navigate('MyOrders')
+  async function handleSubmit(){
+    try {
+      const collection = order.orderType + order.crypto
+      const newOrderRef = await firestore()
+        .collection(collection)
+        .add(newOrder);
+  
+      const newOrderId = newOrderRef.id;
+      
+      await newOrderRef.update({
+        id: newOrderId
+      });
+      // Add the document ID to the new order
+      const newOrderWithId = {
+        ...newOrder,
+        id: newOrderId
+      }
+  
+      // Update the user's collection with the new order including the document ID
+      await firestore()
+        .collection('Users')
+        .doc(username)
+        .update({
+          orders: firestore.FieldValue.arrayUnion(newOrderWithId)
+        });
+  
+      navigation.navigate('MyOrders');
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   }
 
   return (
@@ -46,7 +63,7 @@ export default function OrderSummary({route, navigation}) {
       <Text style={styles.text}>Cantidad total: <Text style={styles.innetText}>{order.total} {order.crypto}</Text></Text>
       <Text style={styles.text}>Cantidad mínima por transacción: <Text style={styles.innetText}>{order.minAmm} {order.crypto}</Text></Text>
       <Text style={styles.text}>Cantidad máxima por transacción: <Text style={styles.innetText}>{order.maxAmm} {order.crypto}</Text></Text>
-      <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.paymentMethod.text}</Text></Text>
+      {order.orderType == "Comprar" ? <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.paymentMethod.text}</Text></Text> : null}
       <View style={{flex: 1, justifyContent: "flex-end"}}><ButtonCustom onPress={()=> handleSubmit()} text="Publicar" type="green"/></View>
     </View>
   )

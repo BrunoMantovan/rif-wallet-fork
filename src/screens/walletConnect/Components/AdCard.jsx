@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         justifyContent:"space-between",
     },
     price:{
-        fontSize: 14,
+        fontSize: 16,
         color: "#1b1e1e",
         fontFamily: "Roboto-Medium",
         fontWeight: "500",
@@ -77,15 +77,15 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     limitsTxt:{
-        fontSize: 11,
-        color: "#b0b3b5",
+        fontSize: 14,
+        color: "#7c7c7c",
         fontFamily:"Robot-Medium",
         fontWeight: "500",
         letterSpacing: 0.5,
         lineHeight: 16,
     },
     limitsNum:{
-        fontSize: 12,
+        fontSize: 16,
         color: "#1b1e1e",
         fontFamily:"Robot-Medium",
         fontWeight: "400",

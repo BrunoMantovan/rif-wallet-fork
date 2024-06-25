@@ -44,16 +44,16 @@ export default function CreateOrder() {
 
   const handleNumberChange = (inputValue, input) => {
     if(input == 1){
-      const sanitizedValue = inputValue.replace(/,/g, '.');
+      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'))
       setPrice(sanitizedValue);
     }else if(input == 2){
-      const sanitizedValue = inputValue.replace(/,/g, '.');
+      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'))
       setTotal(sanitizedValue);
     }else if(input == 3){
-      const sanitizedValue = inputValue.replace(/,/g, '.');
+      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'))
       setMinAmm(sanitizedValue);
     }else if(input == 4){
-      const sanitizedValue = inputValue.replace(/,/g, '.');
+      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'))
       setMaxAmm(sanitizedValue);
     }
   };
@@ -64,9 +64,17 @@ export default function CreateOrder() {
     } else {
       setSpecs(false);
     }
-    if(total && minAmm && maxAmm >= minAmm && paymentMethod != "Método de pago"){
-      setSpecs2(true);
-    }else {setSpecs2(false);}
+
+    if(type == "Comprar"){
+      if(total && minAmm && maxAmm && paymentMethod != "Método de pago" && (total >= maxAmm) && (maxAmm >= minAmm)){
+        setSpecs2(true);
+      } else {setSpecs2(false)}
+    }else if(type === "Vender"){
+      if (total && minAmm && maxAmm && (total >= maxAmm) && (maxAmm >= minAmm)) {
+        setSpecs2(true)
+      } else {setSpecs2(false)}
+    }
+
   }, [type, crypto, price, maxAmm, minAmm, total, paymentMethod]);
 
   /* function handleSubmit(){
@@ -133,7 +141,7 @@ export default function CreateOrder() {
     maxHeight ? setMaxHeight(maxHeight) : setMaxHeight(null)
     setOpen(!open)
   }
-  function handleConfirm(cbu, alias, ref){
+  function handleConfirm(cbu, alias, ref, owner){
     const payment = {
       cbu: cbu,
       alias: alias,
@@ -222,7 +230,7 @@ export default function CreateOrder() {
         </View>) : null}
 
         <View style={{flex: 1, justifyContent: "flex-end"}}>
-          <ButtonCustom onPress={specs2 ? onPressing : undefined} text="Continuar" type={specs2 ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
+          <ButtonCustom onPress={specs2 ? onPressing : undefined} text="Continuar" type={specs2 ? "green" : "disabled"} activeOpacity={specs2 ? false : 1} icon="arrow-right"/>
         </View>
       </View>
 

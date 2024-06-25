@@ -42,7 +42,9 @@ export default function MyOrders() {
 
 
 
-  const handleDelete = async (index) => {
+  const handleDelete = async (id) => {
+    const index = orders.findIndex(order => order.id === id);
+    const collection = orders[index].orderType + orders[index].crypto;
     try {
       const updatedOrders = [...orders];
       updatedOrders.splice(index, 1);
@@ -51,6 +53,7 @@ export default function MyOrders() {
       await firestore().collection('Users').doc(username).update({
         orders: updatedOrders
       });
+      await firestore().collection(collection).doc(id).delete();
     } catch (error) {
       console.error('Error deleting order:', error);
     }
@@ -68,7 +71,7 @@ export default function MyOrders() {
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderTypeForSelf} onPressDelete={() => handleDelete(index)}/>
+          <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderTypeForSelf} onPressDelete={() => handleDelete(order.id)}/>
         ))}
         
       </ScrollView> : 

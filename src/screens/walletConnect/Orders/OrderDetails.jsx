@@ -34,6 +34,7 @@ export default function OrderDetails({route, navigation}) {
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
   const [data, setData] = useState(null)
   const { addPayment, payments, setOrderId} = useMarket();
+  const [specs, setSpecs] = useState(false)
   
   useEffect(() => {
     setAmmount(null)
@@ -42,15 +43,32 @@ export default function OrderDetails({route, navigation}) {
     if(type == "crypto"){
       setFiatTotal(ammount * order.price)
       setCryptoTotal(ammount)
+
+      if((order.minAmm <= ammount) && (ammount <= order.maxAmm)){
+        setSpecs(true)
+      } else { setSpecs(false) }
+
     }else if(type == "fiat"){
       setCryptoTotal((ammount / order.price))
       setFiatTotal(ammount)
+
+      if(((order.minAmm * order.price) <= ammount) && (ammount <= (order.maxAmm * order.price))){
+        setSpecs(true)
+      } else { setSpecs(false) }
+
     }
   }, [ammount]);
 
+
+  const numberFormatOptions = {
+    // Specify the dot as the thousands separator
+    useGrouping: true,
+    maximumFractionDigits: 2, // Optional: specify the maximum number of fraction digits
+  };
+
   const handleNumberChange = (inputValue, input) => {
     if(input == 1){
-      const sanitizedValue = inputValue.replace(/,/g, '.');
+      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'));
       setAmmount(sanitizedValue);
     }
   };
@@ -208,7 +226,7 @@ export default function OrderDetails({route, navigation}) {
       <View style={styles.container}>
         <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 16 }}>
           <Text style={styles.simpleText}>Precio del {order.crypto}:</Text>
-          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 16}]}>$ {order.price} ARS</Text></View>
+          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {order.price.toLocaleString('es-AR', numberFormatOptions)} ARS</Text></View>
         </View>
 
         <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
@@ -223,19 +241,19 @@ export default function OrderDetails({route, navigation}) {
         <View style={styles.card}>
           <View style={{position: "relative"}}>
             <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
-            <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 18}}>{type === "crypto" ? order.crypto : "ARS"}</Text>
+            <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.crypto : "ARS"}</Text>
           </View>
           <View style={{marginBottom: 16}}>
-            <Text style={styles.simpleText}>Límite: <Text style={[styles.simpleText, {fontSize: 15, color: sharedColors.secondary}]}>{type == "fiat" ? "$"+ formatNumberWithDots(order.minAmm * order.price) + " ARS  -  $" + formatNumberWithDots(order.maxAmm * order.price) + " ARS" : order.minAmm + " " + order.crypto + "  -  " + order.maxAmm + " " + order.crypto}</Text> </Text>
-            <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 15, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.total * order.price) + " ARS" : order.total + " " + order.crypto}</Text></Text>
+            <Text style={styles.simpleText}>Límite: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$"+ formatNumberWithDots(order.minAmm * order.price) + " ARS  -  $" + formatNumberWithDots(order.maxAmm * order.price) + " ARS" : order.minAmm + " " + order.crypto + "  -  " + order.maxAmm + " " + order.crypto}</Text> </Text>
+            <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.total * order.price) + " ARS" : order.total + " " + order.crypto}</Text></Text>
           </View>
 
           <View style={{marginBottom: 16, flexDirection: "row", justifyContent: "space-between", display: ammount ? "flex" : "none"}}>
             <Text style={styles.simpleText}>vas a {(order.orderType == "Vender" && type == "crypto" || order.orderType == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
-            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 18}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.crypto)}</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 20}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.crypto)}</Text>
           </View>
 
-          <Text style={[styles.simpleText, {fontSize: 18}]}>Seleccionar método de pago</Text>
+          <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>
 
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
             <Dropdown onPress={() => toggleOpen(700)} placeholder={paymentMethod} width={"85%"} right={true}/>
@@ -257,7 +275,7 @@ export default function OrderDetails({route, navigation}) {
       </View>
       
       <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-        <ButtonCustom text="Continuar" type={(ammount>0 && paymentMethod != "Método de pago") ? "green" : "disabled"} 
+        <ButtonCustom text="Continuar" type={(ammount>0 && paymentMethod != "Método de pago" && specs) ? "green" : "disabled"} 
         onPress={(ammount>0 && paymentMethod != "Método de pago")? () => toggleOpen(null, 2) : null} 
         activeOpacity={(ammount>0 && paymentMethod != "Método de pago") ? false : 1}/>
       </View>
@@ -291,7 +309,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   simpleText:{
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Robot-Medium",
     fontWeight: "400",
     color: sharedColors.inputText,
