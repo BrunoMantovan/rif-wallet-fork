@@ -125,7 +125,7 @@ export default function BuyOrders() {
 
     return (
         <GestureHandlerRootView style={{flex: 1}}>
-            <View style={styles.body}>
+            <ScrollView style={styles.body}>
                 <LinearGradient colors={['#DCE6AAB2', '#C0DDF0B2']} style={styles.linearGradient}>
                 
                 <View style={{zIndex: 2, width: "100%", paddingHorizontal: "5%", paddingTop: 40,}} >
@@ -176,7 +176,7 @@ export default function BuyOrders() {
                         <BottomSheet data={open === "type" ? orderTypes : open === "crypto" ? cryptos : paymentMethod} title={open === 'type' ? '¿Qué querés hacer?' : open === 'crypto' ? 'Elegir moneda' : 'Método de pago'} onSelect={handleSelect}/>
                     </>
                 )}
-            </View>
+            </ScrollView>
         </GestureHandlerRootView>
         
     )
