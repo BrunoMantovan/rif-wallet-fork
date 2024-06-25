@@ -33,14 +33,14 @@ export default function BuyOrders() {
     const [zindex, setZindex] = useState(2)
     const orderTypes = [{text: "Comprar"}, {text: "Vender"}]
     const cryptos = [
-        {text: "rBtc", image: require('../../../images/slides/rbtc.png')},
-        {text: "DoC", image: require('../../../images/slides/doc.png')}
+        {text: "DoC", image: require('../../../images/slides/doc.png')},
+        {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
     ]
     const paymentMethod = [{text: "Transferencia bancaria"}]
     const [specs, setSpecs] = useState(false)
     const [open, setOpen] = useState(null)
     const [typePlaceholder, setTypePlaceholder] = useState('Tipo de orden');
-    const [cryptoPlaceholder, setCryptoPlaceholder] = useState('Criptomoneda');
+    const [cryptoPlaceholder, setCryptoPlaceholder] = useState('Activo Digital');
     const [methodPlaceholder, setMethodPlaceholder] = useState('Método de pago');
 
     const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -52,7 +52,7 @@ export default function BuyOrders() {
             setCrypto(null)
             setMethod(null)
             setTypePlaceholder('Tipo de orden');
-            setCryptoPlaceholder('Criptomoneda');
+            setCryptoPlaceholder('Activo digital');
             setMethodPlaceholder('Método de pago');            
         }, [])
     );
@@ -125,7 +125,7 @@ export default function BuyOrders() {
 
     return (
         <GestureHandlerRootView style={{flex: 1}}>
-            <ScrollView style={styles.body}>
+            <View style={styles.body}>
                 <LinearGradient colors={['#DCE6AAB2', '#C0DDF0B2']} style={styles.linearGradient}>
                 
                 <View style={{zIndex: 2, width: "100%", paddingHorizontal: "5%", paddingTop: 40,}} >
@@ -176,7 +176,7 @@ export default function BuyOrders() {
                         <BottomSheet data={open === "type" ? orderTypes : open === "crypto" ? cryptos : paymentMethod} title={open === 'type' ? '¿Qué querés hacer?' : open === 'crypto' ? 'Elegir moneda' : 'Método de pago'} onSelect={handleSelect}/>
                     </>
                 )}
-            </ScrollView>
+            </View>
         </GestureHandlerRootView>
         
     )

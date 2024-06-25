@@ -25,8 +25,8 @@ export default function CreateOrder() {
   const [maxAmm, setMaxAmm] = useState()
   const username = "usuario 987"
   const cryptos = [
-    {text: "rBtc", image: require('../../../images/slides/rbtc.png')},
-    {text: "DoC", image: require('../../../images/slides/doc.png')}
+    {text: "DoC", image: require('../../../images/slides/doc.png')},
+    {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
 ]
   const [paymentMethod, setPaymentMethod] = useState("Método de pago")
   const [data, setData] = useState(null)
