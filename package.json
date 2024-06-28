@@ -30,6 +30,7 @@
     "@react-native-community/netinfo": "^9.4.1",
     "@react-native-firebase/app": "^18.8.0",
     "@react-native-firebase/firestore": "^18.8.0",
+    "@react-native-firebase/messaging": "^20.1.0",
     "@react-navigation/bottom-tabs": "^6.5.2",
     "@react-navigation/material-top-tabs": "^6.6.5",
     "@react-navigation/native": "^6.0.4",
