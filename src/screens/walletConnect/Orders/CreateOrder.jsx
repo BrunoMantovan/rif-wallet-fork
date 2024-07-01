@@ -11,6 +11,7 @@ import BottomSheet from '../Components/BottomSheet'
 import { useNavigation } from '@react-navigation/native'
 import { useMarket } from '../MarketContext'
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated'
+import { NotificationSend } from '../Components/NotificationSend'
 
 export default function CreateOrder() {
 
@@ -152,6 +153,14 @@ export default function CreateOrder() {
     addPayment(payment); 
     toggleOpen();
   }
+
+  function handleNotification(){
+    const token = "dVVgJr8lRbWHj9z-YeFW7N:APA91bHJOypCIRScdnunHJDTbm31B4kDubEt11GDIh1lyLfozXjg88_JG0nMnd6O3o2dhEaKT_stL8vKVKh5jAN53KXY9ioFpQrMapqo0Z3-vZcuGn969dfRtZlqjwJAiICYdzMU8vbk"
+    const title = "Notificación"
+    const body = "Esta es una notificación"
+    NotificationSend(token, title, body)
+  }
+
   return (
     !step1 ? (<GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.body}>
@@ -161,6 +170,9 @@ export default function CreateOrder() {
           </Pressable>
           <Pressable onPress={()=> selectType("Comprar")} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
             <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>Vender</Text>
+          </Pressable>
+          <Pressable onPress={()=> handleNotification()} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>notificacion</Text>
           </Pressable>
         </View>
         
@@ -277,7 +289,7 @@ const styles = StyleSheet.create({
   },
   orderSelector:{
     height: 40,
-    width: "50%",
+    width: "30%",
     backgroundColor: "transparent",
     borderColor: "#D2E6F799",
     borderWidth: 1,

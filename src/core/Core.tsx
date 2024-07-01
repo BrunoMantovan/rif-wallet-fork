@@ -31,7 +31,8 @@ import MarketProvider from 'src/screens/walletConnect/MarketContext'
 
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid} from 'react-native';
-
+import { NotificationListeners } from 'src/NotificationListener'
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
 export const navigationContainerRef =
   createNavigationContainerRef<RootTabsParamsList>()
@@ -73,6 +74,18 @@ export const Core = () => {
 
   useEffect(() => {
     requestUserPermission()
+
+    async function setupNotificationChannel() {
+      await notifee.createChannel({
+        id: 'default',
+        name: 'Default Channel',
+        importance: AndroidImportance.HIGH,
+      });
+    }
+
+    setupNotificationChannel();
+    NotificationListeners();
+   
   }, [])
 
   return (
