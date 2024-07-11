@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, Button, Pressable, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, Button, Pressable, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import InputText from '../Login/InputText'
 import SelectDropdown from 'react-native-select-dropdown'
@@ -29,7 +29,7 @@ export default function CreateOrder() {
     {text: "DoC", image: require('../../../images/slides/doc.png')},
     {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
 ]
-  const [paymentMethod, setPaymentMethod] = useState("Método de pago")
+  const [payment_method, setpayment_method] = useState("Método de pago")
   const [data, setData] = useState(null)
   const [open, setOpen] = useState(null)
   const [step1, setStep1] = useState(false)
@@ -60,30 +60,37 @@ export default function CreateOrder() {
   };
 
   useEffect(() => {
-    if (type && crypto && price) {
-      setSpecs(true);
-    } else {
-      setSpecs(false);
-    }
-
     if(type == "Comprar"){
-      if(total && minAmm && maxAmm && paymentMethod != "Método de pago" && (total >= maxAmm) && (maxAmm >= minAmm)){
+      if (type && crypto && price && total && payment_method != "Método de pago") {
+        setSpecs(true);
+      } else {
+        setSpecs(false);
+      }
+    }else if(type === "Vender"){
+      if (type && crypto && price && total) {
+        setSpecs(true);
+      } else {
+        setSpecs(false);
+      }
+    }
+   /*  if(type == "Comprar"){
+      if(total && minAmm && maxAmm && payment_method != "Método de pago" && (total >= maxAmm) && (maxAmm >= minAmm)){
         setSpecs2(true);
       } else {setSpecs2(false)}
     }else if(type === "Vender"){
       if (total && minAmm && maxAmm && (total >= maxAmm) && (maxAmm >= minAmm)) {
         setSpecs2(true)
       } else {setSpecs2(false)}
-    }
+    } */
 
-  }, [type, crypto, price, maxAmm, minAmm, total, paymentMethod]);
+  }, [type, crypto, price, maxAmm, minAmm, total, payment_method]);
 
   /* function handleSubmit(){
     const order = {
       price: price,
       crypto: crypto,
       username: username,
-      orderType: type,
+      order_type: type,
     }
 
     firestore()
@@ -100,45 +107,38 @@ export default function CreateOrder() {
   } */
 
   function onPressing(){
-    if(step1){
       const typeForSelf = type == "Comprar" ? "Vender" : "Comprar"
       const order = {
         price: price,
         crypto: crypto,
         username: username,
-        orderType: type,
+        order_type: type,
         total: total,
-        minAmm: minAmm,
-        maxAmm: maxAmm,
-        orderTypeForSelf: typeForSelf,
-        paymentMethod: payments.find((e => e.text == paymentMethod))
+        order_type_for_self: typeForSelf,
+        payment_method: payments.find((e => e.text == payment_method))
       }
       
       navigation.navigate('Resumen', { order: order })
       setHideTab(true)
-    }else if(!step1){
-      setStep1(true)
-    }
   }
 
-  function toggleOpen(){    
-    setOpen(!open)        
-  }
   function selectType(value){
     setType(value)
   }
   function handleSelect(value){
-    if(!step1){
+    const areEqual = JSON.stringify(data) === JSON.stringify(cryptos);
+
+    if(areEqual == true){
       setCrypto(value)
       setCryptoPlaceholder(value);
       setOpen(null);
     }else{
-      setPaymentMethod(value)
+      setpayment_method(value)
       toggleOpen()
     }
   }
   function toggleOpen(maxHeight, value){
-    value === 1 ? setData(value) : setData(payments)
+    value === 1 ? setData(value) : value == 2 ? setData(cryptos) : setData(payments)
     maxHeight ? setMaxHeight(maxHeight) : setMaxHeight(null)
     setOpen(!open)
   }
@@ -154,16 +154,16 @@ export default function CreateOrder() {
     toggleOpen();
   }
 
-  function handleNotification(){
+  /* function handleNotification(){
     const token = "dVVgJr8lRbWHj9z-YeFW7N:APA91bHJOypCIRScdnunHJDTbm31B4kDubEt11GDIh1lyLfozXjg88_JG0nMnd6O3o2dhEaKT_stL8vKVKh5jAN53KXY9ioFpQrMapqo0Z3-vZcuGn969dfRtZlqjwJAiICYdzMU8vbk"
     const title = "Notificación"
     const body = "Esta es una notificación"
     NotificationSend(token, title, body)
-  }
+  } */
 
   return (
-    !step1 ? (<GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.body}>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <ScrollView style={styles.body}>
         <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
           <Pressable onPress={()=> selectType("Vender")} style={[styles.orderSelector, type === "Vender" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
             <Text style={[styles.orderText, type === "Vender" ? styles.selectedText : null]}>Comprar</Text>
@@ -171,16 +171,16 @@ export default function CreateOrder() {
           <Pressable onPress={()=> selectType("Comprar")} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
             <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>Vender</Text>
           </Pressable>
-          <Pressable onPress={()=> handleNotification()} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+          {/* <Pressable onPress={()=> handleNotification()} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
             <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>notificacion</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
         
         <View style={styles.wrapper}>
-          <View style={{flexDirection: "row", marginBottom: 24}}>
+          <View style={{flexDirection: "row", marginBottom: 14}}>
             <View style={{height:100, width: "50%", paddingRight: "2%"}}>
               <Text style={styles.span}>Crypto</Text>
-              <Dropdown placeholder={cryptoPlaceholder} onPress={() => toggleOpen()} image={cryptoPlaceholder === "rBtc" ? require('../../../images/slides/rbtc.png') : require('../../../images/slides/doc.png')}/>
+              <Dropdown placeholder={cryptoPlaceholder} onPress={() => toggleOpen(null, 2)} image={cryptoPlaceholder === "rBtc" ? require('../../../images/slides/rbtc.png') : require('../../../images/slides/doc.png')}/>
             </View>
             <View style={{height:100, width: "50%", paddingRight: "2%"}}>
               <Text style={styles.span}>Por</Text>
@@ -188,38 +188,47 @@ export default function CreateOrder() {
             </View>
           </View>
         </View>
-
-        <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
-          <Text style={styles.subtitle}>PRECIO</Text>
-          <Text style={styles.span}>¿A qué precio querés {type === "Vender" ? "comprar" : "Vender"} {crypto}?</Text>
-          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="0" keyboard="numeric" style={styles.input}/>
-          <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>ARS</Text>
-        </View>
-
-        <View style={{flex: 1, justifyContent: "flex-end"}}>
-          <ButtonCustom onPress={specs ? onPressing : undefined} text="Continuar" type={specs ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
-        </View>
-      </View>
-      {open && (
-        <>
-          <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
-          <BottomSheet data={cryptos} title={'Elegir moneda'} onSelect={handleSelect}/>
-        </>
-      )}
-    </GestureHandlerRootView>) : 
-
-    //cuando esta step1
-
-    (<GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.body}>
-
-        <View style={{width: "100%", alignContent: "center", marginBottom: 24}}>
+        <View style={{width: "100%", alignContent: "center", marginBottom: 14}}>
           <Text style={styles.subtitle}>CANTIDAD TOTAL</Text>
           <Text style={styles.span}>¿Cuánto {crypto} querés {type === "Vender" ? "comprar" : "Vender"}?</Text>
           <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="0" keyboard="numeric" style={styles.input}/>
           <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>{crypto}</Text>
         </View>
+        <View style={{width: "100%", alignContent: "center", marginBottom: 14}}>
+          <Text style={styles.subtitle}>PRECIO</Text>
+          <Text style={styles.span}>¿A qué precio querés {type === "Vender" ? "comprar" : "Vender"} {crypto}?</Text>
+          <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="0" keyboard="numeric" style={styles.input}/>
+          <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>ARS</Text>
+        </View>
+        {type === "Comprar" ? (
+          <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
+          <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
+          <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
+            <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
+          </TouchableOpacity>
+        </View>) : null}
 
+        <View style={{flex: 1, justifyContent: "flex-end", marginBottom: 24}}>
+          <ButtonCustom onPress={specs ? onPressing : undefined} text="Continuar" type={specs ? "green" : "disabled"} activeOpacity={specs ? false : 1} icon="arrow-right"/>
+        </View>
+      </ScrollView>
+      {open && (
+        <>
+          <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
+          <BottomSheet data={data} title={'Elegir moneda'} onSelect={handleSelect} maxHeight={maxHeight} onConfirm={handleConfirm}/>
+        </>
+      )}
+    </GestureHandlerRootView>)
+
+    //cuando esta step1
+
+    {/* <GestureHandlerRootView style={{flex: 1}}>
+      <View style={styles.body}>
+
+        
+
+
+        
         <Text style={styles.subtitle}>CANTIDAD POR TRANSACCIÓN</Text>
         <View style={{width: "100%", justifyContent: "space-between", marginBottom: 24, flexDirection: "row"}}>
           <View style={{width: "49%"}}>
@@ -233,9 +242,11 @@ export default function CreateOrder() {
             <Text style={{position: "absolute", right: "5%", bottom: "30%", fontSize: 18}}>{crypto}</Text>
           </View>
         </View>
+
+
         {type === "Comprar" ? (
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
-          <Dropdown onPress={() => toggleOpen(700)} placeholder={paymentMethod} width={"85%"} right={true}/>
+          <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
           <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
             <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
           </TouchableOpacity>
@@ -254,7 +265,7 @@ export default function CreateOrder() {
       )} 
 
     </GestureHandlerRootView>)
-  )
+   */}
 }
 
 
@@ -271,7 +282,7 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Medium",
     fontWeight: "500",
     letterSpacing: 0.1,
-    marginVertical: 24
+    marginVertical: 12
   },
   dropdown:{
     width: "100%",
@@ -289,7 +300,7 @@ const styles = StyleSheet.create({
   },
   orderSelector:{
     height: 40,
-    width: "30%",
+    width: "50%",
     backgroundColor: "transparent",
     borderColor: "#D2E6F799",
     borderWidth: 1,

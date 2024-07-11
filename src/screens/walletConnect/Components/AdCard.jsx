@@ -34,8 +34,8 @@ export default function AdCard(props) {
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <View>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.orderType == "Comprar" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.orderType == "Comprar" ? props.crypto : "ARS"}</Text></Text>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.orderType == "Vender" ? props.total + props.crypto : formatNumberWithDots(cryptoTotal) + " ARS"}</Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.order_type == "Comprar" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.order_type == "Comprar" ? props.crypto : "ARS"}</Text></Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.order_type == "Vender" ? props.total + props.crypto : formatNumberWithDots(cryptoTotal) + " ARS"}</Text>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <View style={styles.payMethods}>
                         <Text>Transferencia</Text>
@@ -43,7 +43,7 @@ export default function AdCard(props) {
                 </View>
             </View>
             <View style={styles.buysellbtn}>
-                <Text style={styles.buyselltxt}>{props.orderType + " " + props.crypto}</Text>
+                <Text style={styles.buyselltxt}>{props.order_type + " " + props.crypto}</Text>
             </View>
         </View>
         

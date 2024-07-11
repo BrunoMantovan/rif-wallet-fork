@@ -24,7 +24,7 @@ export default function OrderDetails({route, navigation}) {
   const {order} = route.params 
   parseFloat(order.price, order.total)
   const [cantidad, setCantidad] = useState()
-  const [paymentMethod, setPaymentMethod] = useState("Método de pago")
+  const [payment_method, setpayment_method] = useState("Método de pago")
   const [type, setType] = useState("crypto")
   const [ammount, setAmmount] = useState(null)
   const [fiatTotal, setFiatTotal] = useState()
@@ -107,22 +107,22 @@ export default function OrderDetails({route, navigation}) {
     toggleOpen();
   }
   function handleSlecet(value){
-    setPaymentMethod(value)
+    setpayment_method(value)
     toggleOpen()
   }
   
   function handleClick(){
     setOrderId({
       "id": order.id,
-      "collection": order.orderType + order.crypto,
+      "collection": order.order_type + order.crypto,
     })
     const orderConfirmed = {
       address: address,
-      paymentMethod: payments.find((e => e.text == paymentMethod)),
+      payment_method: payments.find((e => e.text == payment_method)),
       cryptoTotal: cryptoTotal,
       fiatTotal: fiatTotal,
     }
-    const collection = order.orderType + order.crypto
+    const collection = order.order_type + order.crypto
     firestore()
     .collection(collection)
     .doc(order.id)
@@ -231,10 +231,10 @@ export default function OrderDetails({route, navigation}) {
 
         <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
             <Pressable onPress={()=> selectType("crypto")} style={[styles.orderSelector, type === "crypto" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
-              <Text style={[styles.orderText, type === "crypto" ? styles.selectedText : null]}>Monto a {order.orderType}</Text>
+              <Text style={[styles.orderText, type === "crypto" ? styles.selectedText : null]}>Activos</Text>
             </Pressable>
             <Pressable onPress={()=> selectType("fiat")} style={[styles.orderSelector, type === "fiat" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
-              <Text style={[styles.orderText, type === "fiat" ? styles.selectedText : null]}>Monto a {order.orderType == "Vender" ? "Recibir" : "pagar"}</Text>
+              <Text style={[styles.orderText, type === "fiat" ? styles.selectedText : null]}>Fiat</Text>
             </Pressable>
         </View>
 
@@ -244,26 +244,25 @@ export default function OrderDetails({route, navigation}) {
             <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.crypto : "ARS"}</Text>
           </View>
           <View style={{marginBottom: 16}}>
-            <Text style={styles.simpleText}>Límite: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$"+ formatNumberWithDots(order.minAmm * order.price) + " ARS  -  $" + formatNumberWithDots(order.maxAmm * order.price) + " ARS" : order.minAmm + " " + order.crypto + "  -  " + order.maxAmm + " " + order.crypto}</Text> </Text>
             <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.total * order.price) + " ARS" : order.total + " " + order.crypto}</Text></Text>
           </View>
 
           <View style={{marginBottom: 16, flexDirection: "row", justifyContent: "space-between", display: ammount ? "flex" : "none"}}>
-            <Text style={styles.simpleText}>vas a {(order.orderType == "Vender" && type == "crypto" || order.orderType == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
+            <Text style={styles.simpleText}>vas a {(order.order_type == "Vender" && type == "crypto" || order.order_type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
             <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 20}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.crypto)}</Text>
           </View>
 
           <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>
 
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
-            <Dropdown onPress={() => toggleOpen(700)} placeholder={paymentMethod} width={"85%"} right={true}/>
+            <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
             <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
               <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
             </TouchableOpacity>
           </View>
         </View>
         
-        {/* {order.orderType == "Comprar" && (
+        {/* {order.order_type == "Comprar" && (
           <View>
             <Text style={[styles.simpleText, {fontSize: 18}]}>Introducir la dirección de la billetera </Text>
             <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
@@ -275,16 +274,16 @@ export default function OrderDetails({route, navigation}) {
       </View>
       
       <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-        <ButtonCustom text="Continuar" type={(ammount>0 && paymentMethod != "Método de pago" && specs) ? "green" : "disabled"} 
-        onPress={(ammount>0 && paymentMethod != "Método de pago")? () => toggleOpen(null, 2) : null} 
-        activeOpacity={(ammount>0 && paymentMethod != "Método de pago") ? false : 1}/>
+        <ButtonCustom text="Continuar" type={(ammount>0 && payment_method != "Método de pago" && specs) ? "green" : "disabled"} 
+        onPress={(ammount>0 && payment_method != "Método de pago")? () => toggleOpen(null, 2) : null} 
+        activeOpacity={(ammount>0 && payment_method != "Método de pago") ? false : 1}/>
       </View>
       {open && (
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
           <BottomSheet data={data} maxHeight={maxHeight} title="Elegí tu método de pago" 
           onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.price)}
-          cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} paymentMethod={paymentMethod} type={order.orderType == "Vender" ? "recibir" : "pagar"}
+          cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} payment_method={payment_method} type={order.order_type == "Vender" ? "recibir" : "pagar"}
           crypto={order.crypto} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
         </>
       )}

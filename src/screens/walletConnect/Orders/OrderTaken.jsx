@@ -57,7 +57,7 @@ export default function OrderTaken({route, navigation}) {
   
 
   function changeStatus(status){
-    const collection = order.orderType + order.crypto
+    const collection = order.order_type + order.crypto
     firestore()
     .collection(collection)
     .doc(orderId.id)
@@ -133,12 +133,12 @@ export default function OrderTaken({route, navigation}) {
                 <Text style={[styles.mainText, {fontSize: 20}]}>"Transferencia Bancaria"</Text>
               </View>
               <View style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 8}}>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5"}]}>{order.orderType == "comprar" ? "Vendedor" : "Comprador"}</Text> 
+                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5"}]}>{order.order_type == "comprar" ? "Vendedor" : "Comprador"}</Text> 
                 <Text style={[styles.mainText, {fontSize: 20}]}>{order.username}</Text>
               </View>
               <View style={{borderBottomWidth:1, width: "100%", borderBottomColor: sharedColors.bagreen, marginVertical: 24}}></View>
           </View>
-          {(order.status == "pendingLock" && order.orderType == "Comprar") ? (
+          {(order.status == "pendingLock" && order.order_type == "Comprar") ? (
             <View style={styles.awaitingPayment}>
               <View>
                 <Text style={styles.awaitingTxt}>Esperando a que el vendedor bloquee las criptomonedas</Text>
@@ -146,32 +146,32 @@ export default function OrderTaken({route, navigation}) {
               
             </View>
 
-          ) : order.orderType == "Vender" ? (
+          ) : order.order_type == "Vender" ? (
             <View><Text>Status is pending</Text></View>
-          ) : (order.status == "assetsLocked" && order.orderType == "Comprar") ? (
+          ) : (order.status == "assetsLocked" && order.order_type == "Comprar") ? (
             <View>
               <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
               <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5", marginVertical: 14, fontWeight: "400"}]}>Usa los siguientes datos para realizar la transferencia bancaria desde tu banco</Text>
 
               <View style={{flexDirection: "row", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Titular</Text>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.paymentMethod.titular}</Text>              
+                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_method.titular}</Text>              
               </View>
               <View style={{flexDirection: "row", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Banco</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.paymentMethod.banco}</Text>
+                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_method.banco}</Text>
               </View>
               <View style={{flexDirection: "row", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>CBU/CVU</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.paymentMethod.cbu}</Text>
+                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_method.cbu}</Text>
               </View>
               <View style={{flexDirection: "row", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Alias</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.paymentMethod.alias}</Text>
+                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_method.alias}</Text>
               </View>
               
             </View>
-          ) : (order.status == "payed" && order.orderType == "Comprar") ? (
+          ) : (order.status == "payed" && order.order_type == "Comprar") ? (
             <View style={styles.awaitingPayment}>
               <View>
                 <Text style={styles.awaitingTxt}>Has marcado la orden como pagada</Text>

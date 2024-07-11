@@ -56,7 +56,7 @@ interface Order {
                         <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                             {orders.sort((a, b) => a.price - b.price)
                             .map((order, index) => (
-                                <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
+                                <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} order_type={order.order_type} onPress={() => handleCardPress(order)} display={"none"}/>
                             ))}
                         </ScrollView>
                     </View>

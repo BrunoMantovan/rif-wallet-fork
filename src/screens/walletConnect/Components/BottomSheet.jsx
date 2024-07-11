@@ -93,7 +93,7 @@ export default function BottomSheet(props) {
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-between",}}>
                         <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Método de pago</Text>
-                        <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.paymentMethod}</Text>
+                        <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.payment_method}</Text>
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-between",}}>
                         <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Dirección de destino</Text>

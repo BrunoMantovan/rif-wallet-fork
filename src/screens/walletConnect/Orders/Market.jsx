@@ -31,12 +31,12 @@ export default function BuyOrders() {
     const [crypto, setCrypto] = useState(null)
     const [method, setMethod] = useState(null)
     const [zindex, setZindex] = useState(2)
-    const orderTypes = [{text: "Comprar"}, {text: "Vender"}]
+    const order_types = [{text: "Comprar"}, {text: "Vender"}]
     const cryptos = [
         {text: "DoC", image: require('../../../images/slides/doc.png')},
         {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
     ]
-    const paymentMethod = [{text: "Transferencia bancaria"}]
+    const payment_method = [{text: "Transferencia bancaria"}]
     const [specs, setSpecs] = useState(false)
     const [open, setOpen] = useState(null)
     const [typePlaceholder, setTypePlaceholder] = useState('Tipo de orden');
@@ -153,7 +153,7 @@ export default function BuyOrders() {
                     <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
                         {orders.sort((a, b) => a.price - b.price)
                         .map((order, index) => (
-                            <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderType} onPress={() => handleCardPress(order)} display={"none"}/>
+                            <AdCard key={index} username={order.username} price={order.price} total={order.total} crypto={order.crypto} order_type={order.order_type} onPress={() => handleCardPress(order)} display={"none"}/>
                         ))}
                     </ScrollView> */}
                 <Svg
@@ -173,7 +173,7 @@ export default function BuyOrders() {
                 {open && (
                     <>
                         <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
-                        <BottomSheet data={open === "type" ? orderTypes : open === "crypto" ? cryptos : paymentMethod} title={open === 'type' ? '¿Qué querés hacer?' : open === 'crypto' ? 'Elegir moneda' : 'Método de pago'} onSelect={handleSelect}/>
+                        <BottomSheet data={open === "type" ? order_types : open === "crypto" ? cryptos : payment_method} title={open === 'type' ? '¿Qué querés hacer?' : open === 'crypto' ? 'Elegir moneda' : 'Método de pago'} onSelect={handleSelect}/>
                     </>
                 )}
             </View>

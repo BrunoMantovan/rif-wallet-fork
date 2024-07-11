@@ -1,5 +1,6 @@
+import "@ethersproject/shims"
 import { View, StyleSheet, RefreshControl, ScrollView, Text, Pressable, } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
 import firestore from '@react-native-firebase/firestore';
 import AdCard from '../Components/AdCard';
@@ -11,7 +12,8 @@ import { useTranslation } from 'react-i18next'
 import { t } from 'i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useMarket } from '../MarketContext';
-
+import { ethers } from "ethers";
+import abi from "../../../shared/constants/ABI.json"
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
   const navigation = useNavigation()
@@ -40,11 +42,27 @@ export default function MyOrders() {
     }, [])
 );
 
-
+  useEffect(() => {
+    async function contractCall(){
+      const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co")
+      const contract = new ethers.Contract("0xd83Be589F2622E6f311C886309A0629a18e36e22", abi, provider)
+    
+    try {
+      const collectedFees = await contract.fees("0x542fDA317318eBF1d3DEAf76E0b632741A7e677d")
+      const feesNumber = ethers.utils.formatUnits(collectedFees, 3);
+      const whiteListed = await contract.isERC20Whitelisted("0x450bbc727100D806797CD617c88d1319563F8416")
+      console.log("result is ",feesNumber)
+      console.log("whiteListed is ",whiteListed)
+    }
+    catch (error) {
+      console.error('Error fetching fees:', error);
+    }
+    }
+  }, [])
 
   const handleDelete = async (id) => {
     const index = orders.findIndex(order => order.id === id);
-    const collection = orders[index].orderType + orders[index].crypto;
+    const collection = orders[index].order_type + orders[index].crypto;
     try {
       const updatedOrders = [...orders];
       updatedOrders.splice(index, 1);
@@ -62,6 +80,7 @@ export default function MyOrders() {
   function createOrderNavigate(){
     navigation.navigate('Crear Publicación');
     setHideTab(true);
+    
   }
 
 
@@ -71,7 +90,7 @@ export default function MyOrders() {
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} orderType={order.orderTypeForSelf} onPressDelete={() => handleDelete(order.id)}/>
+          <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} order_type={order.order_type_for_self} onPressDelete={() => handleDelete(order.id)}/>
         ))}
         
       </ScrollView> : 
