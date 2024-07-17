@@ -36,6 +36,8 @@ export const ShowMnemonicScreen = ({
           keys,
           getCurrentChainId(),
         )
+        console.log("nemonica: ",kms.mnemonic);
+        
         setMnemonic(kms.mnemonic)
       }
     }

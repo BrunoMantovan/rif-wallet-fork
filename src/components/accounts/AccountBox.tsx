@@ -210,7 +210,7 @@ export const AccountBox = ({
         title={t('wallet_backup_delete_button')}
         onPress={() => setIsDeleteConfirmationVisible(true)}
         backgroundVariety={AppButtonBackgroundVarietyEnum.OUTLINED}
-        color={sharedColors.white}
+        color={sharedColors.black}
         style={styles.deleteButton}
       />
       <DeleteWalletModal
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 10,
     minHeight: 80,
+    
   }),
   status: castStyle.view({ flexDirection: 'row' }),
   statusText: castStyle.view({ marginRight: 5, marginTop: 3 }),
@@ -239,18 +240,22 @@ const styles = StyleSheet.create({
     marginTop: 30,
     alignItems: 'center',
     flexDirection: 'row',
+    
   }),
   accountLabel: castStyle.view({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
+    
   }),
   accountText: castStyle.view({
     maxWidth: 240,
+    
   }),
   accountEditButton: castStyle.text({
     alignSelf: 'flex-end',
     textDecorationLine: 'underline',
+    
   }),
 
   accountInput: castStyle.text({
@@ -265,8 +270,11 @@ const styles = StyleSheet.create({
   }),
   copyIcon: castStyle.image({
     padding: defaultIconSize,
+    backgroundColor: sharedColors.primaryDark,
+    color: sharedColors.black,
   }),
   deleteButton: castStyle.view({
     marginTop: 24,
+    backgroundColor: sharedColors.primaryDark,
   }),
 })

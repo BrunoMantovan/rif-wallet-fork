@@ -257,12 +257,12 @@ const styles = StyleSheet.create({
   }),
   placeholderText: castStyle.text({
     flex: 1,
-    color: sharedColors.inputLabelColor,
+    color: sharedColors.black,
     fontFamily: "Roboto-Medium",
     fontWeight: "500",
   }),
   valueText: castStyle.text({
     marginTop: 14,
-    color: sharedColors.inputText,
+    color: sharedColors.black,
   }),
 })

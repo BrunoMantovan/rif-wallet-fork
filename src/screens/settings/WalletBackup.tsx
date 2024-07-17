@@ -31,6 +31,7 @@ export const WalletBackup = (_: Props) => {
           keys,
           getCurrentChainId(),
         )
+        console.log("nemonica: ",kms.mnemonic);
         setMnemonic(kms.mnemonic)
       }
     }
