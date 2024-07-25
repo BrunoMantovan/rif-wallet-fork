@@ -344,8 +344,8 @@ export const HomeScreen = ({
           </Animated.View>
         )}
 
-        <TouchableWithoutFeedback style={{marginTop: 24, width: "100%"}} onPress={goToLink}>
-          <View style={{flexDirection: "row", width: "100%"}}>
+        <TouchableWithoutFeedback style={{width: "100%"}} onPress={goToLink}>
+          <View style={{flexDirection: "row", width: "100%",marginTop: 24}}>
             <Text style={{fontSize: 18, color: sharedColors.bablue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conectate con nosotros para conseguir DOC </Text>
             <FontAwesome5Icon
             name={"telegram"}
