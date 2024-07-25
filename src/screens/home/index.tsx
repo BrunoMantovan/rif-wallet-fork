@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { StyleSheet, View, ScrollView, Text, Linking, TouchableWithoutFeedback } from 'react-native'
 import { BitcoinNetwork } from '@rsksmart/rif-wallet-bitcoin'
 import { useTranslation } from 'react-i18next'
 import { useIsFocused } from '@react-navigation/native'
@@ -46,6 +46,9 @@ import { rootTabsRouteNames } from 'src/navigation/rootNavigator'
 import GearIcon from 'src/components/icons/GearIcon'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+
+import { Animated, Easing } from 'react-native';
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -64,7 +67,7 @@ export const HomeScreen = ({
   const totalUsdBalance = useAppSelector(selectTotalUsdValue)
   const prices = useAppSelector(selectUsdPrices)
   const hideBalance = useAppSelector(selectHideBalance)
-
+  const [showPortfolio, setShowPortfolio] = useState<boolean>(false)
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>()
   const [selectedTokenBalance, setSelectedTokenBalance] =
     useState<CurrencyValue>({
@@ -80,14 +83,45 @@ export const HomeScreen = ({
     })
   const [showInfoBar, setShowInfoBar] = useState<boolean>(true)
 
-  const balancesArray = Object.values(tokenBalances)
+  let balancesArray = [...Object.values(tokenBalances)];
+  balancesArray[2] = { ...balancesArray[2], symbol: "RBTC (GAS)" };
+  // Define the desired order
+  const desiredOrder = [
+    "Dollar on Chain",
+    "MOC",
+    "BitPRO",
+    "RBTC",
+    "Testnet RIF Token"
+  ];
 
+  // Sort balancesArray according to the desired order
+  balancesArray.sort((a, b) => {
+    const indexA = desiredOrder.indexOf(a.name);
+    const indexB = desiredOrder.indexOf(b.name);
+    return indexA - indexB;
+  });
+  
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined
   const selectedColor = getTokenColor(selected?.symbol || '')
   const backgroundColor = {
     backgroundColor: selectedAddress ? selectedColor : sharedColors.borderColor,
   }
+
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+  const animatedStyle = {
+    height: animatedHeight,
+    overflow: 'hidden', // Ensures content is hidden when height is 0
+  };
+
+  useEffect(() => {
+    Animated.timing(animatedHeight, {
+      toValue: showPortfolio ? 80 : 0, // Adjust the `200` value as needed
+      duration: 200, // Adjust the duration as needed
+      easing: Easing.ease,
+      useNativeDriver: false, // Set to true for better performance if using transform or opacity
+    }).start();
+  }, [showPortfolio]);
 
   /*const rampConfig = useMemo(
     () => ({
@@ -198,9 +232,7 @@ export const HomeScreen = ({
         symbol,
         balance: usdBalance.toFixed(2),
       })
-    }
-    console.log(tokenBalances);
-    
+    }    
   }, [selectedToken])
   const closed = useMemo(() => {
     if (hasIsGettingStartedClosed()) {
@@ -220,6 +252,18 @@ export const HomeScreen = ({
     symbol: '',
     symbolType: 'usd',
   }
+  const togglePortfolio = () => {
+    setShowPortfolio(!showPortfolio)
+  }
+
+  const goToLink = async () => {
+    const url = 'https://linktr.ee/bolsilloargento';
+    try {
+      await Linking.openURL(url)
+    } catch (error) {
+      console.error("An error occurred", error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} bounces={false}>
@@ -277,15 +321,40 @@ export const HomeScreen = ({
 
       
       <View style={styles.bodyContainer}>
-        <Typography style={styles.portfolioLabel} type={'h3'}>
-          {t('home_screen_portfolio')}
-        </Typography>
-        <PortfolioComponent
-          selectedAddress={selectedAddress}
-          setSelectedAddress={setSelectedAddress}
-          balances={balancesArray.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token")}
-          totalUsdBalance={totalUsdBalance}
-        />
+      <TouchableOpacity onPress={togglePortfolio} style={{flexDirection: "row", alignItems: "center"}}>
+          <Typography style={styles.portfolioLabel} type={'h3'}>
+            {t('home_screen_portfolio')}
+          </Typography>
+          
+          <FontAwesome5Icon
+          name={showPortfolio ? 'chevron-up' : 'chevron-down'}
+          size={24}
+          color={sharedColors.black}
+          style={{marginLeft: 8, paddingTop: 10}}
+          />
+        </TouchableOpacity>
+        {showPortfolio && (
+          <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+          <PortfolioComponent
+            selectedAddress={selectedAddress}
+            setSelectedAddress={setSelectedAddress}
+            balances={balancesArray.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name === "BitPRO")}
+            totalUsdBalance={totalUsdBalance}
+          />
+          </Animated.View>
+        )}
+
+        <TouchableWithoutFeedback style={{marginTop: 24, width: "100%"}} onPress={goToLink}>
+          <View style={{flexDirection: "row", width: "100%"}}>
+            <Text style={{fontSize: 18, color: sharedColors.bablue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conectate con nosotros para conseguir DOC </Text>
+            <FontAwesome5Icon
+            name={"telegram"}
+            size={24}
+            color="#0088cc"
+            style={{marginLeft: 8}}
+            />
+          </View>
+        </TouchableWithoutFeedback>
 
         <Typography style={styles.transactionsLabel} type={'h3'}>
           {t('home_screen_transactions')}
@@ -388,4 +457,7 @@ const styles = StyleSheet.create({
     width: '100%',
     resizeMode: 'contain',
   }),
+  animatedContainer: {
+    width: '100%',
+  },
 })

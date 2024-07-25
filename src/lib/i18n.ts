@@ -94,7 +94,7 @@ const resources = {
       Cancel: 'Cancelar',
       TOTAL: 'TOTAL',
       search_placeholder: 'Buscar por nombre',
-      home_screen_portfolio: 'Portfolio',
+      home_screen_portfolio: 'Mis tenencias',
       home_screen_transactions: 'Actividad',
       home_screen_empty_transactions: 'Sin transacciones',
       home_screen_no_transactions_created:

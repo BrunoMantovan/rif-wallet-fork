@@ -123,6 +123,7 @@ export enum TokenSymbol {
   XUSD = 'XUSD',
   FISH = 'FISH',
   RBTC = 'RBTC',
+  GAS = "RBTC (GAS)",
 }
 
 export const getTransparentIconSource = (
@@ -149,6 +150,8 @@ export const getTransparentIconSource = (
     case 'BTCT':
     case 'BTC':
       return require('./../../images/btc.png')
+    case 'RBTC (GAS)':
+      return require("./../../images/gas.png")
     default:
       return undefined
   }
@@ -274,6 +277,8 @@ export const getIconSource = (
       return require('@rsksmart/rsk-contract-metadata/images/xusd.png')
     case 'FISH':
       return require('@rsksmart/rsk-contract-metadata/images/fish.png')
+    case 'RBTC (GAS)':
+      return require('./../../images/gas.png')
     default:
       return undefined
   }

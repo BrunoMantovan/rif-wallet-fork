@@ -4,9 +4,12 @@ export const getTokenColor = (tokenSymbol: string): string => {
   switch (tokenSymbol.toUpperCase()) {
     case 'TRBTC':
     case 'RBTC':
+    case "RBTC (GAS)":
+    case "BPRO":
       return tokenColors.rbtc
     case 'RDOC':
     case 'DOC':
+    case "MOC":
       return tokenColors.rdoc
     case 'TRIF':
     case 'RIF':
