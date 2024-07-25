@@ -102,27 +102,36 @@ export default function MyOrders() {
     setHideTab(true); */    
   }
   const fn = async () => {
-    const keys = await getKeys()
-    if (keys) {
-      const { kms } = KeyManagementSystem.fromSerialized(
-        keys,
-        getCurrentChainId(),
-      )
-      /* console.log("nemonica: ",kms.mnemonic);
-      console.log("kms: ",kms);
-      const derivationPath = "m/44'/37310'/0'/0/0";
-      const privateKey = kms.state.derivedPaths[derivationPath]
-      console.log(`Private Key: ${privateKey}`); */
-      setMnemonic(kms.mnemonic)
-      console.log("chain id: ", getCurrentChainId())
-    }
-    const path = "m/44'/37310'/0'/0/0"
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic, path);
+    const mnemonic = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball";
+    const hdPath = "m/44'/37310'/0'/0/0";
+    
+    // Derive the wallet
+    const wallet = ethers.Wallet.fromMnemonic(mnemonic, hdPath);
 
-    console.log('Wallet: ', wallet);
-    console.log('Wallet address: ', wallet.address);
-    console.log('Private Key: ', wallet.privateKey);
+    // Connect to the RSK testnet
+    const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
+    
+    // Create a signer
+    const signer = wallet.connect(provider);
+
+    const contract = new ethers.Contract('0xa4aE638eF492792A9a758935df99052dae317A34', abi, signer);
+    const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+    const flag = false;
+
+    try {
+      console.log("tx started");
+      const tx = await contract.setWhitelistedERC20Token(tokenAddress, flag);
+      console.log('Transaction hash:', tx.hash);
+  
+      // Wait for the transaction to be mined
+      const receipt = await tx.wait();
+      console.log('Transaction was mined in block:', receipt.blockNumber, "tx: ", receipt);
+    } catch (error) {
+      console.error('Error while setting whitelisted token:', error);
+    }
   }
+  
+  
 
   const whitelistedERC20Token = async () => {
     try {
@@ -161,7 +170,7 @@ export default function MyOrders() {
       );
 
       const myContract = new Contract("0xd83Be589F2622E6f311C886309A0629a18e36e22", abi, provider);
-      const tokenAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
       const whitelisted = true
       console.log("Estimating gas...");
       const estimatedGasLimit = await myContract.estimateGas.setWhitelistedERC20Token(tokenAddress, whitelisted);
@@ -195,9 +204,15 @@ const hashAddress = () => {
 };
 
 async function checkBalance() {  
-  const balance = await wallet.getBalance();
+/*   const balance = await wallet.getBalance();
   console.log(ethers.utils.formatEther(balance));
-  //console.log(wallet.smartWalletAddress.toLowerCase());
+  //console.log(wallet.smartWalletAddress.toLowerCase()); */
+  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
+
+  const contract = new ethers.Contract('0xd83Be589F2622E6f311C886309A0629a18e36e22', abi, provider);
+  console.log("function called");
+  const ownerAddress = await contract.owner();
+  console.log('Contract owner address:', ownerAddress);
 }
 
 
@@ -221,14 +236,14 @@ async function sendTX(){
     const walletrsk = ethers.Wallet.fromMnemonic(mnemonicPh, path).connect(provider)
     console.log('EOA ADDRESS:', walletrsk.provider);
     console.log('EOA PRIVATE KEY:', walletrsk.privateKey);
-    const address = "0x846C25707b92aB0652392c14F02961B27f825E66"
+    const address = "0x4210cbC7424A8B809316c1f53dd2564e5320eb88"
     const recipientAddress = address.toLowerCase()
     const chsad = ethers.utils.getAddress(recipientAddress);
     console.log(isValidChecksumAddress(chsad, 31));
     console.log("recipientAddress is ",chsad)
     const tx = {
       to: chsad,
-      value: ethers.utils.parseEther("0.0003"),
+      value: ethers.utils.parseEther("0.03"),
     };
     const transactionResponse = await walletrsk.sendTransaction(tx);
     await transactionResponse.wait();
@@ -238,6 +253,39 @@ async function sendTX(){
     console.log("error is ",error)
   }
 }
+
+const callContractMethod = async () => {
+  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co");
+  try {
+    const keys = await getKeys()
+    if (keys) {
+      const { kms } = KeyManagementSystem.fromSerialized(
+        keys,
+        getCurrentChainId(),
+      )
+      setMnemonic(kms.mnemonic)
+      console.log("chain id: ", getCurrentChainId())
+    }
+    const path = "m/44'/37310'/0'/0/0"
+    const wallet = ethers.Wallet.fromMnemonic(mnemonic, path);
+    const signer = new ethers.Wallet(wallet.privateKey, provider);
+    const contractAddress = '0xd83Be589F2622E6f311C886309A0629a18e36e22';
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+    console.log("contract is ",contract)
+    const tx = await contract.setWhitelistedERC20Token("0xdAC17F958D2ee523a2206206994597C13D831ec7", true, {
+      gasLimit: ethers.utils.hexlify(100000),
+    });
+
+      // Wait for the transaction to be mined
+      const receipt = await tx.wait();
+      console.log('Transaction receipt:', receipt);
+  } catch (error) {
+      console.error('Error calling contract method:', error);
+  }
+};
+
+
+
 
   return (
     <View style={styles.body}>

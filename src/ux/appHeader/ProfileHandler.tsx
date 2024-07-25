@@ -34,20 +34,20 @@ export const ProfileHandler = ({ navigation }: Props) => {
         profile.status,
       ) && (
         <>
-          <Icon
+          {/* <Icon
             name="person-circle-sharp"
             size={20}
             color={sharedColors.grey}
-          />
+          /> */}
 
           <View style={styles.textAlignment}>
-            <Typography
+           {/*  <Typography
               type="h4"
               color={sharedColors.grey}
               style={styles.profileName}
               accessibilityLabel="noUsername">
               {t('header_no_username')}
-            </Typography>
+            </Typography> */}
           </View>
         </>
       )}

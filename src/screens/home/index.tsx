@@ -199,6 +199,8 @@ export const HomeScreen = ({
         balance: usdBalance.toFixed(2),
       })
     }
+    console.log(tokenBalances);
+    
   }, [selectedToken])
   const closed = useMemo(() => {
     if (hasIsGettingStartedClosed()) {
