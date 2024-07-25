@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { StyleSheet, View, ScrollView, Text, Linking, TouchableWithoutFeedback } from 'react-native'
+import { StyleSheet, View, ScrollView, Text, Linking, TouchableWithoutFeedback, Image } from 'react-native'
 import { BitcoinNetwork } from '@rsksmart/rif-wallet-bitcoin'
 import { useTranslation } from 'react-i18next'
 import { useIsFocused } from '@react-navigation/native'
@@ -321,10 +321,10 @@ export const HomeScreen = ({
 
       
       <View style={styles.bodyContainer}>
-      <TouchableOpacity onPress={togglePortfolio} style={{flexDirection: "row", alignItems: "center"}}>
-          <Typography style={styles.portfolioLabel} type={'h3'}>
-            {t('home_screen_portfolio')}
-          </Typography>
+      <TouchableOpacity onPress={togglePortfolio} style={{flexDirection: "row", alignItems: "center", marginBottom: showPortfolio ? 0 : 24 }}>
+      <Typography style={styles.portfolioLabel} type={'h3'}>
+        {t('home_screen_portfolio')}
+      </Typography>
           
           <FontAwesome5Icon
           name={showPortfolio ? 'chevron-up' : 'chevron-down'}
@@ -344,17 +344,12 @@ export const HomeScreen = ({
           </Animated.View>
         )}
 
-        <TouchableWithoutFeedback style={{width: "100%"}} onPress={goToLink}>
-          <View style={{flexDirection: "row", width: "100%",marginTop: 24}}>
-            <Text style={{fontSize: 18, color: sharedColors.bablue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conectate con nosotros para conseguir DOC </Text>
-            <FontAwesome5Icon
-            name={"telegram"}
-            size={24}
-            color="#0088cc"
-            style={{marginLeft: 8}}
-            />
+        <TouchableOpacity style={{width: "100%"}} onPress={goToLink}>
+          <View style={styles.linkBox}>
+            <Text style={{fontSize: 18, color: sharedColors.bablue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conseguir DOC </Text>
+            <Image source={require("../../images/linktree.png")} style={styles.linktree}/>
           </View>
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
 
         <Typography style={styles.transactionsLabel} type={'h3'}>
           {t('home_screen_transactions')}
@@ -459,5 +454,21 @@ const styles = StyleSheet.create({
   }),
   animatedContainer: {
     width: '100%',
+    marginBottom: 24,
   },
+  linkBox:{flexDirection: "row",
+    width: "100%",
+    borderRadius: 16,
+    backgroundColor: sharedColors.white,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    justifyContent: "space-between",
+    borderColor: sharedColors.inputBorder,
+    borderWidth: 1,
+  },
+  linktree: {
+    width: 24,
+    height: 24,
+    marginLeft: 8,
+  }
 })
