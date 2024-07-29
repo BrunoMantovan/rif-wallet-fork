@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { CompositeScreenProps, useIsFocused } from '@react-navigation/native'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -104,7 +104,7 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
     <View style={sharedStyles.screen}>
       {/* <Typography type={'h2'} style={styles.title}>
         {t('contacts_screen_title')}
-      </Typography> */}
+      </Typography>  */}
       {/* {recentContacts?.length > 0 && (
         <View style={styles.recentContacts}>
           <ScrollView horizontal>
@@ -117,12 +117,12 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
             ))}
           </ScrollView>
         </View>
-      )} */}
+      )}  */}
       
       <FormProvider {...methods}>
         {contacts.length === 0 ? (
-          <View style={{backgroundColor: sharedColors.mainWhite, flex: 1, width: "100%"}}>
-
+          <View style={{backgroundColor: sharedColors.mainWhite, flex: 1, width: "100%", justifyContent: "center", alignItems: "center"}}>
+            <Text style={styles.noContact}>Todavía no has creado ningún contacto</Text>
           </View>
         ) : (
           <>
@@ -135,7 +135,7 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
                 <FontAwesome5Icon
                   name={'search'}
                   size={24}
-                  color="blue"                  
+                  color={sharedColors.bablue}                  
                   style={styles.fontAwesomeStyle}
                 />
               </AppTouchable>
@@ -271,7 +271,15 @@ const styles = StyleSheet.create({
   fontAwesomeStyle : castStyle.text({
     textAlign: "center",
     width: 32,
-  })
+  }),
+  noContact:{
+    fontFamily: "BalooTammudu",
+    fontSize: 28,
+    fontWeight: "500",
+    color: sharedColors.balightblue,
+    textAlign: "center",
+    lineHeight: 50,
+  }
 })
 
 export * from './ContactDetails'

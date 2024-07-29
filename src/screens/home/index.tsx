@@ -327,7 +327,7 @@ export const HomeScreen = ({
       </Typography>
           
           <FontAwesome5Icon
-          name={showPortfolio ? 'chevron-up' : 'chevron-down'}
+          name={showPortfolio ? 'chevron-down' : 'chevron-up'}
           size={24}
           color={sharedColors.black}
           style={{marginLeft: 8, paddingTop: 10}}

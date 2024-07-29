@@ -1,4 +1,5 @@
 import {
+  Image,
   StyleSheet,
   Text,
   View,
@@ -34,8 +35,9 @@ export const Marketp2p: React.FC = (/* { route }: Props */) => {
     <View style={styles.body}> 
       {/* <Navigatorp2p />  */}    
       {/* {logged ? <Navigatorp2p /> : <NavigatorLogin/>} */}
-      <Text style={styles.text}>Mercado de Pares</Text>
       <Text style={styles.text}>Próximamente </Text>
+      <Text style={styles.text}>Mercado de Pares</Text>
+      <Image source={require("../../images/p2pTrade.png")} style={styles.image}/>
     </View>
   )
 }
@@ -46,13 +48,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fbfc",
     alignContent: 'center',
     justifyContent: 'center',
-    paddingHorizontal: "10%"
+    paddingHorizontal: "10%",
   },
   text: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 24,
+    fontFamily: "BalooTammudu",
+    fontSize: 28,
     fontWeight: "500",
-    color: sharedColors.bablue,
-    textAlign: "center"
+    color: sharedColors.balightblue,
+    textAlign: "center",
+    lineHeight: 50,
+  },
+  image:{
+    width: "100%",
+    height: 500,
+    resizeMode: "contain",
   }
 })
