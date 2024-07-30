@@ -84,7 +84,7 @@ export const HomeScreen = ({
   const [showInfoBar, setShowInfoBar] = useState<boolean>(true)
 
   let balancesArray = [...Object.values(tokenBalances)];
-  balancesArray[2] = { ...balancesArray[2], symbol: "RBTC (GAS)" };
+
   // Define the desired order
   const desiredOrder = [
     "Dollar on Chain",

@@ -134,6 +134,7 @@ export const getTransparentIconSource = (
   }
   switch (symbol.toUpperCase()) {
     case 'RBTC':
+      return require("./../../images/gas.png")
     case 'TRBTC':
       return require('../../images/rbtc.png')
     case 'RIF':
