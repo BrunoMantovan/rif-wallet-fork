@@ -49,6 +49,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import { Animated, Easing } from 'react-native';
+import { getDefaultTokens } from 'src/core/setup'
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -89,8 +90,11 @@ export const HomeScreen = ({
   const desiredOrder = [
     "Dollar on Chain",
     "MOC",
+    "Money on Chain Governance Token",
+    "BitPro",
     "BitPRO",
     "RBTC",
+    "RIF",
     "Testnet RIF Token"
   ];
 
@@ -121,6 +125,7 @@ export const HomeScreen = ({
       easing: Easing.ease,
       useNativeDriver: false, // Set to true for better performance if using transform or opacity
     }).start();
+    console.log("tokens: ", balancesArray)
   }, [showPortfolio]);
 
   /*const rampConfig = useMemo(
@@ -338,7 +343,7 @@ export const HomeScreen = ({
           <PortfolioComponent
             selectedAddress={selectedAddress}
             setSelectedAddress={setSelectedAddress}
-            balances={balancesArray.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name === "BitPRO")}
+            balances={balancesArray.filter(obj => obj.name === "RIF" || obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name == "BitPro" || obj.name === "BitPRO" || obj.name === "Money on Chain Governance Token")}
             totalUsdBalance={totalUsdBalance}
           />
           </Animated.View>

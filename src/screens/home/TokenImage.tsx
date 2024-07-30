@@ -21,7 +21,7 @@ interface Props {
 
 export const TokenImage = ({
   symbol,
-  size = 18,
+  size = symbol == "RBTC" ? 30 : 20,
   transparent = false,
   color = sharedColors.black,
   white,
@@ -166,6 +166,7 @@ export const getIconSource = (
   }
   switch (symbol.toUpperCase()) {
     case 'RBTC':
+      return require("./../../images/gas.png")
     case 'TRBTC':
       return require('../../images/rbtc.png')
     case 'RIF':
