@@ -343,7 +343,7 @@ export const HomeScreen = ({
           <PortfolioComponent
             selectedAddress={selectedAddress}
             setSelectedAddress={setSelectedAddress}
-            balances={balancesArray.filter(obj => obj.name === "RIF" || obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name == "BitPro" || obj.name === "BitPRO" || obj.name === "Money on Chain Governance Token")}
+            balances={balancesArray.filter(obj => obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")}
             totalUsdBalance={totalUsdBalance}
           />
           </Animated.View>
