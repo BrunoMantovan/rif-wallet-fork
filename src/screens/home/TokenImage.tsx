@@ -21,7 +21,7 @@ interface Props {
 
 export const TokenImage = ({
   symbol,
-  size = symbol != "RBTC" ? 20 : 30,
+  size =20,
   transparent = false,
   color = sharedColors.black,
   white,
@@ -123,7 +123,6 @@ export enum TokenSymbol {
   XUSD = 'XUSD',
   FISH = 'FISH',
   RBTC = 'RBTC',
-  GAS = "RBTC (GAS)",
 }
 
 export const getTransparentIconSource = (
@@ -134,7 +133,7 @@ export const getTransparentIconSource = (
   }
   switch (symbol.toUpperCase()) {
     case 'RBTC':
-      return require("./../../images/gas.png")
+
     case 'TRBTC':
       return require('../../images/rbtc.png')
     case 'RIF':
@@ -151,8 +150,7 @@ export const getTransparentIconSource = (
     case 'BTCT':
     case 'BTC':
       return require('./../../images/btc.png')
-    case 'RBTC (GAS)':
-      return require("./../../images/gas.png")
+
     default:
       return undefined
   }
@@ -166,7 +164,7 @@ export const getIconSource = (
   }
   switch (symbol.toUpperCase()) {
     case 'RBTC':
-      return require("./../../images/gas.png")
+
     case 'TRBTC':
       return require('../../images/rbtc.png')
     case 'RIF':
@@ -279,8 +277,7 @@ export const getIconSource = (
       return require('@rsksmart/rsk-contract-metadata/images/xusd.png')
     case 'FISH':
       return require('@rsksmart/rsk-contract-metadata/images/fish.png')
-    case 'RBTC (GAS)':
-      return require('./../../images/gas.png')
+
     default:
       return undefined
   }

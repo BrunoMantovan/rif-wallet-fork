@@ -86,7 +86,7 @@ export const HomeScreen = ({
 
   let balancesArray = [...Object.values(tokenBalances)];
 
-  // Define the desired order
+  /* // Define the desired order
   const desiredOrder = [
     "Dollar on Chain",
     "MOC",
@@ -103,9 +103,9 @@ export const HomeScreen = ({
     const indexA = desiredOrder.indexOf(a.name);
     const indexB = desiredOrder.indexOf(b.name);
     return indexA - indexB;
-  });
+  }); */
   
-  const balancesArrayFiltered = balancesArray.filter(obj => obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+  const balancesArrayFiltered = balancesArray.filter(obj => obj.symbol == "RBTC" || obj.symbol === "DOC")
   
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined

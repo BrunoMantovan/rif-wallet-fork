@@ -90,7 +90,7 @@ export const TokenBalance = ({
               ]}>
               <TokenImage
                 symbol={firstValue.symbol}
-                size={firstValue.symbol != "RBTC" ? 30 : 45}
+                size={30}
                 transparent
                 white={isRifToken}
                 color={color}

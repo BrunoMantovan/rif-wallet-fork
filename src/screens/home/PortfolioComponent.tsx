@@ -75,7 +75,7 @@ export const PortfolioComponent = ({
               : sharedColors.white
             return (
               <PortfolioCard
-                key={i}
+                key={symbol}
                 onPress={() => handleSelectedAddress(contractAddress)}
                 color={color}
                 primaryText={symbol}

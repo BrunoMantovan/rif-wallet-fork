@@ -45,7 +45,7 @@ export const RelayDeployScreen = ({
 
       const freePayment = {
         tokenContract: getTokenAddress(
-          chainTypesById[chainId] === ChainTypeEnum.MAINNET ? 'RIF' : 'tRIF',
+          chainTypesById[chainId] === ChainTypeEnum.TESTNET ? 'tRIF' : 'RIF',
           chainTypesById[chainId],
         ),
         tokenAmount: BigNumber.from(0),

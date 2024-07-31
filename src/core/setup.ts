@@ -38,9 +38,9 @@ export const getRnsResolver = (
 }
 
 const defaultMainnetTokens: ITokenWithoutLogo[] = Object.keys(mainnetContracts)
-  /* .filter(address =>
+  .filter(address =>
     ['DOC', "RBTC"].includes(mainnetContracts[address].symbol),
-  ) */
+  )
   .map(address => {
     const { decimals, name, symbol } = mainnetContracts[address]
     return {
@@ -53,9 +53,9 @@ const defaultMainnetTokens: ITokenWithoutLogo[] = Object.keys(mainnetContracts)
     }
   })
 const defaultTestnetTokens: ITokenWithoutLogo[] = Object.keys(testnetContracts)
- /*  .filter(address =>
+  .filter(address =>
     ['DOC', "RBTC", "tRIF Token"].includes(testnetContracts[address].symbol),
-  ) */
+  )
   .map(address => {
     const { decimals, name, symbol } = testnetContracts[address]
     return {
