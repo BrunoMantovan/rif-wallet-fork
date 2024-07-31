@@ -105,6 +105,8 @@ export const HomeScreen = ({
     return indexA - indexB;
   });
   
+  const balancesArrayFiltered = balancesArray.filter(obj => obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+  
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined
   const selectedColor = getTokenColor(selected?.symbol || '')
@@ -125,7 +127,6 @@ export const HomeScreen = ({
       easing: Easing.ease,
       useNativeDriver: false, // Set to true for better performance if using transform or opacity
     }).start();
-    console.log("tokens: ", balancesArray)
   }, [showPortfolio]);
 
   /*const rampConfig = useMemo(
@@ -343,7 +344,7 @@ export const HomeScreen = ({
           <PortfolioComponent
             selectedAddress={selectedAddress}
             setSelectedAddress={setSelectedAddress}
-            balances={balancesArray.filter(obj => obj.name == "RBTC" || obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")}
+            balances={balancesArrayFiltered}
             totalUsdBalance={totalUsdBalance}
           />
           </Animated.View>

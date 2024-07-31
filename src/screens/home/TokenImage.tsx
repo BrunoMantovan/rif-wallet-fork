@@ -21,7 +21,7 @@ interface Props {
 
 export const TokenImage = ({
   symbol,
-  size = symbol == "RBTC" ? 30 : 20,
+  size = symbol != "RBTC" ? 20 : 30,
   transparent = false,
   color = sharedColors.black,
   white,

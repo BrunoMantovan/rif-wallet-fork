@@ -119,7 +119,8 @@ export const ReceiveScreen = ({
     asset => () => setSelectedAsset(asset),
     [],
   )
-
+  const balancesArrayFiltered = Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+  
   useEffect(() => {
     if (selectedAsset) {
       onGetAddress(selectedAsset)
@@ -152,7 +153,7 @@ export const ReceiveScreen = ({
         </View>
         {shouldShowAssets && (
           <ScrollView horizontal>
-            {Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+            {balancesArrayFiltered
             .map(asset => {
               const isSelected =
                 selectedAsset !== undefined &&
