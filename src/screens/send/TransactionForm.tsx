@@ -112,10 +112,6 @@ export const TransactionForm = ({
   status,
   contactList,
 }: Props) => {
-  const rifToken = useMemo(
-    () => tokenList.filter(tk => rifFeeMap.get(tk.symbol as TokenSymbol))[0],
-    [tokenList],
-  )
   const insets = useSafeAreaInsets()
   const { recipient, asset, amount: initialAmount } = initialValues
   const { t } = useTranslation()
@@ -125,9 +121,14 @@ export const TransactionForm = ({
   const [selectedToken, setSelectedToken] = useState<TokenBalanceObject>(
     asset || tokenList[0],
   )
+  const rifToken = useMemo(
+    () => selectedToken,
+    [tokenList, selectedToken],
+  )
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
     string | undefined
   >(selectedToken.contractAddress)
+
 
   // const [selectedFeeToken, setSelectedFeeToken] =
   //   useState<TokenBalanceObject>(selectedToken)

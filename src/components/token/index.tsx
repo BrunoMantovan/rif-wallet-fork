@@ -76,6 +76,7 @@ export const TokenBalance = ({
         { text: t('ok'), onPress: noop },
       ])
     }
+    
   }, [contact, t])
 
   return (
@@ -90,7 +91,7 @@ export const TokenBalance = ({
               ]}>
               <TokenImage
                 symbol={firstValue.symbol}
-                size={30}
+                size={firstValue.symbol == "RBTC" ? 40 :30}
                 transparent
                 white={isRifToken}
                 color={color}

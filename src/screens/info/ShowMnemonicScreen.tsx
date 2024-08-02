@@ -35,9 +35,7 @@ export const ShowMnemonicScreen = ({
         const { kms } = KeyManagementSystem.fromSerialized(
           keys,
           getCurrentChainId(),
-        )
-        console.log("nemonica: ",kms.mnemonic);
-        
+        )        
         setMnemonic(kms.mnemonic)
       }
     }

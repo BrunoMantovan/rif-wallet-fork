@@ -54,13 +54,16 @@ export const ReceiveScreen = ({
   const tokenBalances = useAppSelector(selectBalances)
   const username = useAppSelector(selectUsername)
 
+  const balancesArrayFiltered = Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+
   const { token, networkId } = route.params
   const [selectedAsset, setSelectedAsset] = useState<
     MixedTokenAndNetworkType | undefined
   >(
     (networkId && bitcoinCore?.networksMap[networkId]) ||
       token ||
-      Object.values(tokenBalances)[0],
+      balancesArrayFiltered[0]
+      //Object.values(tokenBalances)[0],
   )
   const [address, setAddress] = useState<string>('')
   const [isAddressLoading, setIsAddressLoading] = useState(false)
@@ -119,15 +122,17 @@ export const ReceiveScreen = ({
     asset => () => setSelectedAsset(asset),
     [],
   )
-  const balancesArrayFiltered = Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
   
   useEffect(() => {
     if (selectedAsset) {
       onGetAddress(selectedAsset)
+      
     }
+    console.log(selectedAsset?.symbol);
+    
   }, [onGetAddress, selectedAsset])
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!username) {
       showMessage(
         getPopupMessage(t('popup_message_rns'), t('popup_link_text'), () =>
@@ -135,7 +140,7 @@ export const ReceiveScreen = ({
         ),
       )
     }
-  }, [username, t, navigation])
+  }, [username, t, navigation]) */
 
   return (
     <ScrollView style={styles.parent}>

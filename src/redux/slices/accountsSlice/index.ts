@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { AccountPayload, IAccount } from './types'
 
-const initialState: IAccount[] = [{ name: 'account 1' }]
+const initialState: IAccount[] = [{ name: 'Billetera' }]
 
 const accountsSlice = createSlice({
   name: 'accounts',

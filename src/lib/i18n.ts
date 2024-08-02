@@ -128,16 +128,16 @@ const resources = {
       new_master_key_title: 'Save your phrase',
       new_master_key_button_title: 'Phrase secured, Continue',
       new_master_key_secure_later_button: 'Secure later',
-      change_asset: 'Cambiar de activo',
+      change_asset: 'Seleccionar activo',
       loading_qr: 'Loading QR',
       loading_address: 'Loading Address',
-      close: 'Close',
-      next: 'Next',
-      home_information_bar_title: 'Get Started',
+      close: 'Cerrar',
+      next: 'Siguiente',
+      home_information_bar_title: 'Empecemos',
       home_information_bar_desc1:
-        'We recommend you to start by funding your wallet.',
+        'Te recomendamos empezar por depositar en fondos.',
       home_information_bar_desc2:
-        'Deploy your wallet and send funds to your family and friends. ',
+        'Da de alta tu billetera y envía fondos a tu familia y amigos. ',
       home_information_bar_desc3:
         'Register your username and receive your icon.',
       username_registration_title: 'Registro de usuario',
@@ -281,10 +281,10 @@ const resources = {
       wallet_backup_delete_button: 'Borrar Billetera',
       wallet_backup_delete_confirmation_title: '¿Borrar Billetera?',
       wallet_backup_delete_confirmation_description:
-        'Make sure that you have saved your seed phrase. Without the seed phrase, recovery of your funds will not be possible in a new wallet.',
-      wallet_backup_definitive_delete_confirmation_title: 'Are you sure?',
+        'Asegurese de guardar la frase semilla de 12 palabras. Sin ella no será posible recuperar sus activos al crear una nueva billetera.',
+      wallet_backup_definitive_delete_confirmation_title: '¿Está seguro?',
       wallet_backup_definitive_delete_confirmation_description:
-        'Do you really want to erase the wallet with all the funds and information saved in it?',
+        '¿Está seguro de que desea eliminar la billetera y la información guardada en ella?',
       dapps_title: 'Dapps',
       dapps_instructions:
         'Scan & connect to your favorite desktop app. Connections will appear here.',
