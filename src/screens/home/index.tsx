@@ -107,7 +107,7 @@ export const HomeScreen = ({
     return indexA - indexB;
   }); */
   
-  const balancesArrayFiltered = balancesArray.filter(obj => obj.symbol == "RBTC" || obj.symbol === "DOC" || obj.symbol === "TPDOC" || obj.symbol === "tRIF Token")
+  const balancesArrayFiltered = balancesArray.filter(obj => obj.symbol == "RBTC" || obj.symbol === "DOC" || obj.symbol === "TPDOC" || obj.symbol === "tRIF Token" || obj.name == "RIF")
   
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined
