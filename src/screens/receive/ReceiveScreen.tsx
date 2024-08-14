@@ -54,7 +54,7 @@ export const ReceiveScreen = ({
   const tokenBalances = useAppSelector(selectBalances)
   const username = useAppSelector(selectUsername)
 
-  const balancesArrayFiltered = Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO")
+  const balancesArrayFiltered = Object.values(tokenBalances).filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" ||obj.name === "Dollar on Chain" || obj.name === "Testnet RIF Token" || obj.name === "MOC" ||obj.name === "BitPRO" || obj.name === "TestPDOC")
 
   const { token, networkId } = route.params
   const [selectedAsset, setSelectedAsset] = useState<

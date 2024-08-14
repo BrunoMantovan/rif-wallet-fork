@@ -34,6 +34,7 @@ import { useWalletState } from 'shared/wallet'
 import { TransactionForm } from './TransactionForm'
 import { usePaymentExecutor } from './usePaymentExecutor'
 import { TokenSymbol } from '../home/TokenImage'
+import { log } from 'react-native-reanimated'
 
 export const SendScreen = ({
   route,
@@ -57,7 +58,8 @@ export const SendScreen = ({
   const isAssetBitcoin = (asset: TokenBalanceObject) => 'bips' in asset
 
   const balances = Object.values(useAppSelector(selectBalances))
-  const balancesArrayFiltered = balances.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name === "BitPRO")
+  console.log(balances)
+  const balancesArrayFiltered = balances.filter(obj => obj.name === "RBTC" || obj.name === "Dollar on Chain" || obj.name === "tRIF Token" || obj.name === "Testnet RIF Token" || obj.name === "MOC" || obj.name === "BitPRO" || obj.name === "TPDOC" || obj.name == "RIF")
   
   const assets = contact
     ? balances.filter(b =>

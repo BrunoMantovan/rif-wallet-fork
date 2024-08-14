@@ -33,11 +33,11 @@ export const Marketp2p: React.FC = (/* { route }: Props */) => {
   return (
 
     <View style={styles.body}> 
-      {/* <Navigatorp2p />  */}    
-      {/* {logged ? <Navigatorp2p /> : <NavigatorLogin/>} */}
-      <Text style={styles.text}>Próximamente </Text>
+      {/* <Navigatorp2p />  */}
+      {logged ? <Navigatorp2p /> : <NavigatorLogin/>}
+{/*       <Text style={styles.text}>Próximamente </Text>
       <Text style={styles.text}>Mercado de Pares</Text>
-      <Image source={require("../../images/p2pTrade.png")} style={styles.image}/>
+      <Image source={require("../../images/p2pTrade.png")} style={styles.image}/> */}
     </View>
   )
 }

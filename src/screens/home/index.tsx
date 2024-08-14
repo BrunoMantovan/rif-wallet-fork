@@ -85,6 +85,8 @@ export const HomeScreen = ({
   const [showInfoBar, setShowInfoBar] = useState<boolean>(true)
 
   let balancesArray = [...Object.values(tokenBalances)];
+  console.log(balancesArray)
+  
 
   /* // Define the desired order
   const desiredOrder = [
@@ -105,7 +107,7 @@ export const HomeScreen = ({
     return indexA - indexB;
   }); */
   
-  const balancesArrayFiltered = balancesArray.filter(obj => obj.symbol == "RBTC" || obj.symbol === "DOC")
+  const balancesArrayFiltered = balancesArray.filter(obj => obj.symbol == "RBTC" || obj.symbol === "DOC" || obj.symbol === "TPDOC" || obj.symbol === "tRIF Token")
   
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined

@@ -21,7 +21,10 @@ import { useWalletState } from "src/shared/wallet";
 import SmartWalletFactoryABI from "../../../../docs/recovery/abi/smartWalletFactory.json"
 import smartWalletABI from "../../../../docs/recovery/abi/SmartWalletAbi.json"
 import { toChecksumAddress,isValidChecksumAddress  } from "@rsksmart/rsk-utils";
- 
+import AddTokenButton from "./Dispatch";
+import CryptoJS from 'crypto-js';
+import { keccak256 } from "ethers/lib/utils";
+
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
   const navigation = useNavigation()
@@ -146,12 +149,12 @@ export default function MyOrders() {
         mnemonicPhrase = kms.mnemonic
       }
       console.log(mnemonicPhrase);
-      const provider = new ethers.providers.JsonRpcProvider('https://public-node.testnet.rsk.co');
-      const path = "m/44'/37310'/0'/0/0";
+      const provider = new ethers.providers.JsonRpcProvider('https://public-node.rsk.co'); // mainnet: https://public-node.rsk.co || testnet: https://public-node.testnet.rsk.co
+      const path = "m/44'/137'/0'/0";
       const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase, path)
-      console.log('EOA ADDRESS:', wallet.address);
+      console.log('EOA ADDRESS:', wallet.privateKey);
 
-      const smartWalletFactory = new Contract(
+      /* const smartWalletFactory = new Contract(
         '0xbadb31caf5b95edd785446b76219b60fb1f07233',
         SmartWalletFactoryABI,
         provider,
@@ -189,7 +192,7 @@ export default function MyOrders() {
       console.log("Waiting for transaction receipt...");
       const receipt = await tx.wait();
   
-      console.log("Transaction successful:", receipt);
+      console.log("Transaction successful:", receipt); */
       
     } catch (err) {
       console.error("Transaction failed:", err);
@@ -257,17 +260,19 @@ async function sendTX(){
 const callContractMethod = async () => {
   const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co");
   try {
+    let mnemonicPhrase = ""
     const keys = await getKeys()
     if (keys) {
       const { kms } = KeyManagementSystem.fromSerialized(
         keys,
         getCurrentChainId(),
       )
-      setMnemonic(kms.mnemonic)
+      mnemonicPhrase = kms.mnemonic
+      
       console.log("chain id: ", getCurrentChainId())
     }
     const path = "m/44'/37310'/0'/0/0"
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic, path);
+    const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase, path);
     const signer = new ethers.Wallet(wallet.privateKey, provider);
     const contractAddress = '0xd83Be589F2622E6f311C886309A0629a18e36e22';
     const contract = new ethers.Contract(contractAddress, abi, signer);
@@ -283,7 +288,17 @@ const callContractMethod = async () => {
       console.error('Error calling contract method:', error);
   }
 };
-
+function wei(address){
+  const normalizedAddress = ethers.utils.getAddress(address);
+  const hash = keccak256(normalizedAddress);
+  
+  return hash;
+}
+function ethtowei() {
+  const etherValue = '0x46C042d3C25274e68487EBb290e07949e66c1Ec9';
+  const weiValue = wei(etherValue);
+  console.log(weiValue);
+}
 
 
 
@@ -301,11 +316,10 @@ const callContractMethod = async () => {
       <View style={styles.innerBody}>
         <Text style={styles.text}>No has publicado ninguna orden</Text>
       </View>
-      
     }
     <AppButton
         accessibilityLabel={testIDs.newContact}
-        onPress={() => sendTX()}
+        onPress={() => whitelistedERC20Token()}
         style={styles.newContactButton}
         leftIcon={{
           name: "plus",

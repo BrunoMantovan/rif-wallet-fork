@@ -57,6 +57,7 @@
     "@walletconnect/web3wallet": "^1.9.2",
     "axios": "^1.6.2",
     "buffer": "^4.9.2",
+    "crypto-js": "^4.2.0",
     "deprecated-react-native-prop-types": "^2.3.0",
     "dotenv": "^16.4.1",
     "ethers": "5.7.2",

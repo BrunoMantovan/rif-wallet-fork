@@ -122,8 +122,8 @@ export const TransactionForm = ({
     asset || tokenList[0],
   )
   const rifToken = useMemo(
-    () => selectedToken,
-    [tokenList, selectedToken],
+    () => tokenList.filter(tk => rifFeeMap.get(tk.symbol as TokenSymbol))[0],
+    [tokenList],
   )
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
     string | undefined
@@ -317,6 +317,7 @@ export const TransactionForm = ({
   const onAddContact = useCallback(() => {
     if (proposedContact) {
       const { address, displayAddress } = proposedContact
+      
       navigationContainerRef.navigate(rootTabsRouteNames.Contacts, {
         screen: contactsStackRouteNames.ContactForm,
         params: {
