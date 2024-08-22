@@ -17,10 +17,9 @@ import {
   CreateKeysScreenProps,
 } from 'navigation/createKeysNavigator/types'
 import { castStyle } from 'shared/utils'
-import { WINDOW_WIDTH } from 'src/ux/slides/Dimensions'
 import { createWallet } from 'store/slices/settingsSlice'
 import { useAppDispatch } from 'store/storeUtils'
-import { sharedColors, sharedStyles } from 'shared/constants'
+import { SLIDER_WIDTH, sharedColors, sharedStyles } from 'shared/constants'
 import { useInitializeWallet } from 'shared/wallet'
 
 const slidesIndexes = [0, 1, 2, 3]
@@ -38,13 +37,43 @@ const initialWords = Array.from({ length: slidesIndexes.length * 3 }).reduce<
   return prev
 }, [])
 
-const SLIDER_WIDTH = WINDOW_WIDTH * 0.8
-
 const headerTextMap = new Map([
   [StatusActions.ERROR, 'header_phrase_not_correct'],
   [StatusActions.INITIAL, 'header_enter_your_phrase'],
   [StatusActions.SUCCESS, 'header_phrase_correct'],
 ])
+
+const StatusIcon = ({ status }: { status: StatusActions }) => {
+  const iconStyle = {
+    backgroundColor:
+      status === StatusActions.SUCCESS
+        ? sharedColors.successLight
+        : sharedColors.errorBackground,
+    borderRadius: 50,
+  }
+  switch (status) {
+    case StatusActions.SUCCESS:
+      return (
+        <AntDesign
+          name="checkcircleo"
+          size={100}
+          style={iconStyle}
+          color={sharedColors.black}
+        />
+      )
+    case StatusActions.ERROR:
+      return (
+        <Feather
+          name="x"
+          size={100}
+          style={iconStyle}
+          color={sharedColors.black}
+        />
+      )
+    default:
+      return null
+  }
+}
 
 export const ImportMasterKeyScreen = (
   _: CreateKeysScreenProps<createKeysRouteNames.ImportMasterKey>,
@@ -65,27 +94,39 @@ export const ImportMasterKeyScreen = (
   const { setValue } = form
   const [selectedSlide, setSelectedSlide] = useState<number>(0)
   const [status, setStatus] = useState<StatusActions>(StatusActions.INITIAL)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleImportMnemonic = useCallback(async () => {
+    // immediatly set loading to avoid double-tap
+    setIsLoading(true)
+
     if (status === StatusActions.ERROR) {
       setStatus(StatusActions.INITIAL)
       return
     }
+
     const mnemonicError = validateMnemonic(words.current.join(' '))
+
     if (mnemonicError) {
       setStatus(StatusActions.ERROR)
+      // mnemonic failed set loading back to false
+      setIsLoading(false)
       return
     }
 
     try {
-      await dispatch(
-        createWallet({
-          mnemonic: words.current.join(' '),
-          initializeWallet,
-        }),
-      )
-      form.reset()
+      setTimeout(async () => {
+        await dispatch(
+          createWallet({
+            mnemonic: words.current.join(' '),
+            initializeWallet,
+          }),
+        )
+        form.reset()
+        setIsLoading(false)
+      }, 500)
     } catch (err) {
+      setIsLoading(false)
       if (err instanceof Error) {
         throw new Error(err.toString())
       }
@@ -106,6 +147,13 @@ export const ImportMasterKeyScreen = (
     },
     [],
   )
+
+  const errorTimeout = useCallback(() => {
+    setTimeout(() => {
+      setStatus(StatusActions.INITIAL)
+    }, 1000)
+    return null
+  }, [])
 
   const renderItem = useCallback(
     (item: CarouselRenderItemInfo<number>) => {
@@ -181,6 +229,7 @@ export const ImportMasterKeyScreen = (
 
   return (
     <FormProvider {...form}>
+      {errorTimeout()}
       <ScrollView style={styles.parent} keyboardShouldPersistTaps={'always'}>
         <Typography
           style={styles.titleText}
@@ -212,63 +261,37 @@ export const ImportMasterKeyScreen = (
             <StatusIcon status={status} />
           </View>
         </View>
-        <Dots
-          length={4}
-          active={selectedSlide}
-          activeColor={sharedColors.white}
-          activeDotWidth={8}
-          activeDotHeight={8}
-          passiveColor={sharedColors.inputActive}
-          passiveDotHeight={6}
-          passiveDotWidth={6}
-          marginHorizontal={6}
-        />
+        {status !== StatusActions.ERROR && (
+          <Dots
+            length={4}
+            active={selectedSlide}
+            activeColor={sharedColors.white}
+            activeDotWidth={8}
+            activeDotHeight={8}
+            passiveColor={sharedColors.inputActive}
+            passiveDotHeight={6}
+            passiveDotWidth={6}
+            marginHorizontal={6}
+          />
+        )}
 
-        <AppButton
-          accessibilityLabel={'OK'}
-          title="OK"
-          color="white"
-          textColor="black"
-          textType="body2"
-          textStyle={sharedStyles.fontBoldText}
-          onPress={handleImportMnemonic}
-          style={styles.appButtonStyleView}
-        />
+        {status !== StatusActions.ERROR && (
+          <AppButton
+            accessibilityLabel={'OK'}
+            title={t('ok')}
+            color={sharedColors.white}
+            textColor={sharedColors.black}
+            textType={'body2'}
+            textStyle={sharedStyles.fontBoldText}
+            onPress={handleImportMnemonic}
+            style={styles.appButtonStyleView}
+            loading={isLoading}
+            disabled={isLoading}
+          />
+        )}
       </ScrollView>
     </FormProvider>
   )
-}
-
-const StatusIcon = ({ status }: { status: StatusActions }) => {
-  const iconStyle = {
-    backgroundColor:
-      status === StatusActions.SUCCESS
-        ? sharedColors.successLight
-        : sharedColors.errorBackground,
-    borderRadius: 50,
-  }
-  switch (status) {
-    case StatusActions.SUCCESS:
-      return (
-        <AntDesign
-          name="checkcircleo"
-          size={100}
-          style={iconStyle}
-          color={sharedColors.black}
-        />
-      )
-    case StatusActions.ERROR:
-      return (
-        <Feather
-          name="x"
-          size={100}
-          style={iconStyle}
-          color={sharedColors.black}
-        />
-      )
-    default:
-      return null
-  }
 }
 
 const styles = StyleSheet.create({
@@ -284,7 +307,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   }),
   titleText: castStyle.text({
+    alignSelf: 'center',
     marginTop: 42,
+    marginBottom: 20,
   }),
   hideCarouselView: castStyle.view({
     display: 'none',

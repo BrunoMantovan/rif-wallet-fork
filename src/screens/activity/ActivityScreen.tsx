@@ -1,10 +1,12 @@
 import { EnhancedResult } from '@rsksmart/rif-wallet-abi-enhancer'
 import { IApiTransaction } from '@rsksmart/rif-wallet-services'
 import { ethers } from 'ethers'
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Image, RefreshControl, StyleSheet, View } from 'react-native'
 import { useIsFocused } from '@react-navigation/native'
+
+import { ChainID } from 'lib/eoaWallet'
 
 import { Typography } from 'components/typography'
 import { abiEnhancer } from 'core/setup'
@@ -19,15 +21,14 @@ import {
   selectTransactionsLoading,
 } from 'store/slices/transactionsSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
-import { WalletContext } from 'shared/wallet'
-import { ChainTypesByIdType } from 'src/shared/constants/chainConstants'
+import { useWallet } from 'shared/wallet'
 
 import { ActivityBasicRow } from './ActivityRow'
 
 export const ActivityScreen = ({ navigation }: ActivityMainScreenProps) => {
   const dispatch = useAppDispatch()
   const { t } = useTranslation()
-  const { wallet } = useContext(WalletContext)
+  const wallet = useWallet()
   const transactions = useAppSelector(selectTransactions)
   const loading = useAppSelector(selectTransactionsLoading)
   const isFocused = useIsFocused()
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
 
 export const enhanceTransactionInput = async (
   transaction: IApiTransaction,
-  chainId: ChainTypesByIdType,
+  chainId: ChainID,
 ): Promise<EnhancedResult | null> => {
   try {
     const enhancedTx = await abiEnhancer.enhance(chainId, {

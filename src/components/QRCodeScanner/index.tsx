@@ -4,17 +4,12 @@ import { StyleSheet, View } from 'react-native'
 import BarcodeMask from 'react-native-barcode-mask'
 import {
   Camera,
-  useCameraDevices,
-  useFrameProcessor,
+  Code,
+  useCameraDevice,
+  useCodeScanner,
 } from 'react-native-vision-camera'
-import {
-  BarcodeFormat,
-  Barcode,
-  scanBarcodes,
-} from 'vision-camera-code-scanner'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import { useIsFocused } from '@react-navigation/native'
-import { runOnJS } from 'react-native-reanimated'
 import { useTranslation } from 'react-i18next'
 
 import { useAppDispatch } from 'store/storeUtils'
@@ -31,24 +26,24 @@ export interface QRCodeScannerProps {
 }
 
 export const QRCodeScanner = ({ onClose, onCodeRead }: QRCodeScannerProps) => {
+  const [barcode, setBarcode] = useState<Code | null>(null)
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'],
+    onCodeScanned: codes => {
+      console.log(`Scanned ${codes.length} codes!`)
+      setBarcode(codes[0])
+    },
+  })
   const { t } = useTranslation()
-  const devices = useCameraDevices()
-  const device = devices.back
-  const [barcode, setBarcode] = useState<Barcode | null>(null)
-  const dispatch = useAppDispatch()
   const isFocused = useIsFocused()
+  const dispatch = useAppDispatch()
+  const device = useCameraDevice('back')
 
   useCheckCameraPermissions({ t, isFocused })
-  // Do not use the hook that comes with the camera as it'll not work
-  const frameProcessor = useFrameProcessor(frame => {
-    'worklet'
-    const detectedBarcodes = scanBarcodes(frame, [BarcodeFormat.QR_CODE])
-    runOnJS(setBarcode)(detectedBarcodes[0])
-  }, [])
 
   useEffect(() => {
-    if (barcode && barcode.rawValue) {
-      onCodeRead(barcode.rawValue)
+    if (barcode && barcode.value) {
+      onCodeRead(barcode.value)
       setBarcode(null)
     }
   }, [barcode, onCodeRead])
@@ -68,12 +63,13 @@ export const QRCodeScanner = ({ onClose, onCodeRead }: QRCodeScannerProps) => {
         </View>
       ) : (
         <Camera
-          isActive={isFocused}
-          frameProcessor={frameProcessor}
-          frameProcessorFps={5}
-          device={device}
           style={StyleSheet.absoluteFill}
-          torch="off"
+          device={device}
+          isActive={true}
+          photo={false}
+          video={false}
+          audio={false}
+          codeScanner={codeScanner}
         />
       )}
       <BarcodeMask

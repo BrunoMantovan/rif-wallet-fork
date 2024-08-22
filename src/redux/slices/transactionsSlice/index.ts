@@ -12,32 +12,33 @@ import {
   convertTokenToUSD,
   convertUnixTimeToFromNowFormat,
 } from 'lib/utils'
+import { ChainID } from 'lib/eoaWallet'
 
 import {
   ActivityMixedType,
   ActivityRowPresentationObject,
-  ApiTransactionWithExtras,
   IBitcoinTransaction,
-  ModifyTransaction,
   TransactionsState,
 } from 'store/slices/transactionsSlice/types'
-import { TransactionStatus } from 'screens/transactionSummary/transactionSummaryUtils'
 import { filterEnhancedTransactions } from 'src/subscriptions/utils'
 import { resetSocketState } from 'store/shared/actions/resetSocketState'
 import { UsdPricesState } from 'store/slices/usdPricesSlice'
 import { getTokenAddress } from 'core/config'
 import { AsyncThunkWithTypes } from 'store/store'
-import {
-  ChainTypeEnum,
-  chainTypesById,
-  ChainTypesByIdType,
-} from 'shared/constants/chainConstants'
 import { TokenSymbol } from 'screens/home/TokenImage'
+import { rbtcMap } from 'shared/utils'
+import {
+  ApiTransactionWithExtras,
+  ModifyTransaction,
+  TransactionStatus,
+} from 'store/shared/types'
+import { abiEnhancer } from 'core/setup'
+import { getCurrentChainId } from 'storage/ChainStorage'
 
 export const activityDeserializer: (
   activityTransaction: ActivityMixedType,
   prices: UsdPricesState,
-  chainId: ChainTypesByIdType,
+  chainId: ChainID,
 ) => ActivityRowPresentationObject = (activityTransaction, prices, chainId) => {
   if ('isBitcoin' in activityTransaction) {
     const fee = activityTransaction.fees
@@ -81,14 +82,9 @@ export const activityDeserializer: (
     const etx = activityTransaction.enhancedTransaction
 
     // RBTC
-    const rbtcSymbol =
-      chainTypesById[chainId] === ChainTypeEnum.MAINNET
-        ? TokenSymbol.RBTC
-        : TokenSymbol.TRBTC
+    const rbtcSymbol = chainId === 30 ? TokenSymbol.RBTC : TokenSymbol.TRBTC
     const rbtcAddress = constants.AddressZero
-    const feeRbtc = BigNumber.from(tx.gasPrice).mul(
-      BigNumber.from(tx.receipt?.gasUsed || 1),
-    )
+    const feeRbtc = BigNumber.from(tx.receipt?.gasUsed || 0)
 
     // Token
     const tokenValue = etx?.value || balanceToDisplay(tx.value, 18)
@@ -98,7 +94,7 @@ export const activityDeserializer: (
       tokenContract =
         etx?.symbol === rbtcSymbol
           ? rbtcAddress
-          : getTokenAddress(tokenSymbol, chainTypesById[chainId])
+          : getTokenAddress(tokenSymbol as TokenSymbol, chainId)
     } catch {}
     const tokenQuote = prices[tokenContract.toLowerCase()]?.price || 0
     const tokenUsd = convertTokenToUSD(Number(tokenValue), tokenQuote)
@@ -106,15 +102,18 @@ export const activityDeserializer: (
     // Fee
     const feeValue = etx?.feeValue || balanceToDisplay(feeRbtc, 18)
     const feeSymbol = etx?.feeSymbol || rbtcSymbol
+    const feeTokenValue = rbtcMap.get(feeSymbol as TokenSymbol)
+      ? feeRbtc.toString()
+      : feeValue
     let feeContract = ''
     try {
       feeContract =
         etx?.feeSymbol === rbtcSymbol
           ? rbtcAddress
-          : getTokenAddress(feeSymbol, chainTypesById[chainId])
+          : getTokenAddress(feeSymbol as TokenSymbol, chainId)
     } catch {}
     const feeQuote = prices[feeContract.toLowerCase()]?.price || 0
-    const feeUsd = convertTokenToUSD(Number(feeValue), feeQuote).toFixed(2)
+    const feeUsd = convertTokenToUSD(Number(feeValue), feeQuote).toString()
 
     return {
       id: tx.hash,
@@ -127,7 +126,7 @@ export const activityDeserializer: (
       symbol: tokenSymbol,
       price: Number(tokenUsd),
       fee: {
-        tokenValue: feeValue,
+        tokenValue: feeTokenValue.toString(),
         symbol: feeSymbol,
         usdValue: feeUsd,
       },
@@ -248,12 +247,17 @@ export const addPendingTransaction = createAsyncThunk<
 
   const { symbol, finalAddress, enhancedAmount, value, ...restPayload } =
     payload
+
+  const enhancedTx = await abiEnhancer.enhance(getCurrentChainId(), {
+    ...payload,
+  })
+
   const pendingTransaction = {
     originTransaction: {
       ...restPayload,
       value: value,
     },
-    enhancedTransaction: {
+    enhancedTransaction: enhancedTx || {
       symbol,
       from: restPayload.from,
       to: finalAddress,

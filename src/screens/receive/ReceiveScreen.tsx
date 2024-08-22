@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -32,7 +32,7 @@ import { selectProfile, selectUsername } from 'store/slices/profileSlice'
 import { getIconSource } from 'screens/home/TokenImage'
 import { ProfileStatus } from 'navigation/profileNavigator/types'
 import { getPopupMessage } from 'shared/popupMessage'
-import { WalletContext } from 'shared/wallet'
+import { useWallet } from 'shared/wallet'
 import { rootTabsRouteNames } from 'navigation/rootNavigator'
 
 export enum TestID {
@@ -67,16 +67,16 @@ export const ReceiveScreen = ({
 
   const [shouldShowAssets, setShouldShowAssets] = useState(false)
 
-  const { wallet } = useContext(WalletContext)
+  const { address: walletAddress } = useWallet()
   const chainId = useAppSelector(selectChainId)
   const profile = useAppSelector(selectProfile)
 
   const rskAddress = useMemo(() => {
-    if (wallet && chainId) {
-      return getAddressDisplayText(wallet.smartWalletAddress, chainId)
+    if (chainId) {
+      return getAddressDisplayText(walletAddress, chainId)
     }
     return null
-  }, [wallet, chainId])
+  }, [walletAddress, chainId])
 
   const onShareUsername = useCallback(() => {
     Share.share({

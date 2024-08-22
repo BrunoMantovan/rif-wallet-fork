@@ -11,18 +11,17 @@ import {
   RootTabsParamsList,
 } from 'navigation/rootNavigator'
 import { RequestHandler } from 'src/ux/requestsModal/RequestHandler'
-import { LoadingScreen } from 'components/loading/LoadingScreen'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
 import {
   closeRequest,
   selectRequests,
   selectTopColor,
-  selectWholeSettingsState,
   unlockApp,
 } from 'store/slices/settingsSlice'
 import { sharedStyles } from 'shared/constants'
 import { WalletConnect2Provider } from 'screens/walletConnect/WalletConnect2Context'
 import { WalletContext } from 'shared/wallet'
+import { useSetGlobalError } from 'components/GlobalErrorHandler'
 
 import { useStateSubscription } from './hooks/useStateSubscription'
 import { Cover } from './components/Cover'
@@ -33,20 +32,22 @@ export const navigationContainerRef =
 
 export const Core = () => {
   const dispatch = useAppDispatch()
-  const settings = useAppSelector(selectWholeSettingsState)
   const requests = useAppSelector(selectRequests)
   const topColor = useAppSelector(selectTopColor)
+  const setGlobalError = useSetGlobalError()
   const isOffline = useIsOffline()
-  const { unlocked, active } = useStateSubscription()
+  const { active, unlocked } = useStateSubscription()
   const { wallet, initializeWallet } = useContext(WalletContext)
 
   const unlockAppFn = useCallback(async () => {
     try {
-      await dispatch(unlockApp({ isOffline, initializeWallet })).unwrap()
+      await dispatch(
+        unlockApp({ isOffline, initializeWallet, setGlobalError }),
+      ).unwrap()
     } catch (err) {
       console.log('ERR CORE', err)
     }
-  }, [dispatch, isOffline, initializeWallet])
+  }, [dispatch, isOffline, initializeWallet, setGlobalError])
 
   useEffect(() => {
     unlockAppFn()
@@ -59,19 +60,16 @@ export const Core = () => {
         {!active && <Cover />}
         <NavigationContainer ref={navigationContainerRef}>
           <WalletConnect2Provider wallet={wallet}>
-            {settings.loading && !unlocked ? (
-              <LoadingScreen />
-            ) : (
-              <>
-                <RootNavigationComponent />
-                {requests.length !== 0 && (
-                  <RequestHandler
-                    request={requests[0]}
-                    closeRequest={() => dispatch(closeRequest())}
-                  />
-                )}
-              </>
-            )}
+            <>
+              <RootNavigationComponent />
+              {requests.length !== 0 && wallet && unlocked && (
+                <RequestHandler
+                  wallet={wallet}
+                  request={requests[0]}
+                  closeRequest={() => dispatch(closeRequest())}
+                />
+              )}
+            </>
           </WalletConnect2Provider>
         </NavigationContainer>
       </View>

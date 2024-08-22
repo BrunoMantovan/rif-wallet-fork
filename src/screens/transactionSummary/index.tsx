@@ -1,5 +1,5 @@
 import { useFocusEffect, useIsFocused } from '@react-navigation/native'
-import { ReactNode, useCallback, useContext, useEffect, useMemo } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { BackHandler } from 'react-native'
 
 import { AppButtonProps } from 'components/button'
@@ -13,9 +13,8 @@ import { TransactionSummaryComponent } from 'screens/transactionSummary/Transact
 import { setFullscreen } from 'store/slices/settingsSlice'
 import { TokenFeeValueObject } from 'store/slices/transactionsSlice'
 import { useAppDispatch } from 'store/storeUtils'
-import { WalletContext } from 'shared/wallet'
-
-import { TransactionStatus } from './transactionSummaryUtils'
+import { useWallet } from 'shared/wallet'
+import { TransactionStatus } from 'store/shared/types'
 
 export interface TransactionSummaryScreenProps {
   transaction: {
@@ -24,12 +23,14 @@ export interface TransactionSummaryScreenProps {
     usdValue: CurrencyValue
     fee: TokenFeeValueObject
     time: string
+    totalToken: number
+    totalUsd: number | string
     hashId?: string
     status?: TransactionStatus
     amIReceiver?: boolean
     from?: string
   }
-  buttons?: AppButtonProps[]
+  buttons?: [AppButtonProps, AppButtonProps]
   functionName?: string
   backScreen?: rootTabsRouteNames
   isLoaded?: boolean
@@ -40,7 +41,7 @@ export const TransactionSummaryScreen = ({
   route,
   navigation,
 }: RootTabsScreenProps<rootTabsRouteNames.TransactionSummary>) => {
-  const { wallet } = useContext(WalletContext)
+  const { address } = useWallet()
   const dispatch = useAppDispatch()
   const isFocused = useIsFocused()
   const { backScreen } = route.params
@@ -80,7 +81,7 @@ export const TransactionSummaryScreen = ({
     <TransactionSummaryComponent
       {...route.params}
       goBack={goBack}
-      wallet={wallet}
+      address={address}
     />
   )
 }

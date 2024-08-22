@@ -1,11 +1,10 @@
-import { useContext, useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import {
   convertSatoshiToBtcHuman,
   SendBitcoinRequest,
 } from '@rsksmart/rif-wallet-bitcoin'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
-import { useCallback } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -18,22 +17,25 @@ import { useAppSelector } from 'store/storeUtils'
 import { sharedColors } from 'shared/constants'
 import { AppButtonBackgroundVarietyEnum, Input } from 'components/index'
 import { TransactionSummaryScreenProps } from 'screens/transactionSummary'
-import { WalletContext } from 'shared/wallet'
 
-import { BitcoinMiningFeeContainer } from './BitcoinMiningFeeContainer'
+import {
+  BitcoinMiningFeeContainer,
+  FeeRecord,
+} from './BitcoinMiningFeeContainer'
 
 interface ReviewBitcoinTransactionContainerProps {
+  address: string
   request: SendBitcoinRequest
   onConfirm: () => void
   onCancel: () => void
 }
 
 export const ReviewBitcoinTransactionContainer = ({
+  address,
   request,
   onConfirm,
   onCancel,
 }: ReviewBitcoinTransactionContainerProps) => {
-  const { wallet } = useContext(WalletContext)
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
   const tokenPrices = useAppSelector(selectUsdPrices)
@@ -73,8 +75,18 @@ export const ReviewBitcoinTransactionContainer = ({
     onCancel()
   }, [onCancel, request])
 
-  const data: TransactionSummaryScreenProps = useMemo(
-    () => ({
+  const data: TransactionSummaryScreenProps = useMemo(() => {
+    const convertToUSD = (amount: string): number =>
+      convertTokenToUSD(Number(amount), tokenPrices.BTC.price)
+
+    // usd values
+    const amountUsd = convertToUSD(amountToPay)
+    const feeUsd = convertToUSD(miningFee)
+    const totalUsd = amountUsd + feeUsd
+
+    const totalBtc = Number(amountToPay) + Number(miningFee)
+
+    return {
       transaction: {
         tokenValue: {
           balance: amountToPay,
@@ -82,29 +94,18 @@ export const ReviewBitcoinTransactionContainer = ({
           symbol: TokenSymbol.BTC,
         },
         usdValue: {
-          balance: convertTokenToUSD(
-            Number(amountToPay),
-            tokenPrices.BTC.price,
-            true,
-          ).toString(),
-          symbolType: 'usd',
           symbol: '$',
+          symbolType: 'usd',
+          balance: amountUsd,
         },
         fee: {
+          symbol: TokenSymbol.BTC,
           tokenValue: miningFee,
-          usdValue: convertTokenToUSD(
-            Number(miningFee),
-            tokenPrices.BTC.price,
-          ).toString(),
+          usdValue: feeUsd,
         },
+        totalToken: totalBtc,
+        totalUsd: totalUsd,
         time: 'approx 1 min',
-        total: {
-          tokenValue: amountToPay,
-          usdValue: convertTokenToUSD(
-            Number(amountToPay) + Number(miningFee),
-            tokenPrices.BTC.price,
-          ).toString(),
-        },
         to: addressToPay,
       },
       buttons: [
@@ -128,23 +129,22 @@ export const ReviewBitcoinTransactionContainer = ({
           defaultMiningFee={payload.miningFee}
         />
       ),
-    }),
-    [
-      addressToPay,
-      amountToPay,
-      miningFee,
-      onCancelTransaction,
-      t,
-      onConfirmTransaction,
-      tokenPrices,
-      payload.miningFee,
-      onMiningFeeChange,
-    ],
-  )
+    }
+  }, [
+    addressToPay,
+    amountToPay,
+    miningFee,
+    onCancelTransaction,
+    t,
+    onConfirmTransaction,
+    tokenPrices,
+    payload.miningFee,
+    onMiningFeeChange,
+  ])
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/*Without a Wallet it's not possible to initiate a transaction */}
-      <TransactionSummaryComponent {...data} wallet={wallet} />
+      <TransactionSummaryComponent {...data} address={address} />
     </View>
   )
 }
@@ -173,7 +173,32 @@ const MiningFeeInput = ({
     },
   })
 
-  const handleFeeChange = (text: string) => onChange(text)
+  const { setValue } = methods
+
+  const handleFeeChange = useCallback(
+    (text: string) => onChange(text),
+    [onChange],
+  )
+
+  const onFeeRatesLoaded = useCallback(
+    (feeRates: FeeRecord[]) => {
+      let newFee
+      // If length > 1 then it's fetching the fee from cypher
+      if (feeRates.length > 1) {
+        newFee = feeRates[1].feeRate
+      }
+      // If length === 1 then it's fetching the fee from blockbook
+      if (feeRates.length === 1) {
+        newFee = feeRates[0].feeRate
+      }
+
+      if (newFee) {
+        handleFeeChange(newFee)
+        setValue('miningFee', Number(newFee))
+      }
+    },
+    [handleFeeChange, setValue],
+  )
 
   return (
     <FormProvider {...methods}>
@@ -182,7 +207,7 @@ const MiningFeeInput = ({
         inputName="miningFee"
         onChangeText={handleFeeChange}
       />
-      <BitcoinMiningFeeContainer />
+      <BitcoinMiningFeeContainer onFeeRatesLoaded={onFeeRatesLoaded} />
     </FormProvider>
   )
 }

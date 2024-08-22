@@ -9,7 +9,9 @@ import { getSdkError, parseUri } from '@walletconnect/utils'
 import Web3Wallet, { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { WalletConnectAdapter } from '@rsksmart/rif-wallet-adapters'
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
+
+import { ChainID } from 'lib/eoaWallet'
+import { createPendingTxFromTxResponse } from 'lib/utils'
 
 import {
   buildRskAllowedNamespaces,
@@ -17,17 +19,16 @@ import {
   getProposalErrorComparedWithRskNamespace,
   WalletConnect2SdkErrorString,
 } from 'screens/walletConnect/walletConnect2.utils'
-import { ChainTypesByIdType } from 'shared/constants/chainConstants'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
 import { selectChainId } from 'store/slices/settingsSlice'
 import { addPendingTransaction } from 'store/slices/transactionsSlice'
-import { createPendingTxFromTxResponse } from 'src/lib/utils'
+import { Wallet, addressToUse } from 'shared/wallet'
 
 const onSessionApprove = async (
   web3wallet: Web3Wallet,
   proposal: Web3WalletTypes.SessionProposal,
   walletAddress: string,
-  chainId: ChainTypesByIdType,
+  chainId: ChainID,
 ) => {
   try {
     const namespaces = buildRskAllowedNamespaces({
@@ -105,13 +106,14 @@ export const WalletConnect2Context =
 
 interface WalletConnect2ProviderProps {
   children: ReactElement
-  wallet: RIFWallet | null
+  wallet: Wallet | null
 }
 
 export const WalletConnect2Provider = ({
   children,
   wallet,
 }: WalletConnect2ProviderProps) => {
+  const address = wallet ? addressToUse(wallet) : null
   const dispatch = useAppDispatch()
   const chainId = useAppSelector(selectChainId)
   const [sessions, setSessions] = useState<SessionStruct[]>([])
@@ -125,6 +127,8 @@ export const WalletConnect2Provider = ({
     proposal: Web3WalletTypes.SessionProposal,
     usersWallet: Web3Wallet,
   ) => {
+    console.log('onSessionProposal', proposal)
+
     const hasErrors = getProposalErrorComparedWithRskNamespace(proposal)
     if (hasErrors) {
       await onSessionReject(usersWallet, proposal, hasErrors)
@@ -144,15 +148,15 @@ export const WalletConnect2Provider = ({
   }
 
   const subscribeToEvents = useCallback(
-    (usersWallet: Web3Wallet) => {
+    (usersWallet: Web3Wallet, _wallet: Wallet) => {
       usersWallet.on('session_proposal', async proposal =>
         onSessionProposal(proposal, usersWallet),
       )
       usersWallet.on('session_request', async event => {
-        if (!wallet) {
+        if (!_wallet) {
           return
         }
-        const adapter = new WalletConnectAdapter(wallet)
+        const adapter = new WalletConnectAdapter(_wallet)
         const eth_signTypedDataResolver = adapter
           .getResolvers()
           .find(
@@ -164,10 +168,7 @@ export const WalletConnect2Provider = ({
             // if address = relay address - throw error
             const { verifyingContract } = domain
             if (
-              [
-                wallet.smartWalletAddress.toLowerCase(),
-                wallet.rifRelaySdk.smartWalletFactory.address.toLowerCase(),
-              ].includes(verifyingContract.toLowerCase())
+              [address?.toLowerCase()].includes(verifyingContract.toLowerCase())
             ) {
               throw new Error(
                 'Error: Unauthorized Contract Address - Signing not permitted. This address is exclusive to the relay contract.',
@@ -194,12 +195,12 @@ export const WalletConnect2Provider = ({
         adapter
           .handleCall(method, params)
           .then(async signedMessage => {
-            if (method === 'eth_sendTransaction') {
+            if (method === 'eth_sendTransaction' && address) {
               const pendingTx = await createPendingTxFromTxResponse(
                 signedMessage,
                 {
                   chainId,
-                  from: wallet.smartWalletAddress,
+                  from: address,
                   to: params[0].to,
                 },
               )
@@ -231,14 +232,14 @@ export const WalletConnect2Provider = ({
         )
       })
     },
-    [chainId, dispatch, wallet],
+    [chainId, dispatch, address],
   )
 
   const onCreateNewSession = useCallback(
     async (uri: string) => {
-      if (web3wallet) {
+      if (web3wallet && wallet) {
         try {
-          subscribeToEvents(web3wallet)
+          subscribeToEvents(web3wallet, wallet)
           // Refer to https://docs.walletconnect.com/2.0/reactnative/web3wallet/wallet-usage#session-requests
 
           if (!isWcUriValid(uri)) {
@@ -279,15 +280,15 @@ export const WalletConnect2Provider = ({
         }
       }
     },
-    [subscribeToEvents, web3wallet],
+    [subscribeToEvents, web3wallet, wallet],
   )
 
   const onUserApprovedSession = async () => {
-    if (pendingSession && wallet) {
+    if (pendingSession && address) {
       const newSession = await onSessionApprove(
         pendingSession.web3wallet,
         pendingSession.proposal,
-        wallet.smartWalletAddress,
+        address,
         chainId,
       )
       if (typeof newSession === 'string') {
@@ -315,34 +316,50 @@ export const WalletConnect2Provider = ({
             topic: session.topic,
             reason: getSdkError('USER_DISCONNECTED'),
           })
+        } catch (err) {
+          // @TODO handle error disconnecting
+          console.log(319, 'WC2.0 error disconnect', err)
+          console.log('Deleting session from MMKV Storage')
+          Promise.all([
+            web3wallet.engine.signClient.session.delete(
+              session.topic,
+              getSdkError('USER_DISCONNECTED'),
+            ),
+            web3wallet.core.pairing.disconnect({ topic: session.topic }),
+          ]).catch(() => console.log(328, 'Failed to disconnect WC manually'))
+        } finally {
           setSessions(prevSessions =>
             prevSessions.filter(
               prevSession => prevSession.topic !== session.topic,
             ),
           )
-        } catch (err) {
-          // @TODO handle error disconnecting
-          console.log('WC2.0 error disconnect', err)
         }
       }
     },
     [web3wallet],
   )
 
-  const onContextFirstLoad = useCallback(async () => {
-    console.log('onContextFirstLoad')
-    const newWeb3Wallet = await createWeb3Wallet()
-    setWeb3Wallet(newWeb3Wallet)
-    subscribeToEvents(newWeb3Wallet)
-    setSessions(Object.values(newWeb3Wallet.getActiveSessions()))
-  }, [subscribeToEvents])
+  const onContextFirstLoad = useCallback(
+    async (_wallet: Wallet) => {
+      try {
+        console.log('onContextFirstLoad')
+        const newWeb3Wallet = await createWeb3Wallet()
+        setWeb3Wallet(newWeb3Wallet)
+        subscribeToEvents(newWeb3Wallet, _wallet)
+        setSessions(Object.values(newWeb3Wallet.getActiveSessions()))
+      } catch (err) {
+        throw new Error(err)
+      }
+    },
+    [subscribeToEvents],
+  )
 
   /**
    * useEffect On first load, fetch previous saved sessions
    */
   useEffect(() => {
     if (wallet) {
-      onContextFirstLoad().catch(console.log)
+      onContextFirstLoad(wallet).catch(console.log)
     }
   }, [wallet, onContextFirstLoad])
 

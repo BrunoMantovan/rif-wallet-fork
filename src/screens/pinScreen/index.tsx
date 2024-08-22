@@ -12,10 +12,6 @@ import Icon from 'react-native-vector-icons/FontAwesome5'
 import { useIsFocused } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import {
-  rootTabsRouteNames,
-  RootTabsScreenProps,
-} from 'navigation/rootNavigator/types'
 import { screenOptionsWithHeader } from 'navigation/index'
 import {
   AppButton,
@@ -23,7 +19,12 @@ import {
   Typography,
 } from 'components/index'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
-import { setFullscreen, unlockApp } from 'store/slices/settingsSlice'
+import {
+  selectIsUnlocked,
+  setFullscreen,
+  setUnlocked,
+  unlockApp,
+} from 'store/slices/settingsSlice'
 import { selectPin, setPinState } from 'store/slices/persistentDataSlice'
 import { sharedColors, sharedStyles } from 'shared/constants'
 import { castStyle } from 'shared/utils'
@@ -36,6 +37,7 @@ import {
   CreateKeysScreenProps,
 } from 'navigation/createKeysNavigator'
 import { useInitializeWallet } from 'shared/wallet'
+import { useSetGlobalError } from 'components/GlobalErrorHandler'
 
 type PIN = Array<string | null>
 const defaultPin = [null, null, null, null]
@@ -118,11 +120,11 @@ const getInitialPinSettings = (
 
 type Props =
   | SettingsScreenProps<settingsStackRouteNames.ChangePinScreen>
-  | RootTabsScreenProps<rootTabsRouteNames.InitialPinScreen>
-  | CreateKeysScreenProps<createKeysRouteNames.CreatePIN>
+  | CreateKeysScreenProps<createKeysRouteNames.PinScreen>
 
 export const PinScreen = ({ navigation, route }: Props) => {
   const initializeWallet = useInitializeWallet()
+  const setGlobalError = useSetGlobalError()
   const insets = useSafeAreaInsets()
   const isFocused = useIsFocused()
   // const isVisible = useKeyboardIsVisible()
@@ -132,6 +134,7 @@ export const PinScreen = ({ navigation, route }: Props) => {
   const backScreen = route.params?.backScreen
   const dispatch = useAppDispatch()
   const statePIN = useAppSelector(selectPin)
+  const unlocked = useAppSelector(selectIsUnlocked)
   const textInputRef = useRef<TextInput>(null)
 
   const [PIN, setPIN] = useState<PIN>(defaultPin)
@@ -281,17 +284,21 @@ export const PinScreen = ({ navigation, route }: Props) => {
   const handleLastDigit = useCallback(() => {
     if (!isChangeRequested && isPinEqual) {
       // if pin exists unlocks the app
-      dispatch(unlockApp({ pinUnlocked: true, initializeWallet }))
+      dispatch(
+        unlockApp({ pinUnlocked: true, initializeWallet, setGlobalError }),
+      )
     } else if (isChangeRequested && isPinEqual) {
       // if pin change requested set new pin
       setTimeout(() => {
         dispatch(setPinState(PIN.join('')))
+        !unlocked && dispatch(setUnlocked(true))
         navigation.goBack()
       }, 1000)
     }
 
     resetPin()
   }, [
+    unlocked,
     isChangeRequested,
     isPinEqual,
     resetPin,
@@ -299,6 +306,7 @@ export const PinScreen = ({ navigation, route }: Props) => {
     PIN,
     navigation,
     initializeWallet,
+    setGlobalError,
   ])
 
   useEffect(() => {

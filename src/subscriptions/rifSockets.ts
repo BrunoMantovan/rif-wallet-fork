@@ -4,20 +4,20 @@ import {
   RifWalletServicesSocket,
 } from '@rsksmart/rif-wallet-services'
 import DeviceInfo from 'react-native-device-info'
+import Config from 'react-native-config'
+
+import { ChainID } from 'lib/eoaWallet'
 
 import { resetSocketState } from 'store/shared/actions/resetSocketState'
 import { AppDispatch } from 'store/index'
-import { abiEnhancer, getDefaultTokens } from 'core/setup'
+import { abiEnhancer } from 'core/setup'
 import { addOrUpdateBalances } from 'store/slices/balancesSlice'
 import { TokenBalanceObject } from 'store/slices/balancesSlice/types'
 import { UsdPricesState } from 'store/slices/usdPricesSlice'
 import { getWalletSetting } from 'core/config'
 import { SETTINGS } from 'core/types'
-import {
-  chainTypesById,
-  ChainTypesByIdType,
-} from 'shared/constants/chainConstants'
 import { MMKVStorage } from 'storage/MMKVStorage'
+import { getDefaultTokens } from 'shared/utils'
 
 import { onSocketChangeEmitted } from './onSocketChangeEmitted'
 import { Action, InitAction } from './types'
@@ -31,7 +31,7 @@ export enum SocketsEvents {
 
 interface RifSockets {
   address: string
-  chainId: ChainTypesByIdType
+  chainId: ChainID
   setGlobalError: (err: string) => void
   dispatch: AppDispatch
   usdPrices: UsdPricesState
@@ -63,7 +63,7 @@ export const rifSockets = ({
     cache,
   })
   const rifWalletServicesSocket = new RifWalletServicesSocket(
-    getWalletSetting(SETTINGS.RIF_WALLET_SERVICE_URL, chainTypesById[chainId]),
+    getWalletSetting(SETTINGS.RIF_WALLET_SERVICE_URL, chainId),
   )
 
   const connectSocket = () => {
@@ -97,6 +97,7 @@ export const rifSockets = ({
         chainId,
         {
           'User-Agent': DeviceInfo.getUserAgentSync(),
+          'x-trace-id': Config.TRACE_ID,
         },
         blockNumber,
       )

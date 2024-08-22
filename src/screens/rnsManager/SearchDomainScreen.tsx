@@ -5,12 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { Alert, ScrollView, StyleSheet, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Entypo'
 import * as yup from 'yup'
+import { showMessage } from 'react-native-flash-message'
 
-import {
-  RnsProcessor,
-  useRifToken,
-  useRnsDomainPriceInRif as calculatePrice,
-} from 'lib/rns'
+import { useRifToken, calculateRnsDomainPrice } from 'lib/rns'
 
 import { AppTouchable } from 'components/appTouchable'
 import { AppButton, Input, Typography } from 'components/index'
@@ -21,7 +18,7 @@ import {
   ProfileStatus,
 } from 'navigation/profileNavigator/types'
 import { sharedColors, sharedStyles } from 'shared/constants'
-import { castStyle } from 'shared/utils'
+import { castStyle, formatTokenValue } from 'shared/utils'
 import { colors } from 'src/styles'
 import {
   recoverAlias,
@@ -33,11 +30,9 @@ import { AvatarIconBox } from 'screens/rnsManager/AvatarIconBox'
 import { AppSpinner } from 'components/index'
 import { rootTabsRouteNames } from 'src/navigation/rootNavigator'
 import { settingsStackRouteNames } from 'src/navigation/settingsNavigator/types'
-import { handleDomainTransactionStatusChange } from 'screens/rnsManager/utils'
 import { ConfirmationModal } from 'components/modal'
-import { selectChainId } from 'store/slices/settingsSlice'
-import { RNS_ADDRESSES_BY_CHAIN_ID } from 'screens/rnsManager/types'
-import { useWalletState } from 'shared/wallet'
+import { useGetRnsProcessor, useWallet } from 'shared/wallet'
+import { getPopupMessage } from 'shared/popupMessage'
 
 import { DomainInput } from './DomainInput'
 import { rnsManagerStyles } from './rnsManagerStyles'
@@ -52,16 +47,19 @@ interface FormValues {
 }
 
 export const SearchDomainScreen = ({ navigation }: Props) => {
-  const { wallet, walletIsDeployed } = useWalletState()
-  const chainId = useAppSelector(selectChainId)
+  const getRnsProcessor = useGetRnsProcessor()
+  const rnsProcessor = getRnsProcessor()
+  const { walletIsDeployed, address } = useWallet()
   const { isDeployed, loading } = walletIsDeployed
 
   const [isDomainOwned, setIsDomainOwned] = useState<boolean>(false)
   const [validDomain, setValidDomain] = useState<boolean>(false)
-  const [selectedDomainPrice, setSelectedDomainPrice] = useState<number>(2)
+  const [selectedDomainPrice, setSelectedDomainPrice] = useState<string>('2')
   const [isModalVisible, setIsModalVisible] = useState<boolean>(true)
   const [error, setError] = useState<string>('')
   const [currentStatus, setCurrentStatus] = useState<string>('')
+  const [isCalculatingPrice, setIsCalculatingPrice] = useState(false)
+
   const profileStatus = useAppSelector(selectProfileStatus)
 
   const dispatch = useAppDispatch()
@@ -101,25 +99,12 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
   const years = watch('years')
   const hasErrors = Object.keys(errors).length > 0
 
-  const selectedDomainPriceInUsd = (
-    rifToken.price * selectedDomainPrice
-  ).toFixed(2)
+  const selectedDomainPriceInUsd = formatTokenValue(
+    rifToken.price * Number(selectedDomainPrice),
+  )
 
   const isRequestButtonDisabled = hasErrors || !validDomain
   const isSaveButtonDisabled = isRequestButtonDisabled && !isDomainOwned
-
-  const rnsProcessor = useMemo(
-    () =>
-      new RnsProcessor({
-        wallet,
-        onSetTransactionStatusChange: handleDomainTransactionStatusChange(
-          dispatch,
-          wallet,
-        ),
-        rnsAddresses: RNS_ADDRESSES_BY_CHAIN_ID[chainId],
-      }),
-    [dispatch, wallet, chainId],
-  )
 
   const onSubmit = useCallback(
     async (values: FormValues) => {
@@ -129,7 +114,7 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
         setCurrentStatus('loading')
         await dispatch(
           requestUsername({
-            rnsProcessor,
+            getRnsProcessor,
             alias: values.domain,
             duration: values.years,
           }),
@@ -152,27 +137,53 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
         setCurrentStatus('')
       }
     },
-    [dispatch, rnsProcessor, t],
+    [dispatch, t, getRnsProcessor],
   )
 
   const handleDomainAvailable = useCallback(
     async (domainString: string, valid: boolean) => {
-      setValidDomain(valid)
-      if (valid) {
-        const price = await calculatePrice(domainString, years)
-        setSelectedDomainPrice(price)
+      try {
+        const rskRegistrar = getRnsProcessor()?.rskRegistrar
+
+        setValidDomain(valid)
+        if (valid && rskRegistrar) {
+          setIsCalculatingPrice(true)
+          const price = await calculateRnsDomainPrice(
+            rskRegistrar,
+            domainString,
+            years,
+          )
+          setSelectedDomainPrice(price)
+          setIsCalculatingPrice(false)
+        }
+      } catch (err) {
+        setIsCalculatingPrice(false)
       }
     },
-    [years],
+    [years, getRnsProcessor],
   )
 
   const handleYearsChange = useCallback(
     async (changedYears: number) => {
-      setValue('years', changedYears)
-      const price = await calculatePrice(domain, changedYears)
-      setSelectedDomainPrice(price)
+      try {
+        const rskRegistrar = getRnsProcessor()?.rskRegistrar
+
+        if (rskRegistrar) {
+          setIsCalculatingPrice(true)
+          setValue('years', changedYears)
+          const price = await calculateRnsDomainPrice(
+            rskRegistrar,
+            domain,
+            changedYears,
+          )
+          setSelectedDomainPrice(price)
+          setIsCalculatingPrice(false)
+        }
+      } catch (err) {
+        setIsCalculatingPrice(false)
+      }
     },
-    [domain, setValue],
+    [domain, setValue, getRnsProcessor],
   )
 
   const handleSetProfile = useCallback(() => {
@@ -193,8 +204,19 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
   }, [navigation])
 
   useEffect(() => {
-    calculatePrice(domain, years).then(setSelectedDomainPrice)
-  }, [domain, years])
+    const rskRegistrar = getRnsProcessor()?.rskRegistrar
+
+    if (!rskRegistrar) {
+      showMessage(getPopupMessage(t('popup_not_possible_to_register_rns')))
+      return
+    }
+
+    calculateRnsDomainPrice(rskRegistrar, domain, years).then(
+      setSelectedDomainPrice,
+    )
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!isDeployed && !loading) {
@@ -236,17 +258,20 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
         <AvatarIconBox text={(domain || '') + '.rsk'} />
         <FormProvider {...methods}>
           <View style={rnsManagerStyles.marginTop}>
-            <DomainInput
-              wallet={wallet}
-              inputName={'domain'}
-              error={errors.domain}
-              domainValue={domain}
-              onDomainOwned={setIsDomainOwned}
-              onDomainAvailable={handleDomainAvailable}
-              onResetValue={() => {
-                resetField('domain')
-              }}
-            />
+            {rnsProcessor ? (
+              <DomainInput
+                address={address}
+                rskRegistrar={rnsProcessor.rskRegistrar}
+                inputName={'domain'}
+                error={errors.domain}
+                domainValue={domain}
+                onDomainOwned={setIsDomainOwned}
+                onDomainAvailable={handleDomainAvailable}
+                onResetValue={() => {
+                  resetField('domain')
+                }}
+              />
+            ) : null}
           </View>
           {!isDomainOwned && (
             <Input
@@ -311,7 +336,8 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
             disabled={
               isRequestButtonDisabled ||
               currentStatus === 'loading' ||
-              profileStatus === ProfileStatus.REQUESTING
+              profileStatus === ProfileStatus.REQUESTING ||
+              isCalculatingPrice
             }
             onPress={handleSubmit(onSubmit)}
             accessibilityLabel={t('request_username_button')}
@@ -327,6 +353,7 @@ export const SearchDomainScreen = ({ navigation }: Props) => {
                 : sharedColors.labelLight
             }
             disabledStyle={rnsManagerStyles.disabledButton}
+            loading={isCalculatingPrice}
           />
         ) : (
           <AppButton

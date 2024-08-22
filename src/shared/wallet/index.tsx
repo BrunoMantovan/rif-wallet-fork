@@ -1,4 +1,3 @@
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
 import {
   Dispatch,
   PropsWithChildren,
@@ -6,13 +5,22 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from 'react'
 
+import { RelayWallet } from 'lib/relayWallet'
+import { EOAWallet } from 'lib/eoaWallet'
+import { RnsProcessor } from 'lib/rns'
+
+import { AppDispatch } from 'store/store'
+import { handleTransactionStatusChange } from 'store/shared/utils'
+import { RNS_ADDRESSES_BY_CHAIN_ID } from 'screens/rnsManager/types'
+import { useAppDispatch } from 'store/storeUtils'
+import { getCurrentChainId } from 'storage/ChainStorage'
+
 // preparing for having different types of Wallets
 // like EOA Wallet, MAGIC etc
-export type Wallet = RIFWallet
+export type Wallet = RelayWallet | EOAWallet
 
 interface WalletIsDeployed {
   loading: boolean
@@ -28,68 +36,91 @@ export type SetWallet = Dispatch<SetStateAction<Wallet | null>>
 export type SetWalletIsDeployed = Dispatch<
   SetStateAction<WalletIsDeployed | null>
 >
+export type GetRnsProcessor = () => RnsProcessor | null
 
 interface WalletContext {
   wallet: Wallet | null
   walletIsDeployed: WalletIsDeployed | null
+  rnsProcessor: RnsProcessor | null
   initializeWallet: InitializeWallet
   setWallet: SetWallet
   setWalletIsDeployed: SetWalletIsDeployed
+  getRnsProcessor: GetRnsProcessor
+}
+
+const createRNSPRocessor = (wallet: Wallet, dispatch: AppDispatch) => {
+  return new RnsProcessor(
+    wallet,
+    handleTransactionStatusChange(dispatch),
+    RNS_ADDRESSES_BY_CHAIN_ID[getCurrentChainId()],
+  )
 }
 
 export const WalletContext = createContext<WalletContext>({
   wallet: null,
   walletIsDeployed: null,
+  rnsProcessor: null,
   initializeWallet: () => ({}),
   setWallet: () => ({}),
   setWalletIsDeployed: () => ({}),
+  getRnsProcessor: () => null,
 })
 
 export const WalletProvider = ({
   children,
 }: PropsWithChildren<Record<string, never>>) => {
+  const dispatch = useAppDispatch()
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [walletIsDeployed, setWalletIsDeployed] =
     useState<WalletIsDeployed | null>(null)
-
-  useEffect(() => {
-    console.log('wallet updated', wallet)
-  }, [wallet])
-
-  useEffect(() => {
-    console.log('walletIsDeployed updated', walletIsDeployed)
-  }, [walletIsDeployed])
+  const [rnsProcessor, setRnsProcessor] = useState<RnsProcessor | null>(null)
 
   const initializeWallet = useCallback(
     (walletArg: Wallet, walletIsDeployedArg: WalletIsDeployed) => {
       setWallet(walletArg)
       setWalletIsDeployed(walletIsDeployedArg)
+      setRnsProcessor(createRNSPRocessor(walletArg, dispatch))
     },
-    [],
+    [dispatch],
   )
+
+  const getRnsProcessor = useCallback(() => {
+    return rnsProcessor
+  }, [rnsProcessor])
 
   return (
     <WalletContext.Provider
       value={{
         wallet,
         walletIsDeployed,
+        rnsProcessor,
         initializeWallet,
         setWallet,
         setWalletIsDeployed,
+        getRnsProcessor,
       }}>
       {children}
     </WalletContext.Provider>
   )
 }
 
+export const addressToUse = (wallet: Wallet) =>
+  !(wallet instanceof RelayWallet) ? wallet.address : wallet.smartWalletAddress
+
 export const useWallet = () => {
-  const { wallet } = useContext(WalletContext)
+  const { wallet, walletIsDeployed } = useContext(WalletContext)
 
   if (!wallet) {
     throw new Error('Wallet Has Not Been Set!')
   }
 
-  return wallet
+  if (!walletIsDeployed) {
+    throw new Error('WalletIsDeployed Has Not Been Set!')
+  }
+
+  const address = addressToUse(wallet)
+
+  return { wallet, address, walletIsDeployed }
 }
 
 export const useWalletIsDeployed = () => {
@@ -168,4 +199,10 @@ export const useWalletStateSetters = () => {
     setWalletIsDeployed,
     initializeWallet,
   }
+}
+
+export const useGetRnsProcessor = () => {
+  const { getRnsProcessor } = useContext(WalletContext)
+
+  return getRnsProcessor
 }

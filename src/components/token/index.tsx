@@ -1,4 +1,4 @@
-import Clipboard from '@react-native-community/clipboard'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -18,7 +18,7 @@ import { ContactCard } from 'screens/contacts/components'
 import { TokenImage, TokenSymbol } from 'screens/home/TokenImage'
 import { noop, sharedColors, sharedStyles, testIDs } from 'shared/constants'
 import { ContactWithAddressRequired } from 'shared/types'
-import { castStyle } from 'shared/utils'
+import { castStyle, formatTokenValue, formatFiatValue } from 'shared/utils'
 
 import { DollarIcon } from '../icons/DollarIcon'
 import { EyeIcon } from '../icons/EyeIcon'
@@ -26,7 +26,7 @@ import { EyeIcon } from '../icons/EyeIcon'
 export interface CurrencyValue {
   symbol: TokenSymbol | string
   symbolType: 'usd' | 'icon'
-  balance: string
+  balance: number | string
 }
 
 interface Props {
@@ -69,6 +69,10 @@ export const TokenBalance = ({
     firstValue.symbol?.toUpperCase() === 'RIF' ||
     firstValue.symbol?.toUpperCase() === 'TRIF'
 
+  const firstValueBalance = editable
+    ? firstValue.balance.toString()
+    : formatTokenValue(firstValue.balance)
+
   const onCopyAddress = useCallback(() => {
     if (contact) {
       Clipboard.setString(contact.address)
@@ -102,7 +106,7 @@ export const TokenBalance = ({
           )}
           <TextInput
             onChangeText={handleAmountChange}
-            value={hide ? '\u002A\u002A\u002A\u002A' : firstValue.balance}
+            value={hide ? '\u002A\u002A\u002A\u002A\u002A' : firstValueBalance}
             keyboardType="numeric"
             accessibilityLabel={'Amount.Input'}
             placeholder="0"
@@ -119,21 +123,13 @@ export const TokenBalance = ({
               <TokenImage symbol={secondValue.symbol} />
             </View>
           )}
-          {secondValue?.symbolType === 'usd' && (
-            <>
-              {secondValue.symbol === '<' && (
-                <Typography type="body1" style={styles.subTitle}>
-                  {'<'}
-                </Typography>
-              )}
-              <DollarIcon size={16} color={sharedColors.labelLight} />
-            </>
-          )}
-          {!isNaN(Number(secondValue?.balance)) && (
+          {secondValue && (
             <Typography type="body1" style={styles.subTitle}>
               {hide
-                ? '\u002A\u002A\u002A\u002A\u002A\u002A'
-                : secondValue?.balance}
+                ? '\u002A\u002A\u002A\u002A\u002A'
+                : secondValue.symbolType === 'usd'
+                ? formatFiatValue(secondValue.balance)
+                : formatTokenValue(secondValue.balance)}
             </Typography>
           )}
           {error && (
@@ -229,6 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: 20,
     height: 20,
+    marginRight: 4,
   }),
   subTitle: castStyle.text({
     color: sharedColors.subTitle,

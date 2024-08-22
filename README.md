@@ -23,6 +23,7 @@ The main use case of the RIF Wallet using account abstraction is to pay the gas 
 - Install the dependecies using yarn. This will also run the postinstall script that shims the missing packages: `yarn`
   - The postinstall script runs the `rn-nodeify` package which adds packages that are native to the browser but not to react native.
   - For **iOS** you need to run the additional installation steps: `cd ios` and then `pod install`
+- Set the environment variable `TRACE_ID` in `.env` file to connect with backend server with an identifier, i.e. your company name.
 - Run the app using the desired platform:
   - `yarn ios`
   - `yarn android`
@@ -65,6 +66,14 @@ yarn android:build
 ### Build for iOS:
 
 Open the project up in xCode and select the signing profiles that you wish to use. You may need to signup with appstoreconnect and setup the provisioning profile and certificates. [See Apple's documentation for more information](https://developer.apple.com/help/account/). Once the app and profiles are loaded in xCode, create an "archive" of the project by navigating to [Product/Archive]. After it has completed, you can distribute it locally or to the AppStore using the "Organizer" window.
+
+## Archiving for iOS:
+
+To create an archive to send to the App Store, before opening xCode, install the pod dependecies with the following command:
+
+```
+NO_FLIPPER=1 npx pod-install
+```
 
 ## Interacting with the Smart Wallet
 

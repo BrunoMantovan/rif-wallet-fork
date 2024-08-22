@@ -16,6 +16,7 @@ import {
   sanitizeMaxDecimalText,
   shortAddress,
 } from 'lib/utils'
+import { ChainID } from 'lib/eoaWallet'
 
 import {
   AddressInput,
@@ -28,11 +29,18 @@ import {
 } from 'components/index'
 import { CurrencyValue, TokenBalance } from 'components/token'
 import { defaultIconSize, sharedColors, testIDs } from 'shared/constants'
-import { castStyle } from 'shared/utils'
+import {
+  bitcoinFeeMap,
+  castStyle,
+  formatTokenValue,
+  getAllowedFees,
+  getDefaultFeeEOA,
+  getDefaultFeeRelay,
+  isRelayWallet,
+} from 'shared/utils'
 import { IPrice } from 'src/subscriptions/types'
 import { TokenBalanceObject } from 'store/slices/balancesSlice/types'
 import { Contact, ContactWithAddressRequired } from 'src/shared/types'
-import { ChainTypesByIdType } from 'shared/constants/chainConstants'
 import { navigationContainerRef } from 'src/core/Core'
 import { rootTabsRouteNames } from 'src/navigation/rootNavigator'
 import { contactsStackRouteNames } from 'src/navigation/contactsNavigator'
@@ -51,7 +59,7 @@ interface Props {
   isWalletDeployed: boolean
   tokenList: TokenBalanceObject[]
   tokenPrices: Record<string, IPrice>
-  chainId: ChainTypesByIdType
+  chainId: ChainID
   totalUsdBalance: string
   initialValues: {
     asset?: TokenBalanceObject
@@ -74,16 +82,6 @@ interface FormValues {
 }
 
 export type ProposedContact = Omit<Contact, 'name'>
-
-const bitcoinFeeMap = new Map([
-  [TokenSymbol.BTC, true],
-  [TokenSymbol.BTCT, true],
-])
-
-const rifFeeMap = new Map([
-  [TokenSymbol.TRIF, true],
-  [TokenSymbol.RIF, true],
-])
 
 const transactionSchema = yup.object().shape({
   amount: yup.number().min(0.000000001),
@@ -111,10 +109,6 @@ export const TransactionForm = ({
   status,
   contactList,
 }: Props) => {
-  const rifToken = useMemo(
-    () => tokenList.filter(tk => rifFeeMap.get(tk.symbol as TokenSymbol))[0],
-    [tokenList],
-  )
   const insets = useSafeAreaInsets()
   const { recipient, asset, amount: initialAmount } = initialValues
   const { t } = useTranslation()
@@ -123,20 +117,39 @@ export const TransactionForm = ({
   const [selectedToken, setSelectedToken] = useState<TokenBalanceObject>(
     asset || tokenList[0],
   )
+
+  // when we're able to change fee token
+  // use selectedFeeToken instead of selectedToken
+  const feeToken = useMemo(() => {
+    if (bitcoinFeeMap.get(selectedToken.symbol as TokenSymbol)) {
+      return selectedToken
+    }
+
+    if (!isRelayWallet) {
+      return getDefaultFeeEOA()
+    }
+
+    const contractAddress = getAllowedFees(chainId).find(
+      af => af.contractAddress === selectedToken.contractAddress,
+    )?.contractAddress
+
+    if (!contractAddress) {
+      return getDefaultFeeRelay(chainId)
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return tokenList.find(
+      tok =>
+        tok.contractAddress.toLowerCase() === contractAddress.toLowerCase(),
+    )!
+  }, [chainId, selectedToken, tokenList])
+
   const [selectedTokenAddress, setSelectedTokenAddress] = useState<
     string | undefined
   >(selectedToken.contractAddress)
 
   // const [selectedFeeToken, setSelectedFeeToken] =
   //   useState<TokenBalanceObject>(selectedToken)
-
-  const feeToken = useMemo((): TokenBalanceObject => {
-    if (bitcoinFeeMap.get(selectedToken.symbol as TokenSymbol)) {
-      return selectedToken
-    } else {
-      return rifToken
-    }
-  }, [selectedToken, rifToken])
 
   const tokenQuote = selectedToken.contractAddress.startsWith('BITCOIN')
     ? tokenPrices.BTC.price
@@ -207,13 +220,13 @@ export const TransactionForm = ({
         setValue('amount', balanceToSet)
         setSecondBalance(prev => ({
           ...prev,
-          balance: balanceToSet.toString(),
+          balance: balanceToSet,
         }))
       } else {
         setValue('amount', numberAmount)
         setSecondBalance(prev => ({
           ...prev,
-          balance: convertTokenToUSD(numberAmount, tokenQuote).toFixed(2),
+          balance: convertTokenToUSD(numberAmount, tokenQuote),
         }))
       }
     },
@@ -336,6 +349,7 @@ export const TransactionForm = ({
         <Icon
           name={'info-circle'}
           size={defaultIconSize}
+          style={styles.infoIcon}
           onPress={() =>
             Alert.alert(
               t('transaction_form_bitcoin_alert_utxo_title'),
@@ -486,9 +500,9 @@ export const TransactionForm = ({
           </Typography>
         )}
         <AppButton
-          title={`${t('transaction_form_button_send')} ${amount} ${
-            selectedToken.symbol
-          }`}
+          title={`${t('transaction_form_button_send')} ${formatTokenValue(
+            amount,
+          )} ${selectedToken.symbol}`}
           onPress={handleSubmit(handleConfirmClick)}
           accessibilityLabel={'Send'}
           disabled={
@@ -533,4 +547,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }),
   proposedContact: castStyle.view({ marginTop: 6 }),
+  infoIcon: castStyle.text({ color: sharedColors.inputLabelColor }),
 })

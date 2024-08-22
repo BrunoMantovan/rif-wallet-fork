@@ -1,21 +1,23 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleProp, ViewStyle } from 'react-native'
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
 import { ZERO_ADDRESS } from '@rsksmart/rif-relay-light-sdk'
 
-import { roundBalance, shortAddress } from 'lib/utils'
+import { shortAddress } from 'lib/utils'
 
+import { isMyAddress } from 'components/address/lib'
 import { StatusEnum } from 'components/BasicRow'
 import { BasicRowWithContact } from 'components/BasicRow/BasicRowWithContact'
 import { AppTouchable } from 'components/appTouchable'
 import { rootTabsRouteNames } from 'navigation/rootNavigator/types'
 import { TransactionSummaryScreenProps } from 'screens/transactionSummary'
 import { ActivityMainScreenProps } from 'shared/types'
-import { isMyAddress } from 'src/components/address/lib'
-import { useAppSelector } from 'src/redux/storeUtils'
+import { useAppSelector } from 'store/storeUtils'
 import { getContactByAddress } from 'store/slices/contactsSlice'
 import { ActivityRowPresentationObject } from 'store/slices/transactionsSlice'
+import { formatTokenValue, formatFiatValue } from 'shared/utils'
+import { Wallet, useWallet } from 'shared/wallet'
+import { TransactionStatus } from 'store/shared/types'
 
 const getStatus = (status: string) => {
   switch (status) {
@@ -30,7 +32,7 @@ const getStatus = (status: string) => {
 
 interface Props {
   index?: number
-  wallet: RIFWallet
+  wallet: Wallet
   activityDetails: ActivityRowPresentationObject
   navigation: ActivityMainScreenProps['navigation']
   backScreen?: rootTabsRouteNames
@@ -53,14 +55,15 @@ export const ActivityBasicRow = ({
     timeHumanFormatted,
     from = '',
     to = '',
-    price,
+    price: usdValue,
     id,
   } = activityDetails
-
+  const { address: walletAddress } = useWallet()
   const { t } = useTranslation()
 
   // Contact
-  const amIReceiver = activityDetails.amIReceiver ?? isMyAddress(wallet, to)
+  const amIReceiver =
+    activityDetails.amIReceiver ?? isMyAddress(walletAddress, to)
   const address = amIReceiver ? from : to
   const contact = useAppSelector(getContactByAddress(address.toLowerCase()))
 
@@ -70,16 +73,22 @@ export const ActivityBasicRow = ({
   let label = `${firstLabel} ${secondLabel}`
   if (
     to === ZERO_ADDRESS &&
-    from.toLowerCase() === wallet.smartWalletFactory.address.toLowerCase()
+    from.toLowerCase() === wallet?.smartWalletFactory?.address.toLowerCase()
   ) {
     label = t('wallet_deployment_label')
   }
 
-  // USD Balance
-  const usdBalance = roundBalance(price, 2)
+  const txSummary: TransactionSummaryScreenProps = useMemo(() => {
+    const totalUsd = isNaN(usdValue) ? '' : usdValue + Number(fee.usdValue)
+    const feeUsd = isNaN(+fee.usdValue) ? '' : fee.usdValue
+    const usdAmount = isNaN(usdValue) ? '' : usdValue
 
-  const txSummary: TransactionSummaryScreenProps = useMemo(
-    () => ({
+    const totalToken =
+      symbol === fee.symbol
+        ? Number(value) + Number(fee.tokenValue)
+        : Number(value)
+
+    return {
       transaction: {
         tokenValue: {
           symbol,
@@ -87,12 +96,18 @@ export const ActivityBasicRow = ({
           balance: value,
         },
         usdValue: {
-          symbol: usdBalance ? '$' : '<',
+          symbol: '$',
           symbolType: 'usd',
-          balance: usdBalance ? usdBalance.toFixed(2) : '0.01',
+          balance: usdAmount,
         },
-        status,
-        fee,
+        fee: {
+          symbol: fee.symbol || symbol,
+          tokenValue: fee.tokenValue,
+          usdValue: feeUsd,
+        },
+        totalToken,
+        totalUsd,
+        status: status.toUpperCase() as TransactionStatus,
         amIReceiver,
         from,
         to,
@@ -100,34 +115,25 @@ export const ActivityBasicRow = ({
         hashId: id,
       },
       contact: contact || { address },
-    }),
-    [
-      address,
-      amIReceiver,
-      contact,
-      fee,
-      from,
-      to,
-      status,
-      symbol,
-      timeHumanFormatted,
-      usdBalance,
-      value,
-      id,
-    ],
-  )
+    }
+  }, [
+    fee,
+    symbol,
+    value,
+    usdValue,
+    status,
+    amIReceiver,
+    from,
+    to,
+    timeHumanFormatted,
+    id,
+    contact,
+    address,
+  ])
 
-  const amount = useMemo(() => {
-    if (symbol.startsWith('BTC')) {
-      return value
-    }
-    const num = Number(value)
-    let rounded = roundBalance(num, 4)
-    if (!rounded) {
-      rounded = roundBalance(num, 8)
-    }
-    return rounded.toString()
-  }, [value, symbol])
+  const amount = symbol.startsWith('BTC') ? value : formatTokenValue(value)
+  const isUnknownToken = !usdValue && Number(value) > 0
+  const usdAmount = isUnknownToken ? '' : formatFiatValue(usdValue)
 
   const handlePress = useCallback(() => {
     if (txSummary) {
@@ -148,7 +154,7 @@ export const ActivityBasicRow = ({
         status={getStatus(status)}
         avatar={{ name: 'A' }}
         secondaryLabel={timeHumanFormatted}
-        usdAmount={price === 0 ? undefined : usdBalance}
+        usdAmount={usdAmount}
         contact={contact}
       />
     </AppTouchable>

@@ -7,7 +7,6 @@ import {
 import { TokenSymbol } from 'screens/home/TokenImage'
 import { TransactionStatus } from 'screens/transactionSummary/transactionSummaryUtils'
 import { IEvent } from 'src/subscriptions/types'
-import { TransactionResponseWithoutWait } from 'screens/send/types'
 
 export interface TransactionsServerResponseWithActivityTransactions
   extends TransactionsServerResponse {
@@ -35,8 +34,8 @@ export interface IBitcoinTransaction {
 }
 
 export interface TokenFeeValueObject {
-  tokenValue?: string
-  usdValue: string
+  tokenValue: string
+  usdValue: number | string
   symbol?: TokenSymbol | string
 }
 
@@ -68,15 +67,3 @@ export interface TransactionsState {
   events: IEvent[]
   loading: boolean
 }
-
-export interface TransactionExtras {
-  symbol?: string
-  finalAddress?: string
-  enhancedAmount?: string
-  original?: TransactionResponseWithoutWait
-}
-
-export type ApiTransactionWithExtras = IApiTransaction & TransactionExtras
-export type ModifyTransaction = Partial<IApiTransaction> &
-  Pick<IApiTransaction, 'hash'> &
-  Pick<ActivityRowPresentationObject, 'status'>

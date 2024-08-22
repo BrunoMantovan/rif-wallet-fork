@@ -1,19 +1,16 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, TextStyle } from 'react-native'
-import Clipboard from '@react-native-community/clipboard'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { decodeString } from '@rsksmart/rif-wallet-eip681'
 import { useTranslation } from 'react-i18next'
 import { isBitcoinAddressValid } from '@rsksmart/rif-wallet-bitcoin'
 import { Network } from 'bitcoin-address-validation'
 
+import { ChainID } from 'lib/eoaWallet'
+
 import { getRnsResolver } from 'core/setup'
 import { sharedColors } from 'shared/constants'
 import { Contact, ContactWithAddressRequired } from 'shared/types'
-import {
-  ChainTypeEnum,
-  ChainTypesByIdType,
-  chainTypesById,
-} from 'shared/constants/chainConstants'
 import { castStyle } from 'shared/utils'
 import { ContactCard } from 'screens/contacts/components'
 import { ProposedContact } from 'screens/send/TransactionForm'
@@ -37,7 +34,7 @@ export interface AddressInputProps extends Omit<InputProps, 'value'> {
     newDisplayValue: string,
     isValid: boolean,
   ) => void
-  chainId: ChainTypesByIdType
+  chainId: ChainID
   contactList?: Contact[]
   onSetLoadingRNS?: (isLoading: boolean) => void
   searchContacts?: (textString: string) => void
@@ -241,8 +238,7 @@ export const AddressInput = ({
       let validationMessage: AddressValidationMessage
       if (isBitcoin) {
         if (isBitcoinValid) {
-          const isMainnet = chainTypesById[chainId] === ChainTypeEnum.MAINNET
-          const network = isMainnet ? Network.mainnet : Network.testnet
+          const network = chainId === 30 ? Network.mainnet : Network.testnet
           const isNetworkValid = isBitcoinAddressValid(userInput, network)
           validationMessage = isNetworkValid
             ? AddressValidationMessage.VALID

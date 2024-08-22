@@ -1,22 +1,27 @@
 import { convertToERC20Token, makeRBTCToken } from '@rsksmart/rif-wallet-token'
 import { BigNumber, utils } from 'ethers'
 import { ITokenWithBalance } from '@rsksmart/rif-wallet-services'
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
 
 import { sanitizeMaxDecimalText } from 'lib/utils'
+
+import { Wallet } from 'shared/wallet'
+import {
+  OnSetTransactionStatusChange,
+  TransactionStatus,
+} from 'store/shared/types'
 
 import {
   OnSetCurrentTransactionFunction,
   OnSetErrorFunction,
-  OnSetTransactionStatusChange,
   TransactionInformation,
 } from './types'
+import { TokenSymbol } from '../home/TokenImage'
 
-interface IRifTransfer {
+interface RifTransfer {
   token: ITokenWithBalance
   amount: string
   to: string
-  wallet: RIFWallet
+  wallet: Wallet
   chainId: number
   onSetError?: OnSetErrorFunction
   onSetCurrentTransaction?: OnSetCurrentTransactionFunction
@@ -32,13 +37,13 @@ export const transfer = async ({
   onSetError,
   onSetCurrentTransaction,
   onSetTransactionStatusChange,
-}: IRifTransfer) => {
+}: RifTransfer) => {
   onSetError?.(null)
-  onSetCurrentTransaction?.({ status: 'USER_CONFIRM' })
+  onSetCurrentTransaction?.({ status: TransactionStatus.USER_CONFIRM })
 
   // handle both ERC20 tokens and the native token (gas)
   const transferMethod =
-    token.symbol === 'RBTC'
+    token.symbol === TokenSymbol.RBTC
       ? makeRBTCToken(wallet, chainId)
       : convertToERC20Token(token, wallet)
 
@@ -54,7 +59,7 @@ export const transfer = async ({
 
     const { wait: waitForTransactionToComplete, ...txPendingRest } = txPending
     onSetTransactionStatusChange?.({
-      txStatus: 'PENDING',
+      txStatus: TransactionStatus.PENDING,
       ...txPendingRest,
       value: tokenAmount,
       symbol: transferMethod.symbol,
@@ -67,16 +72,19 @@ export const transfer = async ({
       value: amount,
       symbol: transferMethod.symbol,
       hash: txPending.hash,
-      status: 'PENDING',
+      status: TransactionStatus.PENDING,
       original: txPendingRest,
     }
     onSetCurrentTransaction?.(current)
 
     waitForTransactionToComplete()
       .then(contractReceipt => {
-        onSetCurrentTransaction?.({ ...current, status: 'SUCCESS' })
+        onSetCurrentTransaction?.({
+          ...current,
+          status: TransactionStatus.SUCCESS,
+        })
         onSetTransactionStatusChange?.({
-          txStatus: 'CONFIRMED',
+          txStatus: TransactionStatus.USER_CONFIRM,
           original: {
             ...txPendingRest,
             hash: contractReceipt.transactionHash,
@@ -85,9 +93,12 @@ export const transfer = async ({
         })
       })
       .catch(() => {
-        onSetCurrentTransaction?.({ ...current, status: 'FAILED' })
+        onSetCurrentTransaction?.({
+          ...current,
+          status: TransactionStatus.FAILED,
+        })
         onSetTransactionStatusChange?.({
-          txStatus: 'FAILED',
+          txStatus: TransactionStatus.FAILED,
           ...txPendingRest,
         })
       })

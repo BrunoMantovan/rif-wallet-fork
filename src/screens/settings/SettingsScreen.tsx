@@ -2,6 +2,7 @@ import { version } from 'package.json'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Platform, ScrollView, StyleSheet, View } from 'react-native'
+import Config from 'react-native-config'
 
 import { AppTouchable, Typography } from 'components/index'
 import { getWalletSetting } from 'core/config'
@@ -34,25 +35,17 @@ export const SettingsScreen = ({
   const { walletIsDeployed } = useContext(WalletContext)
 
   const smartWalletFactoryAddress = useMemo(
-    () =>
-      getWalletSetting(
-        SETTINGS.SMART_WALLET_FACTORY_ADDRESS,
-        chainTypesById[chainId],
-      ),
+    () => getWalletSetting(SETTINGS.SMART_WALLET_FACTORY_ADDRESS, chainId),
     [chainId],
   )
 
   const rpcUrl = useMemo(
-    () => getWalletSetting(SETTINGS.RPC_URL, chainTypesById[chainId]),
+    () => getWalletSetting(SETTINGS.RPC_URL, chainId),
     [chainId],
   )
 
   const walletServiceUrl = useMemo(
-    () =>
-      getWalletSetting(
-        SETTINGS.RIF_WALLET_SERVICE_URL,
-        chainTypesById[chainId],
-      ),
+    () => getWalletSetting(SETTINGS.RIF_WALLET_SERVICE_URL, chainId),
     [chainId],
   )
 
@@ -84,11 +77,12 @@ export const SettingsScreen = ({
   const { t } = useTranslation()
 
   const { handleReload } = useContext(GlobalErrorHandlerContext)
-  const onSwitchChains = () => {
+
+  const onSwitchChains = useCallback(() => {
     const currentChainId = getCurrentChainId()
     setCurrentChainId(currentChainId === 31 ? 30 : 31)
     handleReload()
-  }
+  }, [handleReload])
   return (
     <ScrollView style={styles.container}>
       <View style={styles.mainView}>
@@ -146,64 +140,45 @@ export const SettingsScreen = ({
         style={styles.settingsItem}
         onPress={onSwitchChains}>
         <Typography type={'h3'}>
-          Switch to {ChainTypesInversed[chainTypesById[chainId]]}
+          {`${t('settings_screen_switch_to')} ${
+            ChainTypesInversed[chainTypesById[chainId]]
+          }`}
         </Typography>
       </AppTouchable>
       <View style={styles.bottomView}>
-        <AppTouchable
-          width={'100%'}
-          accessibilityLabel="version"
-          style={styles.footerItem}
-          onPress={goToWalletBackup}>
-          <Typography type={'body1'} color={sharedColors.labelLight}>
-            {t('settings_screen_version')} {version}
+        <View style={styles.settingsItem}>
+          <Typography type={'h4'} color={sharedColors.labelLight}>
+            {t('settings_screen_version')} {version}-
+            {Config.USE_RELAY ? 'relay' : 'eoa'}
           </Typography>
-        </AppTouchable>
+        </View>
 
-        <AppTouchable
-          width={'100%'}
-          accessibilityLabel="Smart Wallet Factory"
-          style={styles.footerItem}
-          onPress={goToWalletBackup}>
-          <>
-            <Typography type={'h4'} color={sharedColors.labelLight}>
-              {t('settings_screen_smart_wallet_factory')}
-            </Typography>
-            <Typography type={'h5'} color={sharedColors.labelLight}>
-              {smartWalletFactoryAddress}
-            </Typography>
-          </>
-        </AppTouchable>
+        <View style={styles.settingsItem}>
+          <Typography type={'h4'} color={sharedColors.labelLight}>
+            {t('settings_screen_smart_wallet_factory')}
+          </Typography>
+          <Typography type={'h5'} color={sharedColors.labelLight}>
+            {smartWalletFactoryAddress}
+          </Typography>
+        </View>
 
-        <AppTouchable
-          width={'100%'}
-          accessibilityLabel="security"
-          style={styles.footerItem}
-          onPress={goToWalletBackup}>
-          <>
-            <Typography type={'h4'} color={sharedColors.labelLight}>
-              {t('settings_screen_rpc_url')}
-            </Typography>
-            <Typography type={'h5'} color={sharedColors.labelLight}>
-              {rpcUrl}
-            </Typography>
-          </>
-        </AppTouchable>
+        <View style={styles.settingsItem}>
+          <Typography type={'h4'} color={sharedColors.labelLight}>
+            {t('settings_screen_rpc_url')}
+          </Typography>
+          <Typography type={'h5'} color={sharedColors.labelLight}>
+            {rpcUrl}
+          </Typography>
+        </View>
 
-        <AppTouchable
-          width={'100%'}
-          accessibilityLabel="Backend URL"
-          style={styles.footerItem}
-          onPress={goToWalletBackup}>
-          <>
-            <Typography type={'h4'} color={sharedColors.labelLight}>
-              {t('settings_screen_backend_url')}
-            </Typography>
-            <Typography type={'h5'} color={sharedColors.labelLight}>
-              {walletServiceUrl}
-            </Typography>
-          </>
-        </AppTouchable>
+        <View style={styles.settingsItem}>
+          <Typography type={'h4'} color={sharedColors.labelLight}>
+            {t('settings_screen_backend_url')}
+          </Typography>
+          <Typography type={'h5'} color={sharedColors.labelLight}>
+            {walletServiceUrl}
+          </Typography>
+        </View>
       </View>
     </ScrollView>
   )

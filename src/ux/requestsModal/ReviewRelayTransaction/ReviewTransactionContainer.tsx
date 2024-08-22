@@ -1,15 +1,14 @@
-import {
-  OverriddableTransactionOptions,
-  SendTransactionRequest,
-} from '@rsksmart/rif-wallet-core'
-import { BigNumber, constants } from 'ethers'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { BigNumber, BigNumberish } from 'ethers'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { isAddress } from '@rsksmart/rsk-utils'
+import { showMessage } from 'react-native-flash-message'
 
 import { balanceToDisplay, convertTokenToUSD } from 'lib/utils'
+import { OverriddableTransactionOptions, RelayWallet } from 'lib/relayWallet'
+import { SendTransactionRequest } from 'lib/eoaWallet'
 
 import { AppButtonBackgroundVarietyEnum } from 'components/index'
 import { getTokenAddress } from 'core/config'
@@ -17,18 +16,26 @@ import { TokenSymbol } from 'screens/home/TokenImage'
 import { TransactionSummaryScreenProps } from 'screens/transactionSummary'
 import { TransactionSummaryComponent } from 'screens/transactionSummary/TransactionSummaryComponent'
 import { sharedColors } from 'shared/constants'
-import { chainTypesById } from 'shared/constants/chainConstants'
-import { castStyle, errorHandler } from 'shared/utils'
-import { selectChainId } from 'store/slices/settingsSlice'
-import { ChainTypeEnum } from 'store/slices/settingsSlice/types'
+import {
+  castStyle,
+  errorHandler,
+  formatTokenValue,
+  getDefaultTokenContract,
+  getFee,
+  rbtcMap,
+} from 'shared/utils'
 import { selectUsdPrices } from 'store/slices/usdPricesSlice'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
 import { addRecentContact } from 'store/slices/contactsSlice'
 import { selectBalances } from 'store/slices/balancesSlice'
 import { selectRecentRskTransactions } from 'store/slices/transactionsSlice'
-import { WalletContext } from 'shared/wallet'
-
-import useEnhancedWithGas from '../useEnhancedWithGas'
+import { Wallet } from 'shared/wallet'
+import {
+  EnhancedTransactionRequest,
+  enhanceWithGas,
+} from 'shared/utils/enhanceWithGas'
+import { getPopupMessage } from 'shared/popupMessage'
+import { getCurrentChainId } from 'storage/ChainStorage'
 
 const tokenToBoolMap = new Map([
   [TokenSymbol.RIF, true],
@@ -37,12 +44,16 @@ const tokenToBoolMap = new Map([
 ])
 
 interface Props {
+  wallet: Wallet
+  address: string
   request: SendTransactionRequest
   onConfirm: () => void
   onCancel: () => void
 }
 
 export const ReviewTransactionContainer = ({
+  wallet,
+  address,
   request,
   onCancel,
   onConfirm,
@@ -51,23 +62,17 @@ export const ReviewTransactionContainer = ({
   const insets = useSafeAreaInsets()
   const tokenPrices = useAppSelector(selectUsdPrices)
   // enhance the transaction to understand what it is:
-  const { wallet } = useContext(WalletContext)
-  const chainId = useAppSelector(selectChainId)
+
+  const chainId = getCurrentChainId()
   const balances = useAppSelector(selectBalances)
   const pendingTransactions = useAppSelector(selectRecentRskTransactions)
-  const [txCostInRif, setTxCostInRif] = useState<BigNumber>()
+  const [txCost, setTxCost] = useState<BigNumber>()
+  const [enhancedTransactionRequest, setEnhancedTransactionRequest] =
+    useState<EnhancedTransactionRequest>({})
+  const [isLoaded, setIsLoaded] = useState(false)
   const { t } = useTranslation()
 
-  // this is for typescript, and should not happen as the transaction was created by the wallet instance.
-  if (!wallet) {
-    throw new Error('no wallet')
-  }
-
-  const txRequest = request.payload[0]
-  const { enhancedTransactionRequest, isLoaded } = useEnhancedWithGas(
-    wallet,
-    txRequest,
-  )
+  const txRequest = request.payload
 
   const {
     to = '',
@@ -77,12 +82,6 @@ export const ReviewTransactionContainer = ({
     gasPrice,
     gasLimit,
   } = enhancedTransactionRequest
-
-  const isMainnet = chainTypesById[chainId] === ChainTypeEnum.MAINNET
-
-  const rbtcSymbol = isMainnet ? TokenSymbol.RBTC : TokenSymbol.TRBTC
-  const feeSymbol = isMainnet ? TokenSymbol.RIF : TokenSymbol.TRIF
-  const feeContract = getTokenAddress(feeSymbol, chainTypesById[chainId])
 
   const getTokenBySymbol = useCallback(
     (symb: string) => {
@@ -100,55 +99,55 @@ export const ReviewTransactionContainer = ({
   )
 
   const tokenContract = useMemo(() => {
-    const rbtcAddress = constants.AddressZero
-    if (symbol === rbtcSymbol) {
-      return rbtcAddress
-    }
     if (symbol) {
       try {
-        return getTokenAddress(symbol, chainTypesById[chainId])
+        return getTokenAddress(symbol, chainId)
       } catch {
         return getTokenBySymbol(symbol).contractAddress
       }
     }
-    return feeContract
-  }, [symbol, rbtcSymbol, feeContract, chainId, getTokenBySymbol])
+
+    return getDefaultTokenContract(chainId)
+  }, [symbol, chainId, getTokenBySymbol])
+
+  const fee = useMemo(() => getFee(chainId, txRequest.to), [chainId, txRequest])
 
   const tokenQuote = tokenPrices[tokenContract]?.price
-  const feeQuote = tokenPrices[feeContract]?.price
+  const feeQuote = tokenPrices[fee.contractAddress]?.price
 
   useEffect(() => {
     if (txRequest.to && !isAddress(txRequest.to)) {
-      console.log('Invalid "to" address, rejecting transaction')
-      onCancel()
-    }
-  }, [onCancel, txRequest.to])
-
-  useEffect(() => {
-    wallet.rifRelaySdk
-      .estimateTransactionCost(
-        txRequest,
-        feeContract,
-        pendingTransactions.length,
+      showMessage(
+        getPopupMessage(t('send_transaction_popup'), t('ok'), onCancel),
       )
-      .then(setTxCostInRif)
-      .catch(err => {
-        console.log('Server Error', err)
-        request.reject('There is an error connecting to the RIF Relay Server.')
-        onCancel()
-      })
-  }, [
-    txRequest,
-    wallet.rifRelaySdk,
-    feeContract,
-    request,
-    onCancel,
-    pendingTransactions.length,
-  ])
+    }
+  }, [onCancel, txRequest.to, t])
+
+  // this hook estimatesGas for txRequest
+  useEffect(() => {
+    const fn = async () => {
+      try {
+        const estimatedCost = await wallet.estimateGas(
+          txRequest,
+          fee.contractAddress,
+        )
+
+        setTxCost(estimatedCost)
+
+        const eTx = await enhanceWithGas(wallet, txRequest, chainId)
+        setEnhancedTransactionRequest(eTx)
+        setIsLoaded(true)
+      } catch (err) {
+        console.log('ERROR WHEN ESTIMATING THE TX COST', err)
+      }
+    }
+
+    fn()
+  }, [txRequest, wallet, fee.contractAddress, chainId])
 
   const confirmTransaction = useCallback(async () => {
     dispatch(addRecentContact(to))
-    if (!txCostInRif) {
+    if (!txCost) {
       throw new Error('token cost has not been estimated')
     }
 
@@ -156,8 +155,8 @@ export const ReviewTransactionContainer = ({
       gasPrice: BigNumber.from(gasPrice),
       gasLimit: BigNumber.from(gasLimit),
       tokenPayment: {
-        tokenContract: feeContract,
-        tokenAmount: txCostInRif,
+        tokenContract: fee.contractAddress,
+        tokenAmount: txCost,
       },
       pendingTxsCount: pendingTransactions.length,
     }
@@ -170,10 +169,10 @@ export const ReviewTransactionContainer = ({
     }
   }, [
     dispatch,
-    txCostInRif,
+    txCost,
     gasPrice,
     gasLimit,
-    feeContract,
+    fee.contractAddress,
     request,
     onConfirm,
     to,
@@ -186,47 +185,61 @@ export const ReviewTransactionContainer = ({
   }, [onCancel, request])
 
   const data: TransactionSummaryScreenProps = useMemo(() => {
-    const convertToUSD = (tokenValue: number, quote = 0) =>
-      convertTokenToUSD(tokenValue, quote, true).toFixed(2)
-
-    const feeValue = txCostInRif ? balanceToDisplay(txCostInRif, 18, 0) : '0'
-
+    const feeValue = txCost ? balanceToDisplay(txCost, 18) : '0'
+    const rbtcFeeValue =
+      txCost && rbtcMap.get(fee.symbol as TokenSymbol)
+        ? formatTokenValue(txCost.toString())
+        : undefined
     let insufficientFunds = false
 
-    if (tokenToBoolMap.get(symbol as TokenSymbol)) {
+    if (
+      tokenToBoolMap.get(symbol as TokenSymbol) &&
+      wallet instanceof RelayWallet
+    ) {
       insufficientFunds =
-        Number(value) + Number(feeValue) > Number(balances[feeContract].balance)
+        Number(value) + Number(feeValue) >
+        Number(balances[fee.contractAddress].balance)
     } else {
       insufficientFunds =
-        Number(feeValue) > Number(balances[feeContract].balance)
+        Number(feeValue) > Number(balances[fee.contractAddress].balance)
     }
 
     if (insufficientFunds) {
       Alert.alert(t('transaction_summary_insufficient_funds'))
     }
 
-    // get usd values
-    const tokenUsd = convertToUSD(Number(value), tokenQuote)
-    const feeUsd = convertToUSD(Number(feeValue), feeQuote)
-    const isAmountSmall = !Number(tokenUsd) && !!Number(value)
+    const convertToUSD = (
+      amount: string | BigNumberish,
+      quote: number,
+    ): number => convertTokenToUSD(Number(amount), quote)
+
+    // usd values
+    const tokenUsd = convertToUSD(value, tokenQuote)
+    const feeUsd = convertToUSD(feeValue, feeQuote)
+    const totalUsd = tokenUsd + feeUsd
+
+    const totalToken =
+      symbol === fee.symbol ? Number(value) + Number(feeValue) : Number(value)
 
     return {
       transaction: {
         tokenValue: {
-          symbol: symbol || feeSymbol,
+          symbol: symbol || fee.symbol,
           symbolType: 'icon',
           balance: value.toString(),
         },
         usdValue: {
-          symbol: isAmountSmall ? '<' : '$',
+          symbol: '$',
           symbolType: 'usd',
-          balance: isAmountSmall ? '0.01' : tokenUsd,
+          balance: tokenUsd,
         },
         fee: {
-          tokenValue: feeValue,
+          symbol: fee.symbol,
+          tokenValue: rbtcFeeValue ?? feeValue,
           usdValue: feeUsd,
-          symbol: feeSymbol,
         },
+        totalToken,
+        totalUsd,
         time: 'approx 1 min',
         to,
       },
@@ -250,27 +263,27 @@ export const ReviewTransactionContainer = ({
       functionName,
     }
   }, [
-    feeContract,
     balances,
-    txCostInRif,
+    txCost,
     value,
     tokenQuote,
     feeQuote,
     symbol,
-    feeSymbol,
+    fee,
     to,
     t,
     confirmTransaction,
     cancelTransaction,
     functionName,
+    wallet,
   ])
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <TransactionSummaryComponent
         {...data}
-        isLoaded={isLoaded && txCostInRif !== undefined}
-        wallet={wallet}
+        isLoaded={isLoaded && txCost !== undefined}
+        address={address}
       />
     </View>
   )

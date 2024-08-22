@@ -1,10 +1,9 @@
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
-import { RSKRegistrar } from '@rsksmart/rns-sdk'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text } from 'react-native'
 import { FieldError } from 'react-hook-form'
+import { RSKRegistrar } from '@rsksmart/rns-sdk'
 
 import {
   AddressValidationMessage,
@@ -14,17 +13,15 @@ import { Input, Typography } from 'components/index'
 import { sharedColors } from 'shared/constants'
 import { castStyle } from 'shared/utils'
 import { colors } from 'src/styles'
-import { useAppSelector } from 'store/storeUtils'
-import { selectChainId } from 'store/slices/settingsSlice'
-import { RNS_ADDRESSES_BY_CHAIN_ID } from 'screens/rnsManager/types'
 
 import { minDomainLength } from './SearchDomainScreen'
 
 interface Props {
-  wallet: RIFWallet
+  address: string
   inputName: string
   domainValue: string
   error: FieldError | undefined
+  rskRegistrar: RSKRegistrar
   onDomainAvailable: (domain: string, valid: boolean) => void
   onDomainOwned: (owned: boolean) => void
   onResetValue: () => void
@@ -47,9 +44,10 @@ const labelColorMap = new Map([
 ])
 
 export const DomainInput = ({
-  wallet,
+  address,
   inputName,
   domainValue,
+  rskRegistrar,
   onDomainAvailable,
   onDomainOwned,
   onResetValue,
@@ -58,21 +56,10 @@ export const DomainInput = ({
   const [domainAvailability, setDomainAvailability] = useState<DomainStatus>(
     DomainStatus.NONE,
   )
-  const chainId = useAppSelector(selectChainId)
   const { t } = useTranslation()
   const errorType = error?.type
   const errorMessage = error?.message
 
-  const rskRegistrar = useMemo(
-    () =>
-      new RSKRegistrar(
-        RNS_ADDRESSES_BY_CHAIN_ID[chainId].rskOwnerAddress,
-        RNS_ADDRESSES_BY_CHAIN_ID[chainId].fifsAddrRegistrarAddress,
-        RNS_ADDRESSES_BY_CHAIN_ID[chainId].rifTokenAddress,
-        wallet,
-      ),
-    [wallet, chainId],
-  )
   const searchDomain = useCallback(
     async (domain: string) => {
       if (errorType === 'matches' && errorMessage) {
@@ -86,9 +73,8 @@ export const DomainInput = ({
 
         if (!available) {
           const ownerAddress = await rskRegistrar.ownerOf(domain)
-          const currentWallet = wallet.smartWallet.smartWalletAddress
 
-          if (currentWallet === ownerAddress) {
+          if (address === ownerAddress) {
             setDomainAvailability(DomainStatus.OWNED)
             onDomainOwned(true)
           } else {
@@ -106,7 +92,7 @@ export const DomainInput = ({
       errorMessage,
       onDomainAvailable,
       rskRegistrar,
-      wallet.smartWallet.smartWalletAddress,
+      address,
       onDomainOwned,
     ],
   )

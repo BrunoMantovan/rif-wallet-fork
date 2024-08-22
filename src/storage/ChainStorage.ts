@@ -1,10 +1,9 @@
-import { ChainTypesByIdType } from 'shared/constants/chainConstants'
-import { MMKVStorage } from 'storage/MMKVStorage'
+import { ChainID } from 'lib/eoaWallet'
 
-const ChainStorage = new MMKVStorage('chainStorage')
+import { MainStorage } from './MainStorage'
 
-export const getCurrentChainId: () => ChainTypesByIdType = () =>
-  ChainStorage.get('chainId') || 31
+export const getCurrentChainId: () => ChainID = () =>
+  MainStorage.get('chainId') || 31
 
-export const setCurrentChainId = (chainId: ChainTypesByIdType) =>
-  ChainStorage.set('chainId', chainId)
+export const setCurrentChainId = (chainId: ChainID) =>
+  MainStorage.set('chainId', chainId)

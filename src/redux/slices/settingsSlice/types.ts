@@ -1,14 +1,16 @@
 import { BitcoinNetworkWithBIPRequest } from '@rsksmart/rif-wallet-bitcoin'
 import { ColorValue } from 'react-native'
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
+
+import { ChainID } from 'lib/eoaWallet'
 
 import { RequestWithBitcoin } from 'shared/types'
-import { ChainTypesByIdType } from 'shared/constants/chainConstants'
-import { InitializeWallet } from 'shared/wallet'
+import { InitializeWallet, Wallet } from 'shared/wallet'
 
-export interface Wallets {
-  [id: string]: RIFWallet
-}
+export type ResetAppPayload =
+  | undefined
+  | {
+      wallet: Wallet
+    }
 
 export interface WalletIsDeployed {
   loading: boolean
@@ -35,10 +37,11 @@ export interface UnlockAppAction {
   initializeWallet: InitializeWallet
   isOffline?: boolean
   pinUnlocked?: boolean
+  setGlobalError: (value: string) => void
 }
 
 export interface SetKeysAction {
-  wallet: RIFWallet
+  wallet: Wallet
   walletIsDeployed: WalletIsDeployed
 }
 
@@ -52,7 +55,7 @@ export interface SetWalletIsDeployedAction {
 }
 
 export interface SetNewWalletAction {
-  rifWallet: RIFWallet
+  rifWallet: Wallet
   isDeployed: boolean
 }
 
@@ -76,7 +79,7 @@ export interface SettingsSlice {
   topColor: ColorValue
   selectedWallet: string
   loading: boolean
-  chainId: ChainTypesByIdType
+  chainId: ChainID
   appIsActive: boolean
   unlocked: boolean
   previouslyUnlocked: boolean

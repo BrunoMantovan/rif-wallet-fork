@@ -2,10 +2,13 @@ import { Core } from '@walletconnect/core'
 import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { getSdkError, buildApprovedNamespaces } from '@walletconnect/utils'
 
+import { ChainID } from 'lib/eoaWallet'
+
 import { getEnvSetting } from 'core/config'
 import { SETTINGS } from 'core/types'
-import { ChainTypesByIdType } from 'shared/constants/chainConstants'
 import { AcceptedValue, MMKVStorage } from 'storage/MMKVStorage'
+
+const WC2 = 'WC2'
 
 export type WalletConnect2SdkErrorString = Parameters<typeof getSdkError>[0]
 
@@ -35,8 +38,13 @@ const WalletConnect2SdkErrorEnum: { [P in WalletConnect2SdkErrorString]: P } = {
 
 type StorageTypeFromCore = InstanceType<typeof Core>['storage']
 
+export const deleteWCSessions = () => {
+  const storage = new MMKVStorage('WC2')
+  storage.deleteAll()
+}
+
 class MMKVCoreStorage implements StorageTypeFromCore {
-  storage = new MMKVStorage('WC2')
+  storage = new MMKVStorage(WC2)
 
   getEntries<T = never>(): Promise<[string, T][]> {
     const keys = this.storage.getAllKeys()
@@ -71,6 +79,7 @@ export const createWeb3Wallet = async () => {
   const core = new Core({
     projectId,
     storage: new MMKVCoreStorage(),
+    // logger: 'info', // info on this: https://github.com/pinojs/pino/blob/master/docs/api.md#levels
   })
 
   return await Web3Wallet.init({
@@ -93,7 +102,7 @@ const WALLETCONNECT_SUPPORTED_METHODS = [
   'eth_signTypedData',
 ]
 
-const WALLETCONNECT_BUILD_SUPPORTED_CHAINS = (chainId: ChainTypesByIdType) => [
+const WALLETCONNECT_BUILD_SUPPORTED_CHAINS = (chainId: ChainID) => [
   `eip155:${chainId}`,
 ]
 
@@ -102,7 +111,7 @@ const WALLETCONNECT_BUILD_SUPPORTED_ACCOUNTS = ({
   chainId,
 }: {
   walletAddress: string
-  chainId: ChainTypesByIdType
+  chainId: ChainID
 }) => [`eip155:${chainId}:${walletAddress}`]
 
 const WALLETCONNECT_SUPPORTED_EVENTS = ['accountsChanged', 'chainChanged']
@@ -113,7 +122,7 @@ export const buildRskAllowedNamespaces = ({
   walletAddress,
 }: {
   proposal: Web3WalletTypes.SessionProposal
-  chainId: ChainTypesByIdType
+  chainId: ChainID
   walletAddress: string
 }) =>
   buildApprovedNamespaces({

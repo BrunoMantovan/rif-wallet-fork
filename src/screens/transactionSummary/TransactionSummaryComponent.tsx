@@ -1,31 +1,30 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/FontAwesome5'
-import { RIFWallet } from '@rsksmart/rif-wallet-core'
 import { isBitcoinAddressValid } from '@rsksmart/rif-wallet-bitcoin'
 
-import { displayRoundBalance } from 'lib/utils'
-
 import { TokenBalance } from 'components/token'
-import { sharedColors, sharedStyles } from 'shared/constants'
-import { castStyle } from 'shared/utils'
+import {
+  WINDOW_HEIGHT,
+  WINDOW_WIDTH,
+  sharedColors,
+  sharedStyles,
+} from 'shared/constants'
+import { castStyle, formatTokenValue, formatFiatValue } from 'shared/utils'
 import { AppButton, AppTouchable, Typography } from 'components/index'
-import { WINDOW_HEIGHT, WINDOW_WIDTH } from 'src/ux/slides/Dimensions'
 import { useAppSelector } from 'store/storeUtils'
 import { isMyAddress } from 'components/address/lib'
-import { DollarIcon } from 'components/icons/DollarIcon'
 import { FullScreenSpinner } from 'components/fullScreenSpinner'
 import { getContactByAddress } from 'store/slices/contactsSlice'
-import { getWalletSetting } from 'src/core/config'
-import { SETTINGS } from 'src/core/types'
-import { chainTypesById } from 'src/shared/constants/chainConstants'
-import { selectChainId } from 'src/redux/slices/settingsSlice'
+import { getWalletSetting } from 'core/config'
+import { SETTINGS } from 'core/types'
+import { selectChainId } from 'store/slices/settingsSlice'
+import { TransactionStatus } from 'store/shared/types'
 
 import { TokenImage } from '../home/TokenImage'
 import {
-  TransactionStatus,
   transactionStatusDisplayText,
   transactionStatusToIconPropsMap,
 } from './transactionSummaryUtils'
@@ -33,7 +32,7 @@ import {
 import { TransactionSummaryScreenProps } from '.'
 
 interface Props {
-  wallet: RIFWallet
+  address: string
   goBack?: () => void
 }
 
@@ -44,7 +43,7 @@ type TransactionSummaryComponentProps = Omit<
   Props
 
 export const TransactionSummaryComponent = ({
-  wallet,
+  address,
   transaction,
   buttons,
   functionName,
@@ -52,16 +51,27 @@ export const TransactionSummaryComponent = ({
   isLoaded,
   FeeComponent,
 }: TransactionSummaryComponentProps) => {
+  const [confirmed, setConfirmed] = useState(false)
   const chainId = useAppSelector(selectChainId)
   const { bottom } = useSafeAreaInsets()
   const { t } = useTranslation()
-  const { status, tokenValue, fee, usdValue, time, hashId, to, from } =
-    transaction
+  const {
+    status,
+    tokenValue,
+    fee,
+    usdValue,
+    time,
+    hashId,
+    to,
+    from,
+    totalToken,
+    totalUsd,
+  } = transaction
 
   const iconObject = transactionStatusToIconPropsMap.get(status)
   const transactionStatusText = transactionStatusDisplayText.get(status)
 
-  const amIReceiver = transaction.amIReceiver ?? isMyAddress(wallet, to)
+  const amIReceiver = transaction.amIReceiver ?? isMyAddress(address, to)
   const contactAddress = amIReceiver ? from || '' : to
   const contact = useAppSelector(
     getContactByAddress(contactAddress.toLowerCase()),
@@ -85,27 +95,12 @@ export const TransactionSummaryComponent = ({
     return t('transaction_summary_send_title')
   }, [amIReceiver, t, status])
 
-  const totalToken = useMemo(() => {
-    if (tokenValue.symbol === fee.symbol) {
-      return Number(tokenValue.balance) + Number(fee.tokenValue)
-    }
-    return Number(tokenValue.balance)
-  }, [tokenValue, fee])
-
-  const totalUsd = useMemo(
-    () =>
-      amIReceiver
-        ? usdValue.balance
-        : (Number(usdValue.balance) + Number(fee.usdValue)).toFixed(2),
-    [amIReceiver, usdValue.balance, fee.usdValue],
-  )
-
   const openTransactionHash = () => {
     const setting = isBitcoinAddressValid(to)
       ? SETTINGS.BTC_EXPLORER_ADDRESS_URL
       : SETTINGS.EXPLORER_ADDRESS_URL
 
-    const explorerUrl = getWalletSetting(setting, chainTypesById[chainId])
+    const explorerUrl = getWalletSetting(setting, chainId)
     Linking.openURL(`${explorerUrl}/${hashId}`)
   }
 
@@ -179,20 +174,19 @@ export const TransactionSummaryComponent = ({
                     size={12}
                   />
                   <Typography type={'body2'} style={[sharedStyles.textCenter]}>
-                    {displayRoundBalance(Number(fee.tokenValue))} {fee.symbol}
+                    {formatTokenValue(fee.tokenValue)} {fee.symbol}
                   </Typography>
                 </View>
               </View>
 
               <View style={styles.dollarAmountWrapper}>
-                <DollarIcon size={14} color={sharedColors.labelLight} />
                 <Typography
                   type={'body2'}
                   style={[
                     sharedStyles.textRight,
                     { color: sharedColors.labelLight },
                   ]}>
-                  {fee.usdValue}
+                  {formatFiatValue(fee.usdValue)}
                 </Typography>
               </View>
             </>
@@ -213,8 +207,7 @@ export const TransactionSummaryComponent = ({
             <View style={sharedStyles.row}>
               <TokenImage symbol={tokenValue.symbol} size={12} transparent />
               <Typography type={'body2'} style={[sharedStyles.textCenter]}>
-                {displayRoundBalance(totalToken, tokenValue.symbol)}{' '}
-                {tokenValue.symbol}{' '}
+                {formatTokenValue(totalToken)} {tokenValue.symbol}{' '}
                 {tokenValue.symbol !== fee.symbol &&
                   !amIReceiver &&
                   t('transaction_summary_plus_fees')}
@@ -222,19 +215,13 @@ export const TransactionSummaryComponent = ({
             </View>
           </View>
           <View style={styles.dollarAmountWrapper}>
-            {usdValue.symbol === '<' && (
-              <Typography type="body1" color={sharedColors.labelLight}>
-                {'<'}
-              </Typography>
-            )}
-            <DollarIcon size={14} color={sharedColors.labelLight} />
             <Typography
               type={'body2'}
               style={[
                 sharedStyles.textRight,
                 { color: sharedColors.labelLight },
               ]}>
-              {totalUsd}
+              {formatFiatValue(totalUsd)}
             </Typography>
           </View>
           {/* arrive value */}
@@ -295,7 +282,23 @@ export const TransactionSummaryComponent = ({
       </ScrollView>
       <View style={styles.buttons}>
         {buttons ? (
-          buttons.map(b => <AppButton {...b} key={b.title} />)
+          buttons.map((b, i) => {
+            if (i === 0) {
+              return (
+                <AppButton
+                  {...b}
+                  onPress={event => {
+                    b.onPress?.(event)
+                    setConfirmed(true)
+                  }}
+                  disabled={b.disabled || confirmed}
+                  loading={confirmed}
+                  key={b.title}
+                />
+              )
+            }
+            return <AppButton {...b} key={b.title} />
+          })
         ) : (
           <AppButton
             onPress={goBack}

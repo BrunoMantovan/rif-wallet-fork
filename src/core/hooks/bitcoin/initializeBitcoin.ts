@@ -6,40 +6,33 @@ import {
   createBipFactoryType,
 } from '@rsksmart/rif-wallet-bitcoin'
 import { RifWalletServicesFetcher } from '@rsksmart/rif-wallet-services'
-import Keychain from 'react-native-keychain'
+
+import { ChainID } from 'lib/eoaWallet'
 
 import {
   BitcoinNetworkStore,
   StoredBitcoinNetworks,
   StoredBitcoinNetworkValue,
 } from 'storage/BitcoinNetworkStore'
-import { bitcoinMainnet, bitcoinTestnet } from 'shared/costants'
+import { bitcoinMainnet, bitcoinTestnet } from 'shared/constants'
 import { onRequest } from 'store/slices/settingsSlice'
 import { AppDispatch } from 'store/index'
 import { Bitcoin } from 'store/slices/settingsSlice/types'
-import {
-  ChainTypeEnum,
-  chainTypesById,
-  ChainTypesByIdType,
-} from 'shared/constants/chainConstants'
 
 const NETWORKS_INITIAL_STATE: Bitcoin = {
   networksArr: [],
   networksMap: {},
 }
 
-const onNoNetworksPresent = (chainId: ChainTypesByIdType) => {
-  const bitcoinNetwork =
-    chainTypesById[chainId] === ChainTypeEnum.MAINNET
-      ? bitcoinMainnet
-      : bitcoinTestnet
+const onNoNetworksPresent = (chainId: ChainID) => {
+  const bitcoinNetwork = chainId === 30 ? bitcoinMainnet : bitcoinTestnet
 
   BitcoinNetworkStore.addNewNetwork(bitcoinNetwork.name, bitcoinNetwork.bips)
 
   return BitcoinNetworkStore.getStoredNetworks()
 }
 
-const BITCOIN_CHAINID_MAP: Record<ChainTypesByIdType, string> = {
+const BITCOIN_CHAINID_MAP: Record<ChainID, string> = {
   30: bitcoinMainnet.name,
   31: bitcoinTestnet.name,
 }
@@ -56,11 +49,8 @@ const BITCOIN_CHAINID_MAP: Record<ChainTypesByIdType, string> = {
 export const initializeBitcoin = (
   mnemonic: string,
   dispatch: AppDispatch,
-  fetcher: RifWalletServicesFetcher<
-    Keychain.Options,
-    ReturnType<typeof Keychain.setInternetCredentials>
-  >,
-  chainId: ChainTypesByIdType,
+  fetcher: RifWalletServicesFetcher,
+  chainId: ChainID,
 ) => {
   // Return Object which contains both array and map
   const networksObj = NETWORKS_INITIAL_STATE
@@ -84,10 +74,7 @@ export const initializeBitcoin = (
   const transformNetwork = (
     network: StoredBitcoinNetworkValue,
     mnemonicText: string,
-    rifFetcher: RifWalletServicesFetcher<
-      Keychain.Options,
-      ReturnType<typeof Keychain.setInternetCredentials>
-    >,
+    rifFetcher: RifWalletServicesFetcher,
   ) => {
     const createBipWithFetcher = (...args: createBipFactoryType) => {
       const result: BIPWithRequest = createAndInitializeBipWithRequest(
@@ -116,10 +103,7 @@ export const initializeBitcoin = (
   const transformStoredNetworks = (
     values: StoredBitcoinNetworkValue[],
     mnemonicText: string,
-    rifFetcher: RifWalletServicesFetcher<
-      Keychain.Options,
-      ReturnType<typeof Keychain.setInternetCredentials>
-    >,
+    rifFetcher: RifWalletServicesFetcher,
   ) => {
     const networksArr = values.map(item =>
       transformNetwork(item, mnemonicText, rifFetcher),
