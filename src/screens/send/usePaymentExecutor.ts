@@ -5,7 +5,9 @@ import {
 } from '@rsksmart/rif-wallet-bitcoin'
 import { ITokenWithBalance } from '@rsksmart/rif-wallet-services'
 import { useTranslation } from 'react-i18next'
+import { createHash, randomBytes } from 'crypto'
 
+import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
 import { fetchBitcoinTransactions } from 'store/slices/transactionsSlice'
 import {
@@ -23,6 +25,7 @@ import { Wallet } from 'shared/wallet'
 import { transferBitcoin } from './transferBitcoin'
 import { transfer } from './transferTokens'
 import { TransactionInformation } from './types'
+import { approve, escrow } from './escrowTokens'
 
 interface ExecutePayment {
   token: TokenBalanceObject
@@ -107,11 +110,50 @@ export const usePaymentExecutor = (
         onBitcoinTransactionSuccess,
       })
     } else {
-      transfer({
-        token: token as unknown as ITokenWithBalance,
-        amount: amount.toString(),
-        to,
-        wallet,
+      const buyerSecret = randomBytes(32)
+      const sellerSecret = randomBytes(32)
+      const buyerHashBuffer = createHash('sha256').update(buyerSecret).digest()
+      const sellerHashBuffer = createHash('sha256')
+        .update(sellerSecret)
+        .digest()
+
+      const buyerHashBytes32 = '0x' + buyerHashBuffer.toString('hex')
+      const sellerHashBytes32 = '0x' + sellerHashBuffer.toString('hex')
+
+      // transfer({
+      //   token: token as unknown as ITokenWithBalance,
+      //   amount: amount.toString(),
+      //   to,
+      //   wallet,
+      //   chainId,
+      //   onSetCurrentTransaction: setCurrentTransaction,
+      //   onSetError: setError,
+      //   onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
+      // })
+      
+      /*  approve({
+         amount: amount.toString(),
+         wallet: wallet,
+         token: token as unknown as ITokenWithBalance,
+         chainId,
+         onSetCurrentTransaction: setCurrentTransaction,
+         onSetError: setError,
+         onSetTransactionStatusChange:
+         handleTransactionStatusChange(dispatch),
+       }) */
+     const orderId = "23dcf5f5-e2c1-4d2c-9241-4e904119fb22";
+     console.log("orderId: ", orderId);
+     
+      escrow({
+        order: {
+          amount: amount.toString(),
+          orderId: orderId,
+          buyerAddress: to,
+          buyerHash: buyerHashBytes32,
+          sellerHash: sellerHashBytes32,
+          token: token as unknown as ITokenWithBalance,
+        },
+        wallet: wallet,
         chainId,
         onSetCurrentTransaction: setCurrentTransaction,
         onSetError: setError,

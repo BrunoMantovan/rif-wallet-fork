@@ -242,7 +242,7 @@ export const HomeScreen = ({
         <PortfolioComponent
           selectedAddress={selectedAddress}
           setSelectedAddress={setSelectedAddress}
-          balances={balancesArray.filter(e => e.symbol == "RBTC" || e.symbol == "DOC")}
+          balances={balancesArray}
           totalUsdBalance={totalUsdBalance}
         />
 

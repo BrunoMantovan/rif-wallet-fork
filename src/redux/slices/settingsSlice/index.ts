@@ -123,7 +123,7 @@ const initializeApp = async (
     },
   )
 
-  await sslPinning(chainId)
+  //await sslPinning(chainId)
 
   // connect to sockets
   rifSockets({
