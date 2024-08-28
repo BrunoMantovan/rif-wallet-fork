@@ -38,6 +38,8 @@ import { useWallet } from 'shared/wallet'
 import { HomeInformationBar } from './HomeInformationBar'
 import { getTokenColor } from './tokenColor'
 import { PortfolioComponent } from './PortfolioComponent'
+import { ethers } from 'ethers'
+import DocAbi from 'src/DOC_ABI.json'
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -80,7 +82,34 @@ export const HomeScreen = ({
   const backgroundColor = {
     backgroundColor: selectedAddress ? selectedColor : sharedColors.borderColor,
   }
+  /* useEffect(() => {
+    const providerUrl = 'https://public-node.rsk.co'
+    const DOC_index = balancesArray.findIndex(item => item.symbol == "DOC")
+    const DOC_tokenAddress = balancesArray[DOC_index].contractAddress
+    const DOC_ABI = DocAbi 
+    const walletAddress = ("0x8CE94b88cb2f21b59a690d08A9e7Cb03d271C3fc").toLowerCase()
+    async function getBalances(){
+      const provider = new ethers.providers.JsonRpcProvider(providerUrl)
+      const tokenContract = new ethers.Contract(DOC_tokenAddress, DOC_ABI, provider);
 
+      try {
+        // Get the token balance
+        const balance = await tokenContract.balanceOf(walletAddress);
+    
+        const formattedBalance = ethers.utils.formatUnits(balance, 18);
+
+        console.log('Token balance: ' + formattedBalance);
+        balancesArray[DOC_index].balance = formattedBalance
+        console.log(balancesArray[DOC_index])
+        
+      } catch (error) {
+        console.error('Error fetching token balance:', error);
+      }
+    }
+    
+    getBalances()
+  },[]) */
+  
   /*const rampConfig = useMemo(
     () => ({
       // for testnet:
