@@ -24,12 +24,12 @@ export const sharedColors = {
   danger: '#E94141',
   dangerLight: '#ED6060',
   white: '#FFFFFF',
-  inputInactive: '#252525',
+  inputInactive: '#C7E3F6',
   inputActive: '#3A3A3A',
   inputLabelColor: '#B8B8B8',
   borderColor: '#575757',
   primaryDark: '#4250CC',
-  labelLight: '#B8B8B8',
+  labelLight: '#51595E',
   subTitle: '#FBFBFB',
   tokenBackground: '#1E1E1E',
   black: '#000000',
@@ -37,6 +37,15 @@ export const sharedColors = {
   errorBackground: '#FF3559',
   lightPurple: '#DAE2FF',
   blue: '#6053F8',
+  mainWhite: "#F9F9FF",
+  grey: "#6F7980",
+  bablue: "#0A3F7A",
+  balightblue: "#73B9EA",
+  bagreen: "#B7CD49",
+  inputText: "#464D51",
+  inputBorder: "#8C9094",
+  mainWhite1: "#f9f9ff80",
+  balightblue1: "#73b8ea80"
 }
 
 export const tokenColors = {
@@ -90,8 +99,8 @@ export const sharedStyles = StyleSheet.create({
   }),
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
-    paddingHorizontal: 24,
+    backgroundColor: sharedColors.mainWhite,
+    paddingHorizontal: 12,
   }),
   noPadding: castStyle.view({ padding: 0 }),
   selfCenter: castStyle.view({
@@ -110,8 +119,7 @@ export const sharedStyles = StyleSheet.create({
     backgroundColor: sharedColors.white,
     position: 'absolute',
     bottom: 30,
-    left: 24,
-    right: 24,
+    alignSelf: "center"
   }),
   /* GRID */
   column12: {

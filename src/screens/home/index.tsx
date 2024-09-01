@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { StyleSheet, View, ScrollView, Text, Linking, TouchableWithoutFeedback, Image } from 'react-native'
 import { BitcoinNetwork } from '@rsksmart/rif-wallet-bitcoin'
 import { useTranslation } from 'react-i18next'
 import { useIsFocused } from '@react-navigation/native'
@@ -38,8 +38,21 @@ import { useWallet } from 'shared/wallet'
 import { HomeInformationBar } from './HomeInformationBar'
 import { getTokenColor } from './tokenColor'
 import { PortfolioComponent } from './PortfolioComponent'
+
+import Svg, { Path } from 'react-native-svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { AppTouchable } from 'src/components'
+import { rootTabsRouteNames } from 'src/navigation/rootNavigator'
+//import GearIcon from 'src/components/icons/GearIcon'
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { Animated, Easing } from 'react-native';
+import { getDefaultTokens } from 'src/core/setup'
+
 import { ethers } from 'ethers'
 import DocAbi from 'src/DOC_ABI.json'
+import { AppHeader } from 'src/ux/appHeader'
 
 enum TestID {
   NoTransactionsTypography = 'NoTransactionsTypography',
@@ -58,7 +71,7 @@ export const HomeScreen = ({
   const totalUsdBalance = useAppSelector(selectTotalUsdValue)
   const prices = useAppSelector(selectUsdPrices)
   const hideBalance = useAppSelector(selectHideBalance)
-
+  const [showPortfolio, setShowPortfolio] = useState<boolean>(false)
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>()
   const [selectedTokenBalance, setSelectedTokenBalance] =
     useState<CurrencyValue>({
@@ -97,7 +110,7 @@ export const HomeScreen = ({
         const balance = await tokenContract.balanceOf(walletAddress);
     
         const formattedBalance = ethers.utils.formatUnits(balance, 18);
-
+        balancesArray[DOC_index].balance = formattedBalance
         console.log('Token balance: ' + formattedBalance);
         balancesArray[DOC_index].balance = formattedBalance
         console.log(balancesArray[DOC_index])
@@ -138,6 +151,21 @@ export const HomeScreen = ({
     ramp.on('*', console.log)
     ramp.show(rampConfig)
   }, [ramp, rampConfig])*/
+
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+  const animatedStyle = {
+    height: animatedHeight,
+    overflow: 'hidden', // Ensures content is hidden when height is 0
+  };
+
+  useEffect(() => {
+    Animated.timing(animatedHeight, {
+      toValue: showPortfolio ? 80 : 0, // Adjust the `200` value as needed
+      duration: 200, // Adjust the duration as needed
+      easing: Easing.ease,
+      useNativeDriver: false, // Set to true for better performance if using transform or opacity
+    }).start();
+  }, [showPortfolio]);
 
   const handleBitcoinSendReceive = useCallback(
     (
@@ -239,41 +267,104 @@ export const HomeScreen = ({
     symbolType: 'usd',
   }
 
+  const togglePortfolio = () => {
+    setShowPortfolio(!showPortfolio)
+  }
+  const goToLink = async () => {
+    const url = 'https://linktr.ee/bolsilloargento';
+    try {
+      await Linking.openURL(url)
+    } catch (error) {
+      console.error("An error occurred", error);
+    }
+  };
+
   return (
+
     <ScrollView style={styles.container} bounces={false}>
-      <TokenBalance
-        style={styles.tokenBalance}
-        firstValue={
-          selectedAddress === undefined
-            ? defaultFirstValue
-            : selectedTokenBalance
-        }
-        secondValue={
-          selectedAddress === undefined ? undefined : selectedTokenBalanceUsd
-        }
-        hideable={true}
-        hide={hideBalance}
-        onHide={() => dispatch(setHideBalance(!hideBalance))}
-        color={backgroundColor.backgroundColor}
-      />
-      <HomeBarButtonGroup
-        onPress={handleSendReceive}
-        isSendDisabled={balancesArray.length === 0}
-        color={backgroundColor.backgroundColor}
-      />
+      <LinearGradient colors={['#DCE6AAB2', '#C0DDF0B2']} style={styles.linearGradient}>
+        
+        <View style={styles.innerCard}>
+          <AppTouchable
+            width={32}
+            onPress={() => navigation.navigate(rootTabsRouteNames.Settings)}
+            accessibilityLabel="settings"
+            style={{position: "absolute", top: "3%", right: "1%", height: 32, zIndex:20}}>
+            <Icon
+            name={'cog'}
+            size={24}
+            color={sharedColors.black}
+          />
+          </AppTouchable>
+        <AppHeader/>
+        <TokenBalance
+          style={styles.tokenBalance}
+          firstValue={
+            selectedAddress === undefined
+              ? defaultFirstValue
+              : selectedTokenBalance
+          }
+          secondValue={
+            selectedAddress === undefined ? undefined : selectedTokenBalanceUsd
+          }
+          hideable={true}
+          hide={hideBalance}
+          onHide={() => dispatch(setHideBalance(!hideBalance))}
+          color={backgroundColor.backgroundColor}
+        />
+        <HomeBarButtonGroup
+          onPress={handleSendReceive}
+          isSendDisabled={balancesArray.length === 0}
+          color={backgroundColor.backgroundColor}
+        />
+        </View>
+        <Svg
+                height="60%"
+                width="100%"
+                viewBox="0 0 1440 320"
+                preserveAspectRatio="none"
+                style={[styles.svg, { transform: [{ rotateY: '180deg' }] }]}
+              >
+                <Path
+                    fill={sharedColors.mainWhite}
+                     d="M0,256L60,261.3C120,267,240,277,360,256C480,235,600,181,720,144C840,107,960,85,1080,90.7C1200,96,1320,128,1380,144L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
+                />
+          </Svg>
+        
+          </LinearGradient>
 
       {showInfoBar && !closed && <HomeInformationBar onClose={onClose} />}
 
       <View style={styles.bodyContainer}>
+        <TouchableOpacity onPress={togglePortfolio} style={{flexDirection: "row", alignItems: "center", marginBottom: showPortfolio ? 0 : 24 }}>
         <Typography style={styles.portfolioLabel} type={'h3'}>
           {t('home_screen_portfolio')}
         </Typography>
-        <PortfolioComponent
-          selectedAddress={selectedAddress}
-          setSelectedAddress={setSelectedAddress}
-          balances={balancesArray}
-          totalUsdBalance={totalUsdBalance}
-        />
+        <FontAwesome5Icon
+          name={showPortfolio ? 'chevron-down' : 'chevron-up'}
+          size={24}
+          color={sharedColors.black}
+          style={{marginLeft: 8, paddingTop: 10}}
+          />
+        </TouchableOpacity>
+
+        {showPortfolio && (
+        <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+          <PortfolioComponent
+            selectedAddress={selectedAddress}
+            setSelectedAddress={setSelectedAddress}
+            balances={balancesArray}
+            totalUsdBalance={totalUsdBalance}
+          />
+        </Animated.View>
+        )}
+
+        <TouchableOpacity style={{width: "100%"}} onPress={goToLink}>
+          <View style={styles.linkBox}>
+            <Text style={{fontSize: 18, color: sharedColors.blue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conseguir DOC </Text>
+            <Image source={require("../../images/linktree.png")} style={styles.linktree}/>
+          </View>
+        </TouchableOpacity>
 
         <Typography style={styles.transactionsLabel} type={'h3'}>
           {t('home_screen_transactions')}
@@ -312,6 +403,29 @@ const styles = StyleSheet.create({
   bodyContainer: castStyle.view({
     padding: 12,
   }),
+  linearGradient: castStyle.view({
+    width: "100%",
+    height: 225,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    position: "relative"
+  }),
+  svg: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+    bottom: 0,
+  },
+  innerCard: {
+    position: 'absolute',
+    backgroundColor: "#FFFFFF",
+    width: "90%",
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 16,
+    zIndex: 1,
+  },
   tokenBalance: castStyle.view({
     paddingLeft: 24,
     paddingRight: 18,
@@ -321,20 +435,30 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   }),
   portfolioLabel: castStyle.text({
+    fontSize: 18,
+    fontFamily: "BalooTammudu",
+    lineHeight: 27,
     padding: 6,
-    paddingTop: 10,
-    color: sharedColors.inputLabelColor,
+    color: "#000000",
+    fontWeight: "500",
+    zIndex: 4,
+    paddingTop: 15,
   }),
   transactionItem: castStyle.view({
     paddingHorizontal: 6,
   }),
   transactionsLabel: castStyle.text({
-    padding: 6,
-    color: sharedColors.inputLabelColor,
+    paddingTop: 24,
+    paddingBottom: 16,
+    fontSize: 18,
+    fontFamily: "BalooTammudu",
+    lineHeight: 27,
+    color: "#000000",
+    fontWeight: "500"
   }),
   container: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
   }),
   text: castStyle.text({
     textAlign: 'center',
@@ -344,4 +468,23 @@ const styles = StyleSheet.create({
     width: '100%',
     resizeMode: 'contain',
   }),
+  animatedContainer: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  linkBox:{flexDirection: "row",
+    width: "100%",
+    borderRadius: 16,
+    backgroundColor: sharedColors.mainWhite,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    justifyContent: "space-between",
+    borderColor: sharedColors.inputBorder,
+    borderWidth: 1,
+  },
+  linktree: {
+    width: 24,
+    height: 24,
+    marginLeft: 8,
+  }
 })
