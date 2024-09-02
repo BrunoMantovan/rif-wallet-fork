@@ -39,7 +39,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         <HomeIcon active={currentRouteName === rootTabsRouteNames.Home} />
       </AppTouchable>
 
-      <AppTouchable
+      {/* <AppTouchable
         width={buttonWidth}
         onPress={() => navigation.navigate(rootTabsRouteNames.Activity)}
         accessibilityLabel="activity">
@@ -54,7 +54,7 @@ export const AppFooterMenu = ({ navigation }: BottomTabBarProps) => {
         onPress={() => navigation.navigate(rootTabsRouteNames.ScanQR)}
         accessibilityLabel="scan">
         <ScanIcon active={currentRouteName === rootTabsRouteNames.ScanQR} />
-      </AppTouchable>
+      </AppTouchable> */}
 
       <AppTouchable
         width={buttonWidth}
@@ -80,15 +80,15 @@ const styles = StyleSheet.create({
     padding: 10,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: sharedColors.black,
+    justifyContent: 'space-evenly',
+    backgroundColor: sharedColors.white,
   }),
   walletIcon: {
     height: 20,
     resizeMode: 'contain',
   },
   centralButton: castStyle.view({
-    backgroundColor: sharedColors.primary,
+    backgroundColor: sharedColors.white,
     borderRadius: 26,
   }),
   rotation: {

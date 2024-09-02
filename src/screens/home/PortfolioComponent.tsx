@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleProp, View, ViewStyle } from 'react-native'
 
@@ -55,8 +55,8 @@ export const PortfolioComponent = ({
             onPress={onTotalTap}
             color={
               isTotalCardSelected
-                ? sharedColors.borderColor
-                : sharedColors.inputInactive
+                ? "#DCE6AAB2"
+                : sharedColors.white
             }
             primaryText={t('TOTAL')}
             secondaryText={totalUsdBalance}
@@ -72,7 +72,7 @@ export const PortfolioComponent = ({
               selectedAddress === contractAddress && !isTotalCardSelected
             const color = isSelected
               ? getTokenColor(symbol)
-              : sharedColors.inputInactive
+              : sharedColors.white
             return (
               <PortfolioCard
                 key={i}

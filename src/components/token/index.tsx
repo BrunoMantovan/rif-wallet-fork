@@ -52,7 +52,7 @@ enum TestID {
 export const TokenBalance = ({
   firstValue,
   secondValue,
-  color = sharedColors.black,
+  color = "transparent",
   hide = false,
   editable = false,
   error,
@@ -83,7 +83,7 @@ export const TokenBalance = ({
   }, [contact, t])
 
   return (
-    <View style={[{ backgroundColor: color }, style, styles.container]}>
+    <View style={[{ backgroundColor: "transparent" }, style, styles.container]}>
       <View style={styles.leftColumn}>
         <View style={[sharedStyles.row, styles.balance]}>
           {firstValue.symbolType === 'icon' && (
@@ -94,7 +94,7 @@ export const TokenBalance = ({
               ]}>
               <TokenImage
                 symbol={firstValue.symbol}
-                size={30}
+                size={firstValue.symbol == "RBTC" ? 40 :30}
                 transparent
                 white={isRifToken}
                 color={color}
@@ -102,7 +102,7 @@ export const TokenBalance = ({
             </View>
           )}
           {firstValue.symbolType === 'usd' && (
-            <DollarIcon size={30} color={sharedColors.white} />
+            <DollarIcon size={30} color={"#252627"} />
           )}
           <TextInput
             onChangeText={handleAmountChange}
@@ -123,20 +123,22 @@ export const TokenBalance = ({
               <TokenImage symbol={secondValue.symbol} />
             </View>
           )}
-          {secondValue && (
-            <Typography type="body1" style={styles.subTitle}>
-              {hide
-                ? '\u002A\u002A\u002A\u002A\u002A'
-                : secondValue.symbolType === 'usd'
-                ? formatFiatValue(secondValue.balance)
-                : formatTokenValue(secondValue.balance)}
-            </Typography>
+          {secondValue?.symbolType === 'usd' && (
+            <>
+              {secondValue.symbol === '<' && (
+                <Typography type="body1" style={styles.subTitle}>
+                  {'<'}
+                </Typography>
+              )}
+              <DollarIcon size={16} color={sharedColors.labelLight} />
+            </>
           )}
           {error && (
             <Typography
               type="body2"
               style={styles.error}
-              accessibilityLabel={TestID.ErrorTypography}>
+              accessibilityLabel={TestID.ErrorTypography}
+            >
               {error}
             </Typography>
           )}
@@ -171,7 +173,7 @@ export const TokenBalance = ({
             onPress={onHide}
             accessibilityLabel={testIDs.hide}>
             <View style={styles.badge}>
-              <EyeIcon color={sharedColors.white} size={25} isHidden={hide} />
+              <EyeIcon color={"#252627"} size={25} isHidden={hide} />
             </View>
           </AppTouchable>
         )}
@@ -225,10 +227,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: 20,
     height: 20,
-    marginRight: 4,
   }),
   subTitle: castStyle.text({
-    color: sharedColors.subTitle,
+    color: "#252627",
     opacity: 0.7,
   }),
   error: castStyle.text({
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   }),
   input: castStyle.text({
-    color: sharedColors.white,
+    color: "#252627",
     fontWeight: '500',
     fontSize: 36,
     padding: 0,

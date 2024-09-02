@@ -19,9 +19,9 @@ interface HomeInformationBarProps {
 
 export const HomeInformationBar = ({
   onClose = noop,
-  color = sharedColors.primary,
+  color = sharedColors.balightblue,
 }: HomeInformationBarProps) => {
-  const slidesIndexes = [0, 1, 2]
+  const slidesIndexes = [0, 1]
   const indicatorPos = [1 / 5, 6 / 7, 0]
   const lastIndex = slidesIndexes[slidesIndexes.length - 1]
   const [selectedSlide, setSelectedSlide] = useState<number>(0)
@@ -42,17 +42,7 @@ export const HomeInformationBar = ({
         title={t('home_information_bar_title')}
         subTitle={t('home_information_bar_desc2')}
       />,
-      <HomeInformationItem
-        title={t('home_information_bar_title')}
-        subTitle={t('home_information_bar_desc3')}
-        icon={
-          <Icon
-            name="person-circle-sharp"
-            size={60}
-            color={sharedColors.white}
-          />
-        }
-      />,
+      
     ],
     [t],
   )
@@ -65,7 +55,7 @@ export const HomeInformationBar = ({
             marginLeft: indicatorPos[selectedSlide] * (WINDOW_WIDTH - 88),
             borderBottomColor: color,
           },
-          selectedSlide === lastIndex ? styles.space : styles.triangle,
+          styles.triangle,
         ]}
       />
       <View style={[styles.carouselContainer, { backgroundColor: color }]}>
@@ -81,7 +71,7 @@ export const HomeInformationBar = ({
         />
         <View style={styles.options}>
           <Dots
-            length={3}
+            length={2}
             active={selectedSlide}
             activeColor={sharedColors.white}
             activeDotWidth={8}
@@ -93,7 +83,7 @@ export const HomeInformationBar = ({
           />
           <AppTouchable
             onPress={selectedSlide === lastIndex ? onClose : onNextItem}
-            width={36}>
+            width={60}>
             <Typography type={'body3'}>
               {selectedSlide === lastIndex ? t('close') : t('next')}
             </Typography>

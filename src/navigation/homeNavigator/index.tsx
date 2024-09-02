@@ -31,12 +31,26 @@ export const HomeNavigator = ({
       <HomeStack.Screen
         name={homeStackRouteNames.Send}
         component={SendScreen}
-        options={screenOptionsWithHeader(top)}
+        options={{...screenOptionsWithHeader(top),
+          headerTintColor: '#B7CD49',
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontWeight: '500',
+            marginTop: 8,
+          },
+        }}
       />
       <HomeStack.Screen
         name={homeStackRouteNames.Receive}
         component={ReceiveScreen}
-        options={screenOptionsWithHeader(top)}
+        options={{...screenOptionsWithHeader(top),
+          headerTintColor: '#B7CD49',
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontWeight: '500',
+            marginTop: 8,
+          },
+        }}
       />
     </HomeStack.Navigator>
   )

@@ -184,6 +184,8 @@ const styles = StyleSheet.create({
   }),
   text: castStyle.text({
     paddingTop: 2,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
   }),
   disabledButton: castStyle.view({
     backgroundColor: sharedColors.inputActive,

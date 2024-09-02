@@ -81,6 +81,7 @@ export const BasicRow = ({
       </Typography>
       <Typography
         type="labelLight"
+        style={styles.date}
         accessibilityLabel={`secondaryLabel-${index}`}>
         {secondaryLabel} <StatusText status={status} />
       </Typography>
@@ -151,10 +152,15 @@ const StatusText = ({ status }: StatusTextProps) => {
 }
 const styles = StyleSheet.create({
   container: castStyle.view({
-    marginTop: 10,
-    paddingVertical: 10,
-    backgroundColor: sharedColors.black,
-    height: 'auto',
+    marginTop: 4,
+    marginBottom: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#D2E6F799",
+    height: 72,
     flexDirection: 'row',
   }),
   firstView: {
@@ -197,6 +203,7 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold',
+    color: "#1C1B1B",
   },
   flexGrowZero: {
     flexGrow: 0,
@@ -206,5 +213,13 @@ const styles = StyleSheet.create({
   },
   failedTransaction: {
     textDecorationLine: 'line-through',
+  },
+  date: {
+    color: "#8C9094",
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "bold",
+    marginTop: "auto"
   },
 })

@@ -65,7 +65,7 @@ export const ReceiveScreen = ({
   const [address, setAddress] = useState<string>('')
   const [isAddressLoading, setIsAddressLoading] = useState(false)
 
-  const [shouldShowAssets, setShouldShowAssets] = useState(false)
+  const [shouldShowAssets, setShouldShowAssets] = useState(true)
 
   const { address: walletAddress } = useWallet()
   const chainId = useAppSelector(selectChainId)
@@ -125,7 +125,7 @@ export const ReceiveScreen = ({
     }
   }, [onGetAddress, selectedAsset])
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!username) {
       showMessage(
         getPopupMessage(t('popup_message_rns'), t('popup_link_text'), () =>
@@ -133,14 +133,14 @@ export const ReceiveScreen = ({
         ),
       )
     }
-  }, [username, t, navigation])
+  }, [username, t, navigation]) */
 
   return (
     <ScrollView style={styles.parent}>
       <FormProvider {...methods}>
         {/* Change Asset Component */}
         <View style={styles.flexRow}>
-          <Typography type="h4">{t('change_asset')}</Typography>
+          <Typography type="h3">{t('change_asset')}</Typography>
           <FontAwesome5Icon
             name={shouldShowAssets ? 'chevron-up' : 'chevron-down'}
             size={14}
@@ -158,7 +158,7 @@ export const ReceiveScreen = ({
 
               const color = isSelected
                 ? getTokenColor(asset.symbol)
-                : sharedColors.inputInactive
+                : sharedColors.white
 
               return (
                 <PortfolioCard
@@ -203,7 +203,7 @@ export const ReceiveScreen = ({
               <Ionicons
                 name="share-outline"
                 size={20}
-                color={sharedColors.white}
+                color={sharedColors.bablue}
                 onPress={onShareUsername}
                 testID={TestID.ShareUsernameButton}
                 disabled
@@ -232,7 +232,7 @@ export const ReceiveScreen = ({
               <Ionicons
                 name="share-outline"
                 size={20}
-                color="white"
+                color={sharedColors.bablue}
                 onPress={onShareAddress}
                 testID={TestID.ShareAddressButton}
               />
@@ -250,9 +250,9 @@ export const ReceiveScreen = ({
 
 const styles = StyleSheet.create({
   parent: castStyle.view({
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
   }),
   qrView: castStyle.view({
     paddingHorizontal: 35,

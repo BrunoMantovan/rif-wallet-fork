@@ -441,7 +441,7 @@ export const TransactionForm = ({
               <Icon
                 name={showTxSelector ? 'chevron-up' : 'chevron-down'}
                 size={20}
-                color={sharedColors.white}
+                color={sharedColors.bablue}
               />
             </>
           </AppTouchable>
@@ -513,8 +513,8 @@ export const TransactionForm = ({
             amount === 0 ||
             hasEnoughBalance
           }
-          color={sharedColors.white}
-          textColor={sharedColors.black}
+          color={sharedColors.balightblue}
+          textColor={sharedColors.white}
         />
         <AppButton
           style={styles.buttonCancel}
@@ -533,8 +533,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   }),
   buttonCancel: castStyle.view({
-    marginTop: 10,
-    backgroundColor: sharedColors.black,
+    marginVertical: 10,
+    backgroundColor: sharedColors.bablue,
   }),
   assetToggleRow: castStyle.view({
     flexDirection: 'row',

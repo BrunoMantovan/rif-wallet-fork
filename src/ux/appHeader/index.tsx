@@ -39,7 +39,7 @@ export const AppHeader = ({ navigation, route }: HeaderProps) => {
     <View
       style={[
         styles.row,
-        { backgroundColor: topColor, paddingTop: insets.top + 5 },
+        { backgroundColor: "transparent", paddingTop: insets.top + 5 },
       ]}>
       <View style={[styles.column, styles.walletInfo]}>
         {wallet && <ProfileHandler wallet={wallet} navigation={navigation} />}
@@ -50,12 +50,7 @@ export const AppHeader = ({ navigation, route }: HeaderProps) => {
         </View>
       )}
       <View style={styles.columnMenu}>
-        <AppTouchable
-          width={16}
-          onPress={openMenu}
-          accessibilityLabel="settings">
-          <OIcon name="gear" size={16} color={sharedColors.white} />
-        </AppTouchable>
+        
       </View>
     </View>
   )
@@ -68,6 +63,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     display: 'flex',
     flexDirection: 'row',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16
   }),
   column: castStyle.view({
     flex: 5,

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useCallback } from 'react'
+import { useEffect, useMemo, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, ScrollView, StyleSheet, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { CompositeScreenProps, useIsFocused } from '@react-navigation/native'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -33,6 +33,7 @@ import { castStyle } from 'shared/utils'
 
 import { ContactsStackScreenProps } from '../index'
 import { ContactCard } from './components/ContactCard'
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 
 export type ContactsListScreenProps = CompositeScreenProps<
   ContactsStackScreenProps<contactsStackRouteNames.ContactsList>,
@@ -55,6 +56,7 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
   const recentContacts = useAppSelector(selectRecentContacts)
 
   const searchContactText = watch('search')
+  const [searchShown, setSearchShown] = useState(false)
 
   const contactsFiltered = useMemo(() => {
     let filtered = contacts
@@ -86,6 +88,10 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
     [navigation],
   )
 
+  function toggleSearch(){
+    setSearchShown(!searchShown)
+  }
+
   useEffect(() => {
     if (isFocused) {
       dispatch(changeTopColor(sharedColors.black))
@@ -94,7 +100,7 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
 
   return (
     <View style={sharedStyles.screen}>
-      <Typography type={'h2'} style={styles.title}>
+      {/* <Typography type={'h2'} style={styles.title}>
         {t('contacts_screen_title')}
       </Typography>
       {recentContacts?.length > 0 && (
@@ -109,25 +115,30 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
             ))}
           </ScrollView>
         </View>
-      )}
-      <View style={styles.subtitle} testID={'emptyView'}>
-        {contacts.length === 0 ? (
-          <>
-            <Typography type={'body3'}>{t('contacts_empty_list')}</Typography>
-            <Typography type={'body3'}>{t('contacts_empty_start')}</Typography>
-          </>
-        ) : (
-          <Typography type={'body3'}>{t('contacts_browse')}</Typography>
-        )}
-      </View>
+      )} */}
+      
       <FormProvider {...methods}>
         {contacts.length === 0 ? (
-          <Image
-            source={require('assets/images/contacts_empty.png')}
-            style={styles.noContactsImage}
-          />
+          <View style={{backgroundColor: sharedColors.mainWhite, flex: 1, width: "100%", justifyContent: "center", alignItems: "center"}}>
+            <Text style={styles.noContact}>Todavía no has creado ningún contacto</Text>
+          </View>
         ) : (
           <>
+          <View style={{width: "100%", alignItems: "flex-end"}}>
+              <AppTouchable
+              onPress={toggleSearch}
+              width={32}
+              style={{alignItems: "center", justifyContent: "center", borderRadius: 100,}}
+              >
+                <FontAwesome5Icon
+                  name={'search'}
+                  size={24}
+                  color={sharedColors.bablue}                  
+                  style={styles.fontAwesomeStyle}
+                />
+              </AppTouchable>
+            </View>
+            {searchShown ? (
             <Search
               label={t('contacts_search_label')}
               containerStyle={styles.searchInput}
@@ -136,7 +147,13 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
               placeholder={t('search_placeholder')}
               testID={testIDs.searchInput}
               accessibilityLabel={testIDs.searchInput}
+              placeholderStyle={{
+                fontSize: 16,
+                lineHeight: 24,
+                letterSpacing: 0.5,
+              }}
             />
+            ) : null}
             <ScrollView
               style={styles.contactsList}
               contentContainerStyle={{
@@ -156,7 +173,7 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
                     )
                   }>
                   <BasicRow
-                    style={{ backgroundColor: sharedColors.black }}
+                    style={[styles.contacContainer, styles.textStyle]}
                     avatar={{ name: contact.name }}
                     label={contact.name}
                     secondaryLabel={
@@ -177,14 +194,42 @@ export const ContactsScreen = ({ navigation }: ContactsListScreenProps) => {
         onPress={() => navigation.navigate(contactsStackRouteNames.ContactForm)}
         style={styles.newContactButton}
         textColor={sharedColors.black}
+        leftIcon={{
+          name: "plus",
+          size: 24,
+        }}
       />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  textStyle: castStyle.text({
+    fontSize: 18,
+    lineHeight: 20,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "400",
+    letterSpacing: 0.25,
+    color: sharedColors.inputText,
+    marginTop: 6,
+    
+  }),
+  contacContainer: castStyle.view({
+    marginTop: 4,
+    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: sharedColors.inputBorder,
+    height: 100,
+  }),
   title: castStyle.text({
     marginTop: 18,
+    fontSize: 22,
+    fontFamily: "BalooTammudu",
+    fontWeight: "400",
   }),
   noContactsImage: castStyle.image({
     marginTop: 102,
@@ -207,14 +252,30 @@ const styles = StyleSheet.create({
   newContactButton: castStyle.view({
     position: 'absolute',
     bottom: 30,
-    left: 24,
-    right: 24,
-    backgroundColor: sharedColors.white,
+    right: 12,
+    backgroundColor: "#7DC3F4",
+    width: 113,
+    height: 56,
+    paddingVertical: 16,
+    paddingRight: 20,
+    paddingLeft: 16,
   }),
   recentContacts: castStyle.view({
     height: 100,
     marginTop: 12,
   }),
+  fontAwesomeStyle : castStyle.text({
+    textAlign: "center",
+    width: 32,
+  }),
+  noContact:{
+    fontFamily: "BalooTammudu",
+    fontSize: 28,
+    fontWeight: "500",
+    color: sharedColors.balightblue,
+    textAlign: "center",
+    lineHeight: 50,
+  }
 })
 
 export * from './ContactDetails'

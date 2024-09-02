@@ -5,9 +5,9 @@ import { castStyle } from 'shared/utils'
 
 export const fonts = StyleSheet.create({
   regular: castStyle.text({
-    fontFamily: 'Sora-Regular',
+    fontFamily: 'Roboto-Medium',
     fontWeight: '500',
-    color: sharedColors.white,
+    color: sharedColors.bablue,
   }),
 })
 
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   }),
   h2: castStyle.text({
     ...fonts.regular,
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 28.8,
   }),
   h3: castStyle.text({

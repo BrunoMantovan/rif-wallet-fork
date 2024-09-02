@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Text } from 'react-native'
 import { Icon } from 'react-native-vector-icons/Icon'
 
 import { sharedColors } from 'shared/constants'
@@ -33,7 +33,7 @@ interface BarButtonGroupContainerProps {
 }
 
 export const BarButtonGroupContainer = ({
-  backgroundColor = sharedColors.primaryDark,
+  backgroundColor = "#0A3F7A",
   children,
 }: PropsWithChildren<BarButtonGroupContainerProps>) => {
   return <View style={[styles.view, { backgroundColor }]}>{children}</View>
@@ -41,9 +41,12 @@ export const BarButtonGroupContainer = ({
 
 const styles = StyleSheet.create({
   view: castStyle.view({
-    height: 64,
+    height:32,
+    width: 139,
     flexDirection: 'row',
     opacity: 0.85,
+    borderRadius: 16,
+    marginHorizontal: 16,
   }),
   iconContainerStyle: castStyle.view({
     flex: 1,
