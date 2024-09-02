@@ -18,7 +18,7 @@ import {
   selectTopColor,
   unlockApp,
 } from 'store/slices/settingsSlice'
-import { sharedStyles } from 'shared/constants'
+import { sharedColors, sharedStyles } from 'shared/constants'
 import { WalletConnect2Provider } from 'screens/walletConnect/WalletConnect2Context'
 import { WalletContext } from 'shared/wallet'
 import { useSetGlobalError } from 'components/GlobalErrorHandler'
@@ -26,6 +26,11 @@ import { useSetGlobalError } from 'components/GlobalErrorHandler'
 import { useStateSubscription } from './hooks/useStateSubscription'
 import { Cover } from './components/Cover'
 import { useIsOffline } from './hooks/useIsOffline'
+import MarketProvider from 'src/screens/walletConnect/MarketContext'
+/* import messaging from '@react-native-firebase/messaging';
+import {PermissionsAndroid} from 'react-native';
+import { NotificationListeners } from 'src/NotificationListener'
+import notifee, { AndroidImportance } from '@notifee/react-native'; */
 
 export const navigationContainerRef =
   createNavigationContainerRef<RootTabsParamsList>()
@@ -53,12 +58,40 @@ export const Core = () => {
     unlockAppFn()
   }, [unlockAppFn])
 
+  /* async function requestUserPermission() {
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+      const token = await messaging().getToken();
+      console.log('Token: ', token);
+    }
+  }
+  useEffect(() => {
+    requestUserPermission()
+    async function setupNotificationChannel() {
+      await notifee.createChannel({
+        id: 'default',
+        name: 'Default Channel',
+        importance: AndroidImportance.HIGH,
+      });
+    }
+    setupNotificationChannel();
+    NotificationListeners();
+  
+  }, []) */
+  //instalar dependecias que estan comentadas arriba
   return (
     <SafeAreaProvider>
       <View style={sharedStyles.flex}>
-        <StatusBar backgroundColor={topColor} />
+        <StatusBar backgroundColor={sharedColors.bablue} />
         {!active && <Cover />}
         <NavigationContainer ref={navigationContainerRef}>
+        <MarketProvider>
           <WalletConnect2Provider wallet={wallet}>
             <>
               <RootNavigationComponent />
@@ -71,6 +104,7 @@ export const Core = () => {
               )}
             </>
           </WalletConnect2Provider>
+          </MarketProvider>
         </NavigationContainer>
       </View>
     </SafeAreaProvider>

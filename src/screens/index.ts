@@ -10,7 +10,7 @@ export { ScanQRScreen } from './walletConnect/ScanQRScreen'
 export { SearchDomainScreen } from './rnsManager/SearchDomainScreen'
 export { AliasBoughtScreen } from './rnsManager/AliasBoughtScreen'
 export { PurchaseDomainScreen } from './rnsManager/PurchaseDomainScreen'
-
+export {  Marketp2p } from './walletConnect'
 export { HomeScreen } from './home/index'
 export {
   ContactsNavigation,
