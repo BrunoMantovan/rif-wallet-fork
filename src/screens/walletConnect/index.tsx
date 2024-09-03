@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fbfc",
     alignContent: 'center',
     justifyContent: 'center',
-    paddingHorizontal: "10%",
+    paddingHorizontal: "5%",
   },
   text: {
     fontFamily: "BalooTammudu",
