@@ -8,6 +8,7 @@ import { useNavigation} from '@react-navigation/native';
 import { useMarket } from '../MarketContext';
 import { sharedColors } from 'src/shared/constants';
 import { LoadingScreen } from 'src/components/loading/LoadingScreen';
+import { BolsilloArgentoAPIClient } from 'src/baApi';
 
 /* 
 interface Order {
@@ -18,28 +19,39 @@ interface Order {
 
   export default function OrderSearch({route}) {
     
+    const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
+    const client = new BolsilloArgentoAPIClient(BASE_URL);
+
     const [orders, setOrders] = useState/* <Order[]> */(null)
     const navigation = useNavigation()
     const { setHideTab } = useMarket();
     const {search} = route.params
     
     useEffect(() =>{
-        const fetchData = async () => {
-            const collection = search.type + search.crypto
-            try {
-                const querySnapshot = await firestore().collection(collection).get();
-                const orderData = [];
-                querySnapshot.forEach((doc) => {
-                    // Extract data from each document and add it to the array
-                    orderData.push({ id: doc.id, ...doc.data() });
-                });
-                setOrders(orderData);
+        // const fetchData = async () => {
+        //     const collection = search.type + search.crypto
+        //     try {
+        //         const querySnapshot = await firestore().collection(collection).get();
+        //         const orderData = [];
+        //         querySnapshot.forEach((doc) => {
+        //             // Extract data from each document and add it to the array
+        //             orderData.push({ id: doc.id, ...doc.data() });
+        //         });
+        //         setOrders(orderData);
                 
-            } catch (error) {
-              console.error('Error fetching orders:', error);
-            }
-        };
-        fetchData();
+        //     } catch (error) {
+        //       console.error('Error fetching orders:', error);
+        //     }
+        // };
+        // fetchData();
+        async function getOrders() {
+            const response = await client.getOrders({ status: 'PENDING' });
+            console.log(search.type);
+            const type = search.type == "Vender" ? "SELL" : "BUY"
+            setOrders(response.orders.filter(order => order.type == type));
+            console.log(response.orders.filter(order => order.type == type));
+        }
+        getOrders()
     }, [search])
     
     function handlePress(tipo){
@@ -54,9 +66,10 @@ interface Order {
     return (
         orders ?    <View style={styles.body}>
                         <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
-                            {orders.sort((a, b) => a.price - b.price)
+                            {orders
+                            .sort((a, b) => a.price - b.price)
                             .map((order, index) => (
-                                <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} order_type={order.order_type} onPress={() => handleCardPress(order)} display={"none"}/>
+                                <AdCard key={order.id} username={order.username} price={order.fiatAmount} total={order.amount} crypto={order.tokenCode} order_type={order.type} onPress={() => handleCardPress(order)} display={"none"}/>
                             ))}
                         </ScrollView>
                     </View>

@@ -63,6 +63,7 @@
     "events": "^1.1.1",
     "fast-text-encoding": "^1.0.6",
     "firebase": "^10.13.0",
+    "https-proxy-agent": "^7.0.5",
     "i18next": "^21.4.1",
     "jail-monkey": "^2.8.0",
     "lodash.debounce": "^4.0.8",

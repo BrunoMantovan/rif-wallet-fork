@@ -18,11 +18,12 @@ import { selectProfile, selectUsername } from 'src/redux/slices/profileSlice'
 import { WalletContext } from 'src/shared/wallet'
 import { shortAddress } from 'src/lib/utils'
 import firestore from '@react-native-firebase/firestore';
+import { BolsilloArgentoAPIClient } from 'src/baApi'
 
 export default function OrderDetails({route, navigation}) {
 
   const {order} = route.params 
-  parseFloat(order.price, order.total)
+  parseFloat(order.fiatAmount, order.amount)
   const [cantidad, setCantidad] = useState()
   const [payment_method, setpayment_method] = useState("Método de pago")
   const [type, setType] = useState("crypto")
@@ -36,12 +37,15 @@ export default function OrderDetails({route, navigation}) {
   const { addPayment, payments, setOrderId} = useMarket();
   const [specs, setSpecs] = useState(false)
   
+  const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
+  const client = new BolsilloArgentoAPIClient(BASE_URL);
+
   useEffect(() => {
     setAmmount(null)
   }, [type]);
   useEffect(() => {
     if(type == "crypto"){
-      setFiatTotal(ammount * order.price)
+      setFiatTotal(ammount * order.fiatAmount)
       setCryptoTotal(ammount)
 
       if((order.minAmm <= ammount) && (ammount <= order.maxAmm)){
@@ -49,10 +53,10 @@ export default function OrderDetails({route, navigation}) {
       } else { setSpecs(false) }
 
     }else if(type == "fiat"){
-      setCryptoTotal((ammount / order.price))
+      setCryptoTotal((ammount / order.fiatAmount))
       setFiatTotal(ammount)
 
-      if(((order.minAmm * order.price) <= ammount) && (ammount <= (order.maxAmm * order.price))){
+      if(((order.minAmm * order.fiatAmount) <= ammount) && (ammount <= (order.maxAmm * order.fiatAmount))){
         setSpecs(true)
       } else { setSpecs(false) }
 
@@ -111,10 +115,11 @@ export default function OrderDetails({route, navigation}) {
     toggleOpen()
   }
   
-  function handleClick(){
+  async function handleClick(){
+  try{
     setOrderId({
       "id": order.id,
-      "collection": order.order_type + order.crypto,
+      "collection": order.type + order.tokenCode,
     })
     const orderConfirmed = {
       address: address,
@@ -122,17 +127,20 @@ export default function OrderDetails({route, navigation}) {
       cryptoTotal: cryptoTotal,
       fiatTotal: fiatTotal,
     }
-    const collection = order.order_type + order.crypto
-    firestore()
-    .collection(collection)
-    .doc(order.id)
-    .update({
-      orderConfirmed,
-      status: "pendingLock"
-    })
-    .then(() => {
-      navigation.replace('OrderTaken', {orderConfirmed})
-    })
+    // cambiar estado de la orden
+    const updateOrderRequest = {
+      status: 'ACTIVE',
+      orderId: order.id
+  };
+    const response = await client.updateOrder(updateOrderRequest, {
+      'x-api-secret': 'test',
+      'x-blockchain': 'rsk_testnet'
+    });
+    navigation.replace('OrderTaken', {orderConfirmed})
+    console.log('Order Updated:', response);
+  } catch(e){
+    console.log(e)
+  }    
   }
 
 
@@ -170,10 +178,10 @@ export default function OrderDetails({route, navigation}) {
 
   useEffect(() => {
     const tokenSelected = Object.values(tokenBalances).find(e => 
-      order.crypto == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
+      order.tokenCode == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
     );
     setSelectedAsset(tokenSelected);
-  }, [order.crypto, tokenBalances]);
+  }, [order.tokenCode, tokenBalances]);
 
   const onShareUsername = useCallback(() => {
     Share.share({
@@ -225,8 +233,8 @@ export default function OrderDetails({route, navigation}) {
     <GestureHandlerRootView style={{flex: 1, backgroundColor: sharedColors.mainWhite}}>
       <View style={styles.container}>
         <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 16 }}>
-          <Text style={styles.simpleText}>Precio del {order.crypto}:</Text>
-          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {order.price.toLocaleString('es-AR', numberFormatOptions)} ARS</Text></View>
+          <Text style={styles.simpleText}>Precio del {order.tokenCode}:</Text>
+          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {order.fiatAmount.toLocaleString('es-AR', numberFormatOptions)} ARS</Text></View>
         </View>
 
         <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
@@ -241,15 +249,15 @@ export default function OrderDetails({route, navigation}) {
         <View style={styles.card}>
           <View style={{position: "relative"}}>
             <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
-            <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.crypto : "ARS"}</Text>
+            <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.tokenCode : "ARS"}</Text>
           </View>
           <View style={{marginBottom: 16}}>
-            <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.total * order.price) + " ARS" : order.total + " " + order.crypto}</Text></Text>
+            <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.amount * order.fiatAmount) + " ARS" : order.amount + " " + order.tokenCode}</Text></Text>
           </View>
 
           <View style={{marginBottom: 16, flexDirection: "row", justifyContent: "space-between", display: ammount ? "flex" : "none"}}>
-            <Text style={styles.simpleText}>vas a {(order.order_type == "Vender" && type == "crypto" || order.order_type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
-            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 20}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.crypto)}</Text>
+            <Text style={styles.simpleText}>vas a {(order.type == "Vender" && type == "crypto" || order.type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 20}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.tokenCode)}</Text>
           </View>
 
           <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>
@@ -282,9 +290,9 @@ export default function OrderDetails({route, navigation}) {
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
           <BottomSheet data={data} maxHeight={maxHeight} title="Elegí tu método de pago" 
-          onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.price)}
-          cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} payment_method={payment_method} type={order.order_type == "Vender" ? "recibir" : "pagar"}
-          crypto={order.crypto} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
+          onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.fiatAmount)}
+          cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} payment_method={payment_method} type={order.type == "Vender" ? "recibir" : "pagar"}
+          crypto={order.tokenCode} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
         </>
       )}
     </GestureHandlerRootView>

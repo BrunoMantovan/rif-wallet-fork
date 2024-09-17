@@ -64,25 +64,6 @@ export default function MyOrders() {
     }, [])
 );
 
-  useEffect(() => {
-    async function contractCall(){
-      const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co")
-      const contract = new ethers.Contract("0xd83Be589F2622E6f311C886309A0629a18e36e22", abi, provider)
-    
-    try {
-      const collectedFees = await contract.fees("0x542fDA317318eBF1d3DEAf76E0b632741A7e677d")
-      const feesNumber = ethers.utils.formatUnits(collectedFees, 3);
-      const whiteListed = await contract.isERC20Whitelisted("0x6B175474E89094C44Da98b954EedeAC495271d0F")
-      console.log("result is ",feesNumber)
-      console.log("whiteListed is ",whiteListed)
-    }
-    catch (error) {
-      console.error('Error fetching fees:', error);
-    }
-    }
-
-  }, [])
-
   const handleDelete = async (id) => {
     const index = orders.findIndex(order => order.id === id);
     const collection = orders[index].order_type + orders[index].crypto;
@@ -101,110 +82,35 @@ export default function MyOrders() {
   };
 
   function createOrderNavigate(){
-    /* navigation.navigate('Crear Publicación');
-    setHideTab(true); */    
+    navigation.navigate('Crear Publicación');
+    setHideTab(true);    
   }
-  const fn = async () => {
-    const mnemonic = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball";
-    const hdPath = "m/44'/37310'/0'/0/0";
-    
-    // Derive the wallet
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic, hdPath);
-
-    // Connect to the RSK testnet
-    const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
-    
-    // Create a signer
-    const signer = wallet.connect(provider);
-
-    const contract = new ethers.Contract('0xa4aE638eF492792A9a758935df99052dae317A34', abi, signer);
-    const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-    const flag = false;
-
-    try {
-      console.log("tx started");
-      const tx = await contract.setWhitelistedERC20Token(tokenAddress, flag);
-      console.log('Transaction hash:', tx.hash);
+const fn = async () => {
+  const mnemonic = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball";
+  const hdPath = "m/44'/37310'/0'/0/0";
   
-      // Wait for the transaction to be mined
-      const receipt = await tx.wait();
-      console.log('Transaction was mined in block:', receipt.blockNumber, "tx: ", receipt);
-    } catch (error) {
-      console.error('Error while setting whitelisted token:', error);
-    }
+  // Derive the wallet
+  const wallet = ethers.Wallet.fromMnemonic(mnemonic, hdPath);
+  // Connect to the RSK testnet
+  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
+  
+  // Create a signer
+  const signer = wallet.connect(provider);
+  const contract = new ethers.Contract('0xa4aE638eF492792A9a758935df99052dae317A34', abi, signer);
+  const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+  const flag = false;
+  try {
+    console.log("tx started");
+    const tx = await contract.setWhitelistedERC20Token(tokenAddress, flag);
+    console.log('Transaction hash:', tx.hash);
+
+    // Wait for the transaction to be mined
+    const receipt = await tx.wait();
+    console.log('Transaction was mined in block:', receipt.blockNumber, "tx: ", receipt);
+  } catch (error) {
+    console.error('Error while setting whitelisted token:', error);
   }
-  
-  
-
-  const whitelistedERC20Token = async () => {
-    try {
-      console.log("getting mnemonic");
-      let mnemonicPhrase = ""
-      const keys = await getKeys()
-      if (keys) {
-        const { kms } = KeyManagementSystem.fromSerialized(
-          keys,
-          getCurrentChainId(),
-        )
-        mnemonicPhrase = kms.mnemonic
-      }
-      console.log(mnemonicPhrase);
-      const provider = new ethers.providers.JsonRpcProvider('https://public-node.rsk.co'); // mainnet: https://public-node.rsk.co || testnet: https://public-node.testnet.rsk.co
-      const path = "m/44'/137'/0'/0";
-      const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase, path)
-      console.log('EOA ADDRESS:', wallet.privateKey);
-
-      /* const smartWalletFactory = new Contract(
-        '0xbadb31caf5b95edd785446b76219b60fb1f07233',
-        SmartWalletFactoryABI,
-        provider,
-      );
-      const smartWalletAddress = await smartWalletFactory.getSmartWalletAddress(
-        wallet.address.toLowerCase(),
-        '0x0000000000000000000000000000000000000000',
-        0,
-      );
-      console.log('SMART WALLET ADDRESS:', smartWalletAddress);
-
-      const smartWallet = new Contract(
-        smartWalletAddress.toLowerCase(),
-        smartWalletABI,
-        wallet.connect(provider),
-      );
-
-      const myContract = new Contract("0xd83Be589F2622E6f311C886309A0629a18e36e22", abi, provider);
-      const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-      const whitelisted = true
-      console.log("Estimating gas...");
-      const estimatedGasLimit = await myContract.estimateGas.setWhitelistedERC20Token(tokenAddress, whitelisted);
-      console.log("Estimated Gas Limit:", estimatedGasLimit.toString());
-
-      console.log("Populating transaction...");
-      const setWhitelistedERC20TokenData = myContract.interface.encodeFunctionData('setWhitelistedERC20Token', [
-        tokenAddress, whitelisted,
-      ]);
-      const tx = await smartWallet.directExecute(
-        "0xd83Be589F2622E6f311C886309A0629a18e36e22",
-        setWhitelistedERC20TokenData,
-        { gasLimit: estimatedGasLimit.mul(2) },
-      );
-  
-      console.log("Waiting for transaction receipt...");
-      const receipt = await tx.wait();
-  
-      console.log("Transaction successful:", receipt); */
-      
-    } catch (err) {
-      console.error("Transaction failed:", err);
-    }
-};
-
-const hashAddress = () => {
-  /* const hash =  ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(["address"], ["0x846c25707b92ab0652392c14f02961b27f825e66"])); //0xf1F6d9e134703993C2c68ABb45f109ba9Dd66BB5
-  console.log("hash is ",hash) */
-
-  const wallet = wallet
-};
+}
 
 async function checkBalance() {  
 /*   const balance = await wallet.getBalance();
@@ -288,20 +194,6 @@ const callContractMethod = async () => {
       console.error('Error calling contract method:', error);
   }
 };
-function wei(address){
-  const normalizedAddress = ethers.utils.getAddress(address);
-  const hash = keccak256(normalizedAddress);
-  
-  return hash;
-}
-function ethtowei() {
-  const etherValue = '0x46C042d3C25274e68487EBb290e07949e66c1Ec9';
-  const weiValue = wei(etherValue);
-  console.log(weiValue);
-}
-
-
-
   return (
     <View style={styles.body}>
       {orders.length >=1 ? 
@@ -319,7 +211,7 @@ function ethtowei() {
     }
     <AppButton
         accessibilityLabel={testIDs.newContact}
-        onPress={() => whitelistedERC20Token()}
+        onPress={() => createOrderNavigate()}
         style={styles.newContactButton}
         leftIcon={{
           name: "plus",

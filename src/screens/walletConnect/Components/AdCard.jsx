@@ -25,7 +25,7 @@ export default function AdCard(props) {
     <TouchableOpacity activeOpacity={0.6} style={styles.card} onPress={props.onPress}>
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-            <Text style={styles.user}>{props.username}</Text>
+            {/* <Text style={styles.user}>{props.username}</Text> */}
             <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 15}}>ARS</Text></Text>
             <TouchableOpacity onPress={props.onPressDelete} style={{alignItems: "center", justifyContent: "center", display: props.display}}>
                 <Text style={{fontWeight:"600"}}>Eliminar</Text>
