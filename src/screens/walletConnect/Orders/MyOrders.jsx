@@ -45,21 +45,9 @@ export default function MyOrders() {
   useFocusEffect(
     React.useCallback(() => {
       setHideTab(false)
-      const fetchData = async () => {
-        try {
-          const userDoc = await firestore().collection('Users').doc(username).get();
-          const userData = userDoc.data(); // Get the data of the user document
-          if (userData) {
-            const userOrders = userData.orders || []; // Get the orders array from the user data
-            setOrders(userOrders);
-             // Update the state with the orders array
-          }
-        } catch (error) {
-          console.error('Error fetching orders:', error);
-        }
-      };
-
-      fetchData();
+      const smartWalletAddress = wallet.smartWalletAddress
+      console.log(smartWalletAddress);
+      
       
     }, [])
 );
@@ -124,18 +112,6 @@ async function checkBalance() {
   console.log('Contract owner address:', ownerAddress);
 }
 
-
-function createWallet(){
-  const randomMnemonic = ethers.utils.entropyToMnemonic(ethers.utils.randomBytes(16));
-  console.log("randomMnemonic is ",randomMnemonic)
-  const newWallet = ethers.Wallet.fromMnemonic(randomMnemonic, "m/44'/37310'/0'/0/0");
-  console.log("newWallet is ",newWallet)
-  console.log("newWallet.address is ",newWallet.address)
-  console.log("newWallet.mnemonic.phrase is ",newWallet.mnemonic.phrase)
-  console.log("newWallet.privateKey is ",newWallet.privateKey)
-  const checksumAddress = ethers.utils.getAddress(newWallet.address);
-  console.log("checksumAddress is ",checksumAddress)
-}
 async function sendTX(){
   try{
     const walletaddress = "0x400190c784497f2eA6F5D31252c0a5167A7faF81"
@@ -162,38 +138,6 @@ async function sendTX(){
     console.log("error is ",error)
   }
 }
-
-const callContractMethod = async () => {
-  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co");
-  try {
-    let mnemonicPhrase = ""
-    const keys = await getKeys()
-    if (keys) {
-      const { kms } = KeyManagementSystem.fromSerialized(
-        keys,
-        getCurrentChainId(),
-      )
-      mnemonicPhrase = kms.mnemonic
-      
-      console.log("chain id: ", getCurrentChainId())
-    }
-    const path = "m/44'/37310'/0'/0/0"
-    const wallet = ethers.Wallet.fromMnemonic(mnemonicPhrase, path);
-    const signer = new ethers.Wallet(wallet.privateKey, provider);
-    const contractAddress = '0xd83Be589F2622E6f311C886309A0629a18e36e22';
-    const contract = new ethers.Contract(contractAddress, abi, signer);
-    console.log("contract is ",contract)
-    const tx = await contract.setWhitelistedERC20Token("0xdAC17F958D2ee523a2206206994597C13D831ec7", true, {
-      gasLimit: ethers.utils.hexlify(100000),
-    });
-
-      // Wait for the transaction to be mined
-      const receipt = await tx.wait();
-      console.log('Transaction receipt:', receipt);
-  } catch (error) {
-      console.error('Error calling contract method:', error);
-  }
-};
   return (
     <View style={styles.body}>
       {orders.length >=1 ? 

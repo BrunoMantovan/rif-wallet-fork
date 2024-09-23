@@ -16,7 +16,7 @@ import { NotificationSend } from '../Components/NotificationSend'
 export default function CreateOrder() {
 
   const [price, setPrice] = useState(null)
-  const [type, setType] = useState("Vender")
+  const [type, setType] = useState("SELL")
   const [crypto, setCrypto] = useState("DoC")
   const [cryptoPlaceholder, setCryptoPlaceholder] = useState('DoC');
   const [specs, setSpecs] = useState(false);
@@ -60,13 +60,13 @@ export default function CreateOrder() {
   };
 
   useEffect(() => {
-    if(type == "Comprar"){
+    if(type == "BUY"){
       if (type && crypto && price && total && payment_method != "Método de pago") {
         setSpecs(true);
       } else {
         setSpecs(false);
       }
-    }else if(type === "Vender"){
+    }else if(type === "SELL"){
       if (type && crypto && price && total) {
         setSpecs(true);
       } else {
@@ -107,7 +107,7 @@ export default function CreateOrder() {
   } */
 
   function onPressing(){
-      const typeForSelf = type == "Comprar" ? "Vender" : "Comprar"
+      const typeForSelf = type == "BUY" ? "Vender" : "Comprar"
       const order = {
         price: price,
         crypto: crypto,
@@ -123,7 +123,7 @@ export default function CreateOrder() {
   }
 
   function selectType(value){
-    setType(value)
+    setType(value == "Comprar" ? "BUY" : "SELL")
   }
   function handleSelect(value){
     const areEqual = JSON.stringify(data) === JSON.stringify(cryptos);
@@ -165,11 +165,11 @@ export default function CreateOrder() {
     <GestureHandlerRootView style={{flex: 1}}>
       <ScrollView style={styles.body}>
         <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
-          <Pressable onPress={()=> selectType("Vender")} style={[styles.orderSelector, type === "Vender" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
-            <Text style={[styles.orderText, type === "Vender" ? styles.selectedText : null]}>Comprar</Text>
+          <Pressable onPress={()=> selectType("Vender")} style={[styles.orderSelector, type === "SELL" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, type === "SELL" ? styles.selectedText : null]}>Comprar</Text>
           </Pressable>
-          <Pressable onPress={()=> selectType("Comprar")} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
-            <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>Vender</Text>
+          <Pressable onPress={()=> selectType("Comprar")} style={[styles.orderSelector, type === "BUY" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, type === "BUY" ? styles.selectedText : null]}>Vender</Text>
           </Pressable>
           {/* <Pressable onPress={()=> handleNotification()} style={[styles.orderSelector, type === "Comprar" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
             <Text style={[styles.orderText, type === "Comprar" ? styles.selectedText : null]}>notificacion</Text>
@@ -190,17 +190,17 @@ export default function CreateOrder() {
         </View>
         <View style={{width: "100%", alignContent: "center", marginBottom: 14}}>
           <Text style={styles.subtitle}>CANTIDAD TOTAL</Text>
-          <Text style={styles.span}>¿Cuánto {crypto} querés {type === "Vender" ? "comprar" : "Vender"}?</Text>
+          <Text style={styles.span}>¿Cuánto {crypto} querés {type === "SELL" ? "comprar" : "Vender"}?</Text>
           <InputText value={total} setValue={(value) => handleNumberChange(value, 2)} placeholder="0" keyboard="numeric" style={styles.input}/>
           <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>{crypto}</Text>
         </View>
         <View style={{width: "100%", alignContent: "center", marginBottom: 14}}>
           <Text style={styles.subtitle}>PRECIO</Text>
-          <Text style={styles.span}>¿A qué precio querés {type === "Vender" ? "comprar" : "Vender"} {crypto}?</Text>
+          <Text style={styles.span}>¿A qué precio querés {type === "SELL" ? "comprar" : "Vender"} {crypto}?</Text>
           <InputText value={price} setValue={(value) => handleNumberChange(value, 1)} placeholder="0" keyboard="numeric" style={styles.input}/>
           <Text style={{position: "absolute", right: "5%", bottom: "18%", fontSize: 18}}>ARS</Text>
         </View>
-        {type === "Comprar" ? (
+        {type === "BUY" ? (
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
           <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
           <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>

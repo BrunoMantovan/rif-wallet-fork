@@ -143,7 +143,7 @@ export default function BuyOrders() {
                             <Dropdown placeholder={methodPlaceholder} onPress={() => toggleOpen("payment")}/>
                         </View>
                     </View>
-                    <View style={{marginTop: "55%"}}>
+                    <View style={{marginTop: "45%"}}>
                         <ButtonCustom text="Buscar" type={specs ? "secondary" : "disabled"} activeOpacity={specs ? false : 1} onPress={specs ? onPressing : undefined}/>
                     </View>
                 </View>

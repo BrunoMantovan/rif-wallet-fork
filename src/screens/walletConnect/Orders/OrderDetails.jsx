@@ -39,8 +39,8 @@ export default function OrderDetails({route, navigation}) {
   
   const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
   const client = new BolsilloArgentoAPIClient(BASE_URL);
-
-  useEffect(() => {
+  console.log(order);
+  /* useEffect(() => {
     setAmmount(null)
   }, [type]);
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function OrderDetails({route, navigation}) {
       } else { setSpecs(false) }
 
     }
-  }, [ammount]);
+  }, [ammount]); */
 
 
   const numberFormatOptions = {
@@ -70,12 +70,15 @@ export default function OrderDetails({route, navigation}) {
     maximumFractionDigits: 2, // Optional: specify the maximum number of fraction digits
   };
 
-  const handleNumberChange = (inputValue, input) => {
-    if(input == 1){
-      const sanitizedValue = parseFloat(inputValue.replace(/,/g, '.'));
+  useEffect(() => {
+    const handleNumberChange = () => {
+      const sanitizedValue = parseFloat(order.amount.replace(/,/g, '.'));
       setAmmount(sanitizedValue);
-    }
-  };
+    };
+    handleNumberChange()
+  }, [])
+
+  
 
   function selectType(value){
     setType(value)
@@ -131,7 +134,9 @@ export default function OrderDetails({route, navigation}) {
     const updateOrderRequest = {
       status: 'ACTIVE',
       orderId: order.id
-  };
+    };
+    console.log(order.id);
+    
     const response = await client.updateOrder(updateOrderRequest, {
       'x-api-secret': 'test',
       'x-blockchain': 'rsk_testnet'
@@ -154,11 +159,7 @@ export default function OrderDetails({route, navigation}) {
   const username = useAppSelector(selectUsername);
     
   const { token, networkId } = route.params;
-  const [selectedAsset, setSelectedAsset] = useState(
-    (networkId && bitcoinCore?.networksMap[networkId]) ||
-    token ||
-    Object.values(tokenBalances)[0],
-  );
+  const [selectedAsset, setSelectedAsset] = useState()
   
   const [address, setAddress] = useState('');
   const [isAddressLoading, setIsAddressLoading] = useState(false);
@@ -176,7 +177,7 @@ export default function OrderDetails({route, navigation}) {
     return null;
   }, [wallet, chainId]);
 
-  useEffect(() => {
+  useEffect(() => {    
     const tokenSelected = Object.values(tokenBalances).find(e => 
       order.tokenCode == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
     );
@@ -232,32 +233,33 @@ export default function OrderDetails({route, navigation}) {
   return (
     <GestureHandlerRootView style={{flex: 1, backgroundColor: sharedColors.mainWhite}}>
       <View style={styles.container}>
-        <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 16 }}>
+        <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 24 }}>
           <Text style={styles.simpleText}>Precio del {order.tokenCode}:</Text>
           <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {order.fiatAmount.toLocaleString('es-AR', numberFormatOptions)} ARS</Text></View>
         </View>
 
-        <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
+        {/* <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
             <Pressable onPress={()=> selectType("crypto")} style={[styles.orderSelector, type === "crypto" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
               <Text style={[styles.orderText, type === "crypto" ? styles.selectedText : null]}>Activos</Text>
             </Pressable>
             <Pressable onPress={()=> selectType("fiat")} style={[styles.orderSelector, type === "fiat" ? styles.selectedOrder : null, {borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
               <Text style={[styles.orderText, type === "fiat" ? styles.selectedText : null]}>Fiat</Text>
             </Pressable>
-        </View>
+        </View> */}
 
         <View style={styles.card}>
-          <View style={{position: "relative"}}>
+          {/* <View style={{position: "relative"}}>
             <InputText placeholder="0" value={ammount} setValue={(value)=> handleNumberChange(value, 1)} keyboard="numeric"/>
             <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.tokenCode : "ARS"}</Text>
-          </View>
-          <View style={{marginBottom: 16}}>
-            <Text style={styles.simpleText}>Disponible: <Text style={[styles.simpleText, {fontSize: 17, color: sharedColors.secondary}]}>{type == "fiat" ? "$" + formatNumberWithDots(order.amount * order.fiatAmount) + " ARS" : order.amount + " " + order.tokenCode}</Text></Text>
+          </View> */}
+          <View style={{marginBottom: 24, flexDirection: "row", justifyContent: "space-between", }}>
+            <Text style={styles.simpleText}>vas a {(order.type == "Vender" && type == "crypto" || order.type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{order.amount + " " + order.tokenCode}</Text>
           </View>
 
-          <View style={{marginBottom: 16, flexDirection: "row", justifyContent: "space-between", display: ammount ? "flex" : "none"}}>
-            <Text style={styles.simpleText}>vas a {(order.type == "Vender" && type == "crypto" || order.type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
-            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 20}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.tokenCode)}</Text>
+          <View style={{marginBottom: 24, flexDirection: "row", justifyContent: "space-between", }}>
+            <Text style={styles.simpleText}>vas a {order.type == "SELL" ? "recibir" : "pagar"}</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.tokenCode)}</Text>
           </View>
 
           <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>
@@ -282,16 +284,16 @@ export default function OrderDetails({route, navigation}) {
       </View>
       
       <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-        <ButtonCustom text="Continuar" type={(ammount>0 && payment_method != "Método de pago" && specs) ? "green" : "disabled"} 
+        <ButtonCustom text="Continuar" type={(payment_method != "Método de pago") ? "green" : "disabled"} 
         onPress={(ammount>0 && payment_method != "Método de pago")? () => toggleOpen(null, 2) : null} 
-        activeOpacity={(ammount>0 && payment_method != "Método de pago") ? false : 1}/>
+        activeOpacity={payment_method != "Método de pago" ? false : 1}/>
       </View>
       {open && (
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
           <BottomSheet data={data} maxHeight={maxHeight} title="Elegí tu método de pago" 
-          onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.fiatAmount)}
-          cryptoTotal={cryptoTotal} fiatTotal={formatNumberWithDots(fiatTotal)} payment_method={payment_method} type={order.type == "Vender" ? "recibir" : "pagar"}
+          onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.fiatAmount/order.amount)}
+          cryptoTotal={order.amount} fiatTotal={formatNumberWithDots(order.fiatAmount)} payment_method={payment_method} type={order.type == "Vender" ? "recibir" : "pagar"}
           crypto={order.tokenCode} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
         </>
       )}
@@ -316,7 +318,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   simpleText:{
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Robot-Medium",
     fontWeight: "400",
     color: sharedColors.inputText,

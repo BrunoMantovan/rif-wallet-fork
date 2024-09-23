@@ -1,51 +1,110 @@
 import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { sharedColors } from 'src/shared/constants'
 import ButtonCustom from '../Login/ButtonCustom'
 import firestore from '@react-native-firebase/firestore';
+import { use } from 'i18next';
+import { getAddressDisplayText, LoadingScreen } from 'src/components';
+import { selectBalances } from 'src/redux/slices/balancesSlice';
+import { useAppSelector } from 'src/redux/storeUtils';
+import { selectProfile } from 'src/redux/slices/profileSlice';
+import { selectChainId } from 'src/redux/slices/settingsSlice';
+import { WalletContext } from 'src/shared/wallet';
+import { shortAddress } from 'src/lib/utils';
+import { BolsilloArgentoAPIClient } from 'src/baApi';
 
 export default function OrderSummary({route, navigation}) {
 
   const {order} = route.params
   const username = "usuario 987"
-  
+  const [isAddressLoading, setIsAddressLoading] = useState(true);
+  const [address, setAddress] = useState('');
+  const { token, networkId } = route.params;
+  const [selectedAsset, setSelectedAsset] = useState();
+  const tokenBalances = useAppSelector(selectBalances);
+  const { wallet } = useContext(WalletContext);
+  const chainId = useAppSelector(selectChainId);
+  const profile = useAppSelector(selectProfile);
+  const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
+  const client = new BolsilloArgentoAPIClient(BASE_URL);
 
-  const newOrder = {
-    price: order.price,
-    crypto: order.crypto,
-    username: order.username,
-    order_type: order.order_type,
-    total: order.total,
-    order_type_for_self: order.order_type_for_self,
-    ...(order.payment_method !== undefined && { payment_method: order.payment_method }) 
-  }
+  const rskAddress = useMemo(() => {
+    if (wallet && chainId) {
+      return getAddressDisplayText(wallet.smartWalletAddress, chainId);
+    }
+    return null;
+  }, [wallet, chainId]);
+  
+  useEffect(() => {    
+    const tokenSelected = Object.values(tokenBalances).find(e => 
+      order.tokenCode == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
+    );
+    setSelectedAsset(tokenSelected);
+    console.log(selectedAsset);
+    console.log("token balances" + tokenBalances);
+    
+  }, []);
+
+  useEffect(()=>{
+    onGetAddress(selectedAsset);
+  }, [selectedAsset])
+
+  const onGetAddress = useCallback(
+    (asset) => {
+      console.log('onGetAddress called with asset:', asset);
+      if (asset) {
+        setIsAddressLoading(true);
+        if ('bips' in asset) {
+          asset.bips[0]
+            .fetchExternalAvailableAddress({})
+            .then((addressReturned) => {
+              console.log('Fetched address:', addressReturned);
+              setAddress(addressReturned);
+            })
+            .finally(() => {
+              setIsAddressLoading(false);
+              console.log('Address loading finished');
+            });
+        } else {
+          setAddress(rskAddress?.checksumAddress || '');
+          setIsAddressLoading(false);
+          console.log('RSK address set:', rskAddress?.checksumAddress);
+        }
+      }
+    },
+    [rskAddress?.checksumAddress],
+  );
+
+
+  
 
   async function handleSubmit(){
     try {
-      const collection = order.order_type + order.crypto
-      const newOrderRef = await firestore()
-        .collection(collection)
-        .add(newOrder);
-  
-      const newOrderId = newOrderRef.id;
-      
-      await newOrderRef.update({
-        id: newOrderId
-      });
-      // Add the document ID to the new order
-      const newOrderWithId = {
-        ...newOrder,
-        id: newOrderId
+      const user = {
+        username: address
       }
-  
-      // Update the user's collection with the new order including the document ID
-      await firestore()
-        .collection('Users')
-        .doc(username)
-        .update({
-          orders: firestore.FieldValue.arrayUnion(newOrderWithId)
-        });
-  
+      const userReponse = await client.createUser(user);
+      console.log("userReponse", userReponse);
+      
+      const newOrder = {
+        type: order.order_type,
+        description: "",
+        amount: order.total,
+        tokenCode: order.crypto,    
+        fiatAmount: order.price * order.total,
+        status: "PENDING",
+        fiatCode: "ARS",
+        ...(order.payment_method !== undefined && { payment_methods: order.payment_method }),
+        creatorId: userReponse.id
+      }
+      console.log("newOrder", newOrder);
+    
+      const response = await client.createOrder(newOrder, {
+        'x-api-secret': 'test',
+        'x-blockchain': 'rsk_testnet'
+      });
+      console.log('Data:', response);
+    
       navigation.navigate('MyOrders');
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -53,6 +112,7 @@ export default function OrderSummary({route, navigation}) {
   }
 
   return (
+    isAddressLoading ? <LoadingScreen/> :
     <View style={{padding: 16, flex: 1}}>
       <Text style={styles.text}>Tipo de operación: <Text style={styles.innetText}>{order.order_type_for_self}</Text></Text>
       <Text style={styles.text}>Activo: <Text style={styles.innetText}>{order.crypto}</Text></Text>
@@ -60,6 +120,7 @@ export default function OrderSummary({route, navigation}) {
       <Text style={styles.text}>Precio unitario: <Text style={styles.innetText}>${order.price}</Text></Text>
       <Text style={styles.text}>Cantidad total: <Text style={styles.innetText}>{order.total} {order.crypto}</Text></Text>
       {order.order_type == "Comprar" ? <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.payment_method.text}</Text></Text> : null}
+      <Text style={styles.text}>Billetera: <Text style={styles.innetText}>{shortAddress(address, 10)}</Text></Text>
       <View style={{flex: 1, justifyContent: "flex-end"}}><ButtonCustom onPress={()=> handleSubmit()} text="Publicar" type="green"/></View>
     </View>
   )

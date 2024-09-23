@@ -28,24 +28,8 @@ interface Order {
     const {search} = route.params
     
     useEffect(() =>{
-        // const fetchData = async () => {
-        //     const collection = search.type + search.crypto
-        //     try {
-        //         const querySnapshot = await firestore().collection(collection).get();
-        //         const orderData = [];
-        //         querySnapshot.forEach((doc) => {
-        //             // Extract data from each document and add it to the array
-        //             orderData.push({ id: doc.id, ...doc.data() });
-        //         });
-        //         setOrders(orderData);
-                
-        //     } catch (error) {
-        //       console.error('Error fetching orders:', error);
-        //     }
-        // };
-        // fetchData();
         async function getOrders() {
-            const response = await client.getOrders({ status: 'PENDING' });
+            const response = await client.getOrders({ status: ['PENDING'] });
             console.log(search.type);
             const type = search.type == "Vender" ? "SELL" : "BUY"
             setOrders(response.orders.filter(order => order.type == type));
@@ -69,7 +53,7 @@ interface Order {
                             {orders
                             .sort((a, b) => a.price - b.price)
                             .map((order, index) => (
-                                <AdCard key={order.id} username={order.username} price={order.fiatAmount} total={order.amount} crypto={order.tokenCode} order_type={order.type} onPress={() => handleCardPress(order)} display={"none"}/>
+                                <AdCard key={order.id} username={order.username} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type} onPress={() => handleCardPress(order)} display={"none"}/>
                             ))}
                         </ScrollView>
                     </View>
