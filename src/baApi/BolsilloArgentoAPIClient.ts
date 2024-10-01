@@ -91,6 +91,18 @@ class BolsilloArgentoAPIClient {
         return this.post<OrderResponse>(url, order, headers);
     }
 
+    public async deleteOrder(orderId: string, headers?: Record<string, string>): Promise<void> {
+        const url = `/api/orders/${orderId}`;
+        const config = this.createConfig(headers);
+        try {
+            await this.client.delete<void>(url, config);
+            console.log(`Order ${orderId} deleted successfully.`);
+        } catch (error) {
+            console.error(`DELETE request to ${url} failed:`, error);
+            throw error;
+        }
+    }
+    
     public async takeOrder(order: TakeOrderRequest, headers?: Record<string, string>): Promise<OrderResponse> {
         const url = '/api/orders/take';
         return this.post<OrderResponse>(url, order, headers);

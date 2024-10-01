@@ -274,7 +274,7 @@ const resources = {
       contacts_details_edit_contact: 'Editar contacto',
       contacts_delete_contact_title: 'Eliminar contacto',
       contacts_delete_contact_button_delete: 'Confirmar',
-
+      initial_screen_button_reset_app: 'Reset app',
       contacts_delete_contact_description:
         '¿Está seguro de eliminar a ',
       wallet_backup_subtitle: 'Ver mi frase',

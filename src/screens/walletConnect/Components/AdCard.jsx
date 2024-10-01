@@ -26,7 +26,7 @@ export default function AdCard(props) {
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
             {/* <Text style={styles.user}>{props.username}</Text> */}
-            <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 15}}>ARS</Text></Text>
+            <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 18}}>ARS</Text></Text>
             <TouchableOpacity onPress={props.onPressDelete} style={{alignItems: "center", justifyContent: "center", display: props.display}}>
                 <Text style={{fontWeight:"600"}}>Eliminar</Text>
             </TouchableOpacity>
@@ -35,7 +35,7 @@ export default function AdCard(props) {
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <View>
                 <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.order_type == "BUY" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.order_type == "Comprar" ? props.crypto : "ARS"}</Text></Text>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.order_type == "SELL" ? props.total + " " + props.crypto : formatNumberWithDots(cryptoTotal) + " ARS"}</Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.total + " " + props.crypto}</Text>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <View style={styles.payMethods}>
                         <Text>Transferencia</Text>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         justifyContent:"space-between",
     },
     price:{
-        fontSize: 16,
+        fontSize: 19,
         color: "#1b1e1e",
         fontFamily: "Roboto-Medium",
         fontWeight: "500",

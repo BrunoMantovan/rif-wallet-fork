@@ -6,7 +6,7 @@ import firestore from '@react-native-firebase/firestore';
 import AdCard from '../Components/AdCard';
 import ButtonCustom from '../Login/ButtonCustom';
 import { sharedColors, testIDs } from 'src/shared/constants';
-import { AppButton } from 'src/components';
+import { AppButton, LoadingScreen } from 'src/components';
 import { castStyle } from 'src/shared/utils';
 import { useTranslation } from 'react-i18next'
 import { t } from 'i18next';
@@ -24,6 +24,7 @@ import { toChecksumAddress,isValidChecksumAddress  } from "@rsksmart/rsk-utils";
 import AddTokenButton from "./Dispatch";
 
 import { keccak256 } from "ethers/lib/utils";
+import { BolsilloArgentoAPIClient } from "src/baApi";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
@@ -41,116 +42,98 @@ export default function MyOrders() {
   const [error, setError] = useState('');
   const [txHash, setTxHash] = useState('');
   const { wallet, walletIsDeployed } = useWalletState()
+  const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
+  const client = new BolsilloArgentoAPIClient(BASE_URL);
+  const [status, setStatus] = useState(["PENDING"]);
+  const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
       setHideTab(false)
-      const smartWalletAddress = wallet.smartWalletAddress
-      console.log(smartWalletAddress);
-      
-      
-    }, [])
-);
+      async function testCreateUser() {
+        setLoading(true);
+        const smartWalletAddress = wallet.smartWalletAddress
+        console.log(smartWalletAddress);
+        
+        const user = {
+          username: "0x846C25707b92aB0652392c14F02961B27f825E66"
+        }
+        console.log("user", user);
+        
+        const response = await client.createUser(user);
+        console.log(response);
+        
 
+        const ordersFetch = await client.getOrders({ status: [status], user: "e71e09b5-e72e-4eea-9b9b-0849266a4cdc"});  
+        console.log("orders", ordersFetch);
+        
+        setOrders(ordersFetch.orders)
+        setLoading(false);
+      }
+      testCreateUser()
+    }, [status])
+  );
+  
   const handleDelete = async (id) => {
-    const index = orders.findIndex(order => order.id === id);
-    const collection = orders[index].order_type + orders[index].crypto;
-    try {
-      const updatedOrders = [...orders];
-      updatedOrders.splice(index, 1);
-      setOrders(updatedOrders);
-
-      await firestore().collection('Users').doc(username).update({
-        orders: updatedOrders
-      });
-      await firestore().collection(collection).doc(id).delete();
-    } catch (error) {
-      console.error('Error deleting order:', error);
-    }
+    client.deleteOrder(id);
   };
 
   function createOrderNavigate(){
     navigation.navigate('Crear Publicación');
     setHideTab(true);    
   }
-const fn = async () => {
-  const mnemonic = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball";
-  const hdPath = "m/44'/37310'/0'/0/0";
-  
-  // Derive the wallet
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic, hdPath);
-  // Connect to the RSK testnet
-  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
-  
-  // Create a signer
-  const signer = wallet.connect(provider);
-  const contract = new ethers.Contract('0xa4aE638eF492792A9a758935df99052dae317A34', abi, signer);
-  const tokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-  const flag = false;
-  try {
-    console.log("tx started");
-    const tx = await contract.setWhitelistedERC20Token(tokenAddress, flag);
-    console.log('Transaction hash:', tx.hash);
 
-    // Wait for the transaction to be mined
-    const receipt = await tx.wait();
-    console.log('Transaction was mined in block:', receipt.blockNumber, "tx: ", receipt);
-  } catch (error) {
-    console.error('Error while setting whitelisted token:', error);
+  async function sendTX(){
+    try{
+      const walletaddress = "0x400190c784497f2eA6F5D31252c0a5167A7faF81"
+      const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
+      const path = "m/44'/37310'/0'/0/0";
+      const mnemonicPh = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball"
+      const walletrsk = ethers.Wallet.fromMnemonic(mnemonicPh, path).connect(provider)
+      console.log('EOA ADDRESS:', walletrsk.provider);
+      console.log('EOA PRIVATE KEY:', walletrsk.privateKey);
+      const address = "0x4210cbC7424A8B809316c1f53dd2564e5320eb88"
+      const recipientAddress = address.toLowerCase()
+      const chsad = ethers.utils.getAddress(recipientAddress);
+      console.log(isValidChecksumAddress(chsad, 31));
+      console.log("recipientAddress is ",chsad)
+      const tx = {
+        to: chsad,
+        value: ethers.utils.parseEther("0.03"),
+      };
+      const transactionResponse = await walletrsk.sendTransaction(tx);
+      await transactionResponse.wait();
+      console.log('Transaction Sent', `Hash: ${transactionResponse.hash}`);
+    }
+    catch(error){
+      console.log("error is ",error)
+    }
   }
-}
 
-async function checkBalance() {  
-/*   const balance = await wallet.getBalance();
-  console.log(ethers.utils.formatEther(balance));
-  //console.log(wallet.smartWalletAddress.toLowerCase()); */
-  const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
-
-  const contract = new ethers.Contract('0xd83Be589F2622E6f311C886309A0629a18e36e22', abi, provider);
-  console.log("function called");
-  const ownerAddress = await contract.owner();
-  console.log('Contract owner address:', ownerAddress);
-}
-
-async function sendTX(){
-  try{
-    const walletaddress = "0x400190c784497f2eA6F5D31252c0a5167A7faF81"
-    const provider = new ethers.providers.JsonRpcProvider("https://public-node.testnet.rsk.co", 31);
-    const path = "m/44'/37310'/0'/0/0";
-    const mnemonicPh = "bunker crew scrub patient fitness hat ginger undo neck monitor mule ball"
-    const walletrsk = ethers.Wallet.fromMnemonic(mnemonicPh, path).connect(provider)
-    console.log('EOA ADDRESS:', walletrsk.provider);
-    console.log('EOA PRIVATE KEY:', walletrsk.privateKey);
-    const address = "0x4210cbC7424A8B809316c1f53dd2564e5320eb88"
-    const recipientAddress = address.toLowerCase()
-    const chsad = ethers.utils.getAddress(recipientAddress);
-    console.log(isValidChecksumAddress(chsad, 31));
-    console.log("recipientAddress is ",chsad)
-    const tx = {
-      to: chsad,
-      value: ethers.utils.parseEther("0.03"),
-    };
-    const transactionResponse = await walletrsk.sendTransaction(tx);
-    await transactionResponse.wait();
-    console.log('Transaction Sent', `Hash: ${transactionResponse.hash}`);
-  }
-  catch(error){
-    console.log("error is ",error)
-  }
-}
   return (
     <View style={styles.body}>
-      {orders.length >=1 ? 
+        <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
+          <Pressable onPress={()=> setStatus(["PENDING"])} style={[styles.orderSelector, status[0] === "PENDING" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, status[0] === "PENDING" ? styles.selectedText : null]}>Pendientes</Text>
+          </Pressable>
+          <Pressable onPress={()=> setStatus(['ACTIVE', 'FIAT_SENT', 'WAITING_PAYMENT'])} style={[styles.orderSelector, status[0] === "ACTIVE" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, status[0] === "ACTIVE" ? styles.selectedText : null]}>Activas</Text>
+          </Pressable>
+          <Pressable onPress={()=> setStatus(['COMPLETED_BY_ADMIN', 'CANCELED_BY_ADMIN', 'RELEASED' ])} style={[styles.orderSelector, status[0] === "COMPLETED_BY_ADMIN" ? styles.selectedOrder : null, {borderTopLeftRadius: 8, borderBottomLeftRadius: 8,borderTopRightRadius: 8, borderBottomRightRadius: 8}]} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}}>
+            <Text style={[styles.orderText, status[0] === "COMPLETED_BY_ADMIN" ? styles.selectedText : null]}>Finalizadas</Text>
+          </Pressable>
+        </View>
+      {loading ? <LoadingScreen/> : orders ? 
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={order.id} username={order.username} price={order.price} total={order.total} crypto={order.crypto} order_type={order.order_type_for_self} onPressDelete={() => handleDelete(order.id)}/>
+          <AdCard key={order.id} username={order.id} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type == "SELL" ? "Vender" : "Comprar"} onPressDelete={() => handleDelete(order.id)}/>
         ))}
         
       </ScrollView> : 
       
       <View style={styles.innerBody}>
-        <Text style={styles.text}>No has publicado ninguna orden</Text>
+        <Text style={styles.text}> {status[0] === "PENDING" ? "No has publicado ninguna orden" : status[0] === "ACTIVE" ? "No hay ordenes activas" : "No hay ordenes finalizadas"}</Text>
       </View>
     }
     <AppButton
@@ -194,4 +177,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   }),
+  orderSelector:{
+    height: 40,
+    width: "33%",
+    backgroundColor: "transparent",
+    borderColor: "#D2E6F799",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 8
+  },
+  orderText:{
+    textAlign: "center",
+    fontSize: 16,
+    fontFamily: "Roboto-Medium",
+    fontWeight: "500",
+    color: "#727F9E",
+  },
+  selectedOrder: {
+    backgroundColor: "#D2E6F7",
+  },
+  selectedText:{
+    color: sharedColors.bablue,
+  },
 })

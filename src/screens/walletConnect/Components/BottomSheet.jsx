@@ -47,10 +47,10 @@ export default function BottomSheet(props) {
                     {props.title ? <Text style={styles.title}>{props.title}</Text> : null}
                     {array.map((data, index) => (
                         <Pressable key={index} style={styles.pressable} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}} 
-                        onPress={() => props.onSelect(data.text)}>
+                        onPress={() => props.onSelect(data.text ? data.text : data.alias)}>
                             <View style={{flexDirection: "row"}}>
                                 {data.image && <Image source={data.image} style={styles.image}/>}
-                                <Text style={styles.subtitle}>{data.text}</Text>
+                                <Text style={styles.subtitle}>{data.text ? data.text : `${data.banco} (${data.alias})`}</Text>
                             </View>
                             <FontAwesome5Icon
                                 name={'chevron-right'}

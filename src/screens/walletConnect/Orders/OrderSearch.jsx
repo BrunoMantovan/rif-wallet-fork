@@ -30,10 +30,8 @@ interface Order {
     useEffect(() =>{
         async function getOrders() {
             const response = await client.getOrders({ status: ['PENDING'] });
-            console.log(search.type);
-            const type = search.type == "Vender" ? "SELL" : "BUY"
-            setOrders(response.orders.filter(order => order.type == type));
-            console.log(response.orders.filter(order => order.type == type));
+            const type = search.type == "Vender" ? "BUY" : "SELL"
+            setOrders(response.orders);
         }
         getOrders()
     }, [search])

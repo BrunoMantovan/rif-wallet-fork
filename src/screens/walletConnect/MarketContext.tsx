@@ -5,7 +5,6 @@ interface Payment {
   titulat: string;
   cbu: string;
   alias: string;
-  text: string;
   banco: string;
 }
 interface MarketContextType {

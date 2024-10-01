@@ -40,29 +40,6 @@ export default function OrderDetails({route, navigation}) {
   const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
   const client = new BolsilloArgentoAPIClient(BASE_URL);
   console.log(order);
-  /* useEffect(() => {
-    setAmmount(null)
-  }, [type]);
-  useEffect(() => {
-    if(type == "crypto"){
-      setFiatTotal(ammount * order.fiatAmount)
-      setCryptoTotal(ammount)
-
-      if((order.minAmm <= ammount) && (ammount <= order.maxAmm)){
-        setSpecs(true)
-      } else { setSpecs(false) }
-
-    }else if(type == "fiat"){
-      setCryptoTotal((ammount / order.fiatAmount))
-      setFiatTotal(ammount)
-
-      if(((order.minAmm * order.fiatAmount) <= ammount) && (ammount <= (order.maxAmm * order.fiatAmount))){
-        setSpecs(true)
-      } else { setSpecs(false) }
-
-    }
-  }, [ammount]); */
-
 
   const numberFormatOptions = {
     // Specify the dot as the thousands separator
@@ -106,7 +83,6 @@ export default function OrderDetails({route, navigation}) {
     const payment = {
       cbu: cbu,
       alias: alias,
-      text: ref + " ("+ alias +")",
       titular: owner,
       banco: ref,
     }
@@ -119,33 +95,55 @@ export default function OrderDetails({route, navigation}) {
   }
   
   async function handleClick(){
-  try{
-    setOrderId({
-      "id": order.id,
-      "collection": order.type + order.tokenCode,
-    })
-    const orderConfirmed = {
-      address: address,
-      payment_method: payments.find((e => e.text == payment_method)),
-      cryptoTotal: cryptoTotal,
-      fiatTotal: fiatTotal,
-    }
-    // cambiar estado de la orden
-    const updateOrderRequest = {
-      status: 'ACTIVE',
-      orderId: order.id
-    };
-    console.log(order.id);
+    try{
+      setOrderId({
+        "id": order.id,
+        "collection": order.type + order.tokenCode,
+      })
+      const orderConfirmed = {
+        address: address,
+        payment_method: payments.find((e => e.alias == payment_method)),
+        cryptoTotal: cryptoTotal,
+        fiatTotal: fiatTotal,
+      }
+
+      const user = {
+        username: "pablo"
+      }
+      const userReponse = await client.createUser(user);
+      let takeOrderRequest 
+      console.log("order", order)
+      if(order.type == "BUY"){
+        takeOrderRequest = {
+          type: order.type, //string
+          orderId: order.id, //string
+          userId: userReponse.id, //string
+          amount: order.fiatAmount, //string
+          username: userReponse.username //string
+        };
+      }else{
+        takeOrderRequest = {
+          type: order.type, //string
+          orderId: order.id, //string
+          userId: userReponse.id, //string 
+          buyerAddress: "0xd97D397BfF4610AA208936A5D42C640604570372", //string
+          fiatAmount: order.fiatAmount, //string
+          username: userReponse.username //string
+        };
+      }
+      console.log("take order request: " ,takeOrderRequest);
+      
+      const response = await client.takeOrder(takeOrderRequest, {
+        'x-api-secret': 'test',
+        'x-blockchain': 'rsk_testnet'
+      });
+      console.log('Order Taken:', response);
+      navigation.replace('OrderTaken', {orderConfirmed})
+      console.log('Order Updated:', response);
     
-    const response = await client.updateOrder(updateOrderRequest, {
-      'x-api-secret': 'test',
-      'x-blockchain': 'rsk_testnet'
-    });
-    navigation.replace('OrderTaken', {orderConfirmed})
-    console.log('Order Updated:', response);
-  } catch(e){
-    console.log(e)
-  }    
+    } catch(e){
+      console.log(e)
+    }    
   }
 
 
@@ -235,7 +233,7 @@ export default function OrderDetails({route, navigation}) {
       <View style={styles.container}>
         <View style={{flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginBottom: 24 }}>
           <Text style={styles.simpleText}>Precio del {order.tokenCode}:</Text>
-          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {order.fiatAmount.toLocaleString('es-AR', numberFormatOptions)} ARS</Text></View>
+          <View style={{padding: 4, backgroundColor: "#E4E6EB", marginLeft: 8}}><Text style={[styles.simpleText, {color: "#19AD79", fontSize: 18}]}>$ {formatNumberWithDots(order.fiatAmount/order.amount)} ARS</Text></View>
         </View>
 
         {/* <View style={{height:40, width: "100%", flexDirection: "row", marginBottom: 24}}>
@@ -253,13 +251,13 @@ export default function OrderDetails({route, navigation}) {
             <Text style={{position: "absolute", right: "5%", bottom: "35%", fontSize: 20}}>{type === "crypto" ? order.tokenCode : "ARS"}</Text>
           </View> */}
           <View style={{marginBottom: 24, flexDirection: "row", justifyContent: "space-between", }}>
-            <Text style={styles.simpleText}>vas a {(order.type == "Vender" && type == "crypto" || order.type == "Comprar" && type == "fiat") ? "recibir" : "pagar"}</Text>
-            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{order.amount + " " + order.tokenCode}</Text>
+            <Text style={styles.simpleText}>vas a {order.type == "BUY" ? "entregar" : "recibir" }</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{formatNumberWithDots(order.amount) + " " + order.tokenCode}</Text>
           </View>
 
           <View style={{marginBottom: 24, flexDirection: "row", justifyContent: "space-between", }}>
-            <Text style={styles.simpleText}>vas a {order.type == "SELL" ? "recibir" : "pagar"}</Text>
-            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{type == "crypto" ? ("$" + formatNumberWithDots(fiatTotal) + " ARS") : (cryptoTotal + " " +order.tokenCode)}</Text>
+            <Text style={styles.simpleText}>vas a {order.type == "BUY" ? "recibir" : "pagar"}</Text>
+            <Text style={[styles.simpleText, {color: "#3A3F42", fontSize: 21}]}>{("$" + formatNumberWithDots(order.fiatAmount) + " ARS")}</Text>
           </View>
 
           <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>

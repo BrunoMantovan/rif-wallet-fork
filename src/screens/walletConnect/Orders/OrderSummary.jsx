@@ -89,12 +89,13 @@ export default function OrderSummary({route, navigation}) {
       const newOrder = {
         type: order.order_type,
         description: "",
-        amount: order.total,
+        amount: order.total.toString(),
         tokenCode: order.crypto,    
-        fiatAmount: order.price * order.total,
+        fiatAmount: (order.price * order.total).toString(),
         status: "PENDING",
         fiatCode: "ARS",
-        ...(order.payment_method !== undefined && { payment_methods: order.payment_method }),
+        walletAddress: order.order_type == "BUY" ? address : undefined,
+        ...(order.payment_method !== undefined && { paymentMethods: [order.payment_method] }),
         creatorId: userReponse.id
       }
       console.log("newOrder", newOrder);
