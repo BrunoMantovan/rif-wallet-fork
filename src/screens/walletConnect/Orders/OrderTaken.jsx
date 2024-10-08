@@ -27,7 +27,7 @@ export default function OrderTaken({route, navigation}) {
       const response = await client.getOrderById(takeOrderRequest.orderId);
       setOrder(response.orders[0]);
       setLoading(false)
-      console.log(order.status);
+      console.log(response.orders[0].status);
     }
     catch(e){
       console.log(e)
@@ -61,7 +61,7 @@ export default function OrderTaken({route, navigation}) {
   }
 
   return (
-    loading ? <LoadingScreen/> : order.status == ("RELEASED" || "COMPLETED_BY_ADMIN") ? (
+    loading ? <LoadingScreen/> : order.status == "COMPLETED_BY_ADMIN" || order.status == "RELEASED" ? (
       <View style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
         <View style={{flex: 5, justifyContent: "center", alignItems: "center"}}>
           <AppButton
@@ -139,7 +139,7 @@ export default function OrderTaken({route, navigation}) {
             </View>
           ) :  (order.status == "ACTIVE" && order.type == "SELL") ? (
             <View>
-              <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
+              {/* <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
               <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5", marginVertical: 14, fontWeight: "400"}]}>
                 Utiliza los siguientes datos para realizar la transferencia bancaria desde tu banco o billetera virtual</Text>
 
@@ -158,9 +158,10 @@ export default function OrderTaken({route, navigation}) {
               <View style={{flexDirection: "row", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Alias</Text> 
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_methods.alias}</Text>
-              </View>
-              <View style={{alignContent: "flex-end"}}>
-                <ButtonCustom text="Continuar" type={"green"} onPress={()=>fiatSent()} />          
+              </View> */}
+              <View style={{flexDirection: "column",alignContent: "flex-end"}}>
+                <Text style={[styles.mainText, {fontSize: 18, letterSpacing:0.5, color: "#5B6369", textAlign: "center"}]}>Una vez realizada la transferencia de los fondos a haz click en el boton de abajo</Text>
+                <ButtonCustom text="He realizado el pago" type={"green"} onPress={()=>fiatSent()} />          
               </View>
             </View>
           ) : (order.status == "FIAT_SENT" && order.type == "SELL") ? (

@@ -118,7 +118,7 @@ export default function MyOrders() {
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={order.id} username={order.id} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type == "SELL" ? "Vender" : "Comprar"} onPressDelete={() => handleDelete(order.id)} onPress={() => navigation.navigate('OrderTaken', { takeOrderRequest: { orderId: order.id } })} />
+          <AdCard key={order.id} username={order.id} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type == "SELL" ? "Vender" : "Comprar"} onPressDelete={() => handleDelete(order.id)} onPress={() => navigation.navigate('OrderTaken', { takeOrderRequest: { orderId: order.id } })} status={order.status} />
         ))}
         
       </ScrollView> : 

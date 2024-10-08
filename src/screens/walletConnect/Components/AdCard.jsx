@@ -27,14 +27,15 @@ export default function AdCard(props) {
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
             {/* <Text style={styles.user}>{props.username}</Text> */}
             <Text style={styles.price}>${props.price.toLocaleString('es-AR', numberFormatOptions)} <Text style={{fontSize: 18}}>ARS</Text></Text>
-            <TouchableOpacity onPress={props.onPressDelete} style={{alignItems: "center", justifyContent: "center", display: props.display}}>
+            {props.status == "PENDING" ? <TouchableOpacity onPress={props.onPressDelete} style={{alignItems: "center", justifyContent: "center", display: props.display}}>
                 <Text style={{fontWeight:"600"}}>Eliminar</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> : null}
+            
         </View>
         
         <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
             <View>
-                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.order_type == "BUY" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.order_type == "Comprar" ? props.crypto : "ARS"}</Text></Text>
+                <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Límite</Text> {props.order_type == "Comprar" ? formatNumberWithDots(props.total) : "$" + formatNumberWithDots(props.total * props.price)} <Text style={styles.user}>{props.order_type == "Comprar" ? props.crypto : "ARS"}</Text></Text>
                 <Text style={styles.limitsNum}><Text style={styles.limitsTxt}>Disponible</Text> {props.total + " " + props.crypto}</Text>
                 <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                     <View style={styles.payMethods}>
@@ -43,7 +44,7 @@ export default function AdCard(props) {
                 </View>
             </View>
             <View style={styles.buysellbtn}>
-                <Text style={styles.buyselltxt}>{(props.order_type == "SELL" ? "Vender" : "Comprar") + " " + props.crypto}</Text>
+                <Text style={styles.buyselltxt}>{(props.order_type == "Vender" ? "Vender" : "Comprar") + " " + props.crypto}</Text>
             </View>
         </View>
         
