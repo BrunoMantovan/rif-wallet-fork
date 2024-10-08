@@ -21,6 +21,7 @@ export default function BottomSheet(props) {
     const [owner, setOwner] = useState()
     const [infoBool, setInfoBool] = useState(false)
     const array = props.data ? props.data : null
+    const [accountType, setAccountType] = useState('')
 
     const handleNumberChange = (value, input) => {
         if(input == 1){
@@ -34,10 +35,10 @@ export default function BottomSheet(props) {
         }
     };
     useEffect(()=>{
-        if(cbu?.toString().length === 22 && alias && reference && owner){
+        if(cbu?.toString().length === 22 && alias && reference && owner && accountType){
             setInfoBool(true)
         }
-    }, [cbu, alias, reference, owner])
+    }, [cbu, alias, reference, owner, accountType])
     
     return (
         <Animated.View style={[styles.bottomSheetContainer, props.maxHeight ? {maxHeight: props.maxHeight} : {}]} entering={SlideInDown.springify().damping(17)} exiting={SlideOutDown}>
@@ -46,17 +47,24 @@ export default function BottomSheet(props) {
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                     {props.title ? <Text style={styles.title}>{props.title}</Text> : null}
                     {array.map((data, index) => (
-                        <Pressable key={index} style={styles.pressable} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}} 
+                        <Pressable  key={index} style={styles.pressable} android_ripple={{borderless: false, foreground: true, color: sharedColors.balightblue1}} 
                         onPress={() => props.onSelect(data.text ? data.text : data.alias)}>
                             <View style={{flexDirection: "row"}}>
                                 {data.image && <Image source={data.image} style={styles.image}/>}
-                                <Text style={styles.subtitle}>{data.text ? data.text : `${data.banco} (${data.alias})`}</Text>
+                                <Text style={styles.subtitle}>{data.text ? data.text : `${data.entity} (${data.alias})`}</Text>
                             </View>
-                            <FontAwesome5Icon
+                            {data.alias ? <Pressable onPress={() => props.onEliminate(data.alias)}>
+                                <FontAwesome5Icon
+                                name={'trash-alt'}
+                                size={24}
+                                color={sharedColors.dangerLight}
+                                />
+                            </Pressable> : <FontAwesome5Icon
                                 name={'chevron-right'}
                                 size={24}
                                 color={sharedColors.bablue}
-                            />
+                                />}
+                            
                         </Pressable>
                     ))}
                 </ScrollView> : props.data === 1 ?
@@ -67,6 +75,24 @@ export default function BottomSheet(props) {
                             <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#464D51" }]}>
                                 Ingrese los datos de la cuenta donde desea recibir el dinero
                             </Text>
+                            <View style={styles.radioContainer}>
+                                <Pressable onPress={() => setAccountType('FINTECH')} style={styles.radioButton}>
+                                    <FontAwesome5Icon 
+                                        name={accountType === 'FINTECH' ? 'dot-circle' : 'circle'} 
+                                        size={20} 
+                                        color={accountType === 'FINTECH' ? sharedColors.bablue : '#ccc'}
+                                    />
+                                    <Text style={styles.radioLabel}>Fintech</Text>
+                                </Pressable>
+                                <Pressable onPress={() => setAccountType('BANK')} style={styles.radioButton}>
+                                    <FontAwesome5Icon 
+                                        name={accountType === 'BANK' ? 'dot-circle' : 'circle'} 
+                                        size={20} 
+                                        color={accountType === 'BANK' ? sharedColors.bablue : '#ccc'}
+                                    />
+                                    <Text style={styles.radioLabel}>Banco</Text>
+                                </Pressable>
+                            </View>
                             <InputText value={owner} setValue={(value) => handleNumberChange(value, 4)} placeholder="Titular" />
                             <InputText value={reference} setValue={(value) => handleNumberChange(value, 3)} placeholder="Banco/Billetera virtual" />
                             <InputText value={cbu} setValue={(value) => handleNumberChange(value, 1)} placeholder="CBU" keyboard="numeric" maxLength={22}/>
@@ -74,7 +100,7 @@ export default function BottomSheet(props) {
                         </View>
                         <View style={{flexDirection:"row", justifyContent: "space-between"}}>
                             <ButtonCustom text="Cancelar" type="tertiary" borderColor="#8C9094" width="49%" onPress={props.onCancel}/>
-                            <ButtonCustom text="Confirmar" type={infoBool ? "green" : "disabled"} width="49%" onPress={()=>props.onConfirm(cbu, alias, reference, owner)}/>    
+                            <ButtonCustom text="Confirmar" type={infoBool ? "green" : "disabled"} width="49%" onPress={()=>props.onConfirm(cbu, alias, reference, owner, accountType)}/>    
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView> :
@@ -93,10 +119,10 @@ export default function BottomSheet(props) {
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-between",}}>
                         <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Método de pago</Text>
-                        <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.payment_method}</Text>
+                        <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>Transferencia bancaria</Text>
                     </View>
                     <View style={{flexDirection: "row", justifyContent: "space-between",}}>
-                        <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>dirección</Text>
+                        <Text style={[styles.bankTxt, { letterSpacing: 0.5, color: "#B0B3B5", fontSize: 14 }]}>Billetera</Text>
                         <Text style={[styles.bankTxt, {color: "#3A3F42" }]}>{props.address}</Text>
                     </View>
                         <ButtonCustom text="Confirmar" type={"green"} width="100%" onPress={()=>props.onClick()}/>
@@ -126,6 +152,20 @@ const styles = StyleSheet.create({
         marginVertical: 16,
         borderRadius: 100,
     },
+    radioContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginVertical: 10,
+    },
+    radioButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    radioLabel: {
+        marginLeft: 8,
+        fontSize: 16,
+        color: "#464D51",
+    },
     title: {
         fontSize: 16,
         fontFamily: "BalooTammudu",
@@ -148,9 +188,9 @@ const styles = StyleSheet.create({
         marginTop: 24,
     },
     subtitle: {
-        color: sharedColors.inputText,
+        color: sharedColors.bablue,
         letterSpacing: 0.25,
-        fontSize: 14,
+        fontSize: 18,
         fontFamily: "Roboto-Medium",
         fontWeight: "400",
         textAlign: "center",

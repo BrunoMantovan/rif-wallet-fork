@@ -24,26 +24,17 @@ import { toChecksumAddress,isValidChecksumAddress  } from "@rsksmart/rsk-utils";
 import AddTokenButton from "./Dispatch";
 
 import { keccak256 } from "ethers/lib/utils";
-import { BolsilloArgentoAPIClient } from "src/baApi";
+import { P2PMarketplaceAPIClient} from "src/baApi";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
   const navigation = useNavigation()
-  const { setHideTab } = useMarket();
-  const username = "usuario 987"
+  const { setHideTab, username } = useMarket();
   const [mnemonic, setMnemonic] = useState("")
 
-  const orderId = "939d2fb8-7dfd-47af-8803-961a01dcd409"
-  const buyerAddress = "0x2501007dfca40d605c620ed92a6161feb5a6e18f"
-  const buyerHash = "0x86ca218517b3c1e75848981aa4699fce5290b48131d8706f1a2ae390a4352f9b"
-  const sellerHash = "0x8e87fb92780cb765b7944a6352448ad5a0a22f348407782101dd69a426b8d50e"
-  const amount = "0.000001"
-  const fee = "0.00002"
-  const [error, setError] = useState('');
-  const [txHash, setTxHash] = useState('');
   const { wallet, walletIsDeployed } = useWalletState()
   const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
-  const client = new BolsilloArgentoAPIClient(BASE_URL);
+  const client = new P2PMarketplaceAPIClient(BASE_URL);
   const [status, setStatus] = useState(["PENDING"]);
   const [loading, setLoading] = useState(false);
 
@@ -56,7 +47,7 @@ export default function MyOrders() {
         console.log(smartWalletAddress);
         
         const user = {
-          username: "0x846C25707b92aB0652392c14F02961B27f825E66"
+          username: username
         }
         console.log("user", user);
         
@@ -64,7 +55,7 @@ export default function MyOrders() {
         console.log(response);
         
 
-        const ordersFetch = await client.getOrders({ status: [status], user: "e71e09b5-e72e-4eea-9b9b-0849266a4cdc"});  
+        const ordersFetch = await client.getOrders({ status: [status], user:response.id});  
         console.log("orders", ordersFetch);
         
         setOrders(ordersFetch.orders)
@@ -127,7 +118,7 @@ export default function MyOrders() {
       <ScrollView style={styles.scrollView} refreshControl={<RefreshControl/>} >
         {orders.sort((a, b) => a.price - b.price)
         .map((order, index) => (
-          <AdCard key={order.id} username={order.id} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type == "SELL" ? "Vender" : "Comprar"} onPressDelete={() => handleDelete(order.id)}/>
+          <AdCard key={order.id} username={order.id} price={order.fiatAmount/order.amount} total={order.amount} crypto={order.tokenCode} order_type={order.type == "SELL" ? "Vender" : "Comprar"} onPressDelete={() => handleDelete(order.id)} onPress={() => navigation.navigate('OrderTaken', { takeOrderRequest: { orderId: order.id } })} />
         ))}
         
       </ScrollView> : 

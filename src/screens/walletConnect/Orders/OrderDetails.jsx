@@ -18,14 +18,14 @@ import { selectProfile, selectUsername } from 'src/redux/slices/profileSlice'
 import { WalletContext } from 'src/shared/wallet'
 import { shortAddress } from 'src/lib/utils'
 import firestore from '@react-native-firebase/firestore';
-import { BolsilloArgentoAPIClient } from 'src/baApi'
+import { P2PMarketplaceAPIClient } from 'src/baApi'
 
 export default function OrderDetails({route, navigation}) {
 
   const {order} = route.params 
   parseFloat(order.fiatAmount, order.amount)
   const [cantidad, setCantidad] = useState()
-  const [payment_method, setpayment_method] = useState("Método de pago")
+  const [payment_method, setpayment_method] = useState([])
   const [type, setType] = useState("crypto")
   const [ammount, setAmmount] = useState(null)
   const [fiatTotal, setFiatTotal] = useState()
@@ -34,11 +34,11 @@ export default function OrderDetails({route, navigation}) {
   const [maxHeight, setMaxHeight] = useState(null)
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
   const [data, setData] = useState(null)
-  const { addPayment, payments, setOrderId} = useMarket();
+  const { addPayment, payments, setOrderId, username, removePayment} = useMarket();
   const [specs, setSpecs] = useState(false)
   
   const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
-  const client = new BolsilloArgentoAPIClient(BASE_URL);
+  const client = new P2PMarketplaceAPIClient(BASE_URL);
   console.log(order);
 
   const numberFormatOptions = {
@@ -55,7 +55,10 @@ export default function OrderDetails({route, navigation}) {
     handleNumberChange()
   }, [])
 
-  
+  useEffect(() => {
+    setpayment_method(payments)
+    console.log(payment_method.length)
+  }, [payments])
 
   function selectType(value){
     setType(value)
@@ -79,18 +82,23 @@ export default function OrderDetails({route, navigation}) {
     setOpen(!open)
   }
 
-  function handleConfirm(cbu, alias, ref, owner){
+  function handleConfirm(cbu, alias, ref, owner, accountType){
     const payment = {
-      cbu: cbu,
+      type: accountType,
       alias: alias,
-      titular: owner,
-      banco: ref,
+      cbu: cbu,
+      fullName: owner,
+      entity: ref,
     }
     addPayment(payment); 
     toggleOpen();
   }
+  function handleEliminate(alias){
+    removePayment(alias)
+    toggleOpen()
+  }
   function handleSlecet(value){
-    setpayment_method(value)
+    setpayment_method(payments)
     toggleOpen()
   }
   
@@ -102,14 +110,15 @@ export default function OrderDetails({route, navigation}) {
       })
       const orderConfirmed = {
         address: address,
-        payment_method: payments.find((e => e.alias == payment_method)),
+        payment_methods: payment_method,
         cryptoTotal: cryptoTotal,
         fiatTotal: fiatTotal,
       }
 
       const user = {
-        username: "pablo"
+        username: username
       }
+
       const userReponse = await client.createUser(user);
       let takeOrderRequest 
       console.log("order", order)
@@ -119,7 +128,8 @@ export default function OrderDetails({route, navigation}) {
           orderId: order.id, //string
           userId: userReponse.id, //string
           amount: order.fiatAmount, //string
-          username: userReponse.username //string
+          username: userReponse.username, //string
+          paymentMethod: payment_method
         };
       }else{
         takeOrderRequest = {
@@ -138,7 +148,7 @@ export default function OrderDetails({route, navigation}) {
         'x-blockchain': 'rsk_testnet'
       });
       console.log('Order Taken:', response);
-      navigation.replace('OrderTaken', {orderConfirmed})
+      navigation.replace('OrderTaken', {takeOrderRequest})
       console.log('Order Updated:', response);
     
     } catch(e){
@@ -154,8 +164,7 @@ export default function OrderDetails({route, navigation}) {
   
   
   
-  const username = useAppSelector(selectUsername);
-    
+  //const username = useAppSelector(selectUsername);
   const { token, networkId } = route.params;
   const [selectedAsset, setSelectedAsset] = useState()
   
@@ -263,7 +272,7 @@ export default function OrderDetails({route, navigation}) {
           <Text style={[styles.simpleText, {fontSize: 20}]}>Seleccionar método de pago</Text>
 
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
-            <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
+            <Dropdown onPress={() => toggleOpen(700)} placeholder={"Métodos de pago"} width={"85%"} right={true}/>
             <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
               <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
             </TouchableOpacity>
@@ -282,17 +291,17 @@ export default function OrderDetails({route, navigation}) {
       </View>
       
       <View style={{flex:1, justifyContent: "flex-end", paddingHorizontal: 16}}>
-        <ButtonCustom text="Continuar" type={(payment_method != "Método de pago") ? "green" : "disabled"} 
-        onPress={(ammount>0 && payment_method != "Método de pago")? () => toggleOpen(null, 2) : null} 
-        activeOpacity={payment_method != "Método de pago" ? false : 1}/>
+        <ButtonCustom text="Continuar" type={(payment_method.length >0 ) ? "green" : "disabled"} 
+        onPress={(ammount>0 && payment_method.length > 0)? () => toggleOpen(null, 2) : null} 
+        activeOpacity={payment_method.length <= 0 ? false : 1}/>
       </View>
       {open && (
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
-          <BottomSheet data={data} maxHeight={maxHeight} title="Elegí tu método de pago" 
+          <BottomSheet data={data} maxHeight={maxHeight} title="Tus métodos de pago" 
           onSelect={handleSlecet} onCancel={() => toggleOpen(null)} onConfirm={handleConfirm} price={formatNumberWithDots(order.fiatAmount/order.amount)}
           cryptoTotal={order.amount} fiatTotal={formatNumberWithDots(order.fiatAmount)} payment_method={payment_method} type={order.type == "Vender" ? "recibir" : "pagar"}
-          crypto={order.tokenCode} address={shortAddress(address, 10)} onClick={() => handleClick()}/>
+          crypto={order.tokenCode} address={shortAddress(address, 10)} onClick={() => handleClick()} onEliminate={handleEliminate}/>
         </>
       )}
     </GestureHandlerRootView>

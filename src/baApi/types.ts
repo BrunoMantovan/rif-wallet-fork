@@ -16,10 +16,10 @@ export type OrderStatus =
     'EXPIRED' |
     'COMPLETED_BY_ADMIN';
 
-
-export interface PaymentMethod {
-    type: string;
-    username: string;
+export interface TransactionStatusResponse {
+    hash: string;
+    block_number: number | null;
+    status: 'PENDING' | 'SUCCESSFULL' | 'FAILED';
 }
 
 export interface Order {
@@ -32,7 +32,9 @@ export interface Order {
     minFiatAmount?: string;
     creatorId?: string;
     sellerId?: string;
+    sellerUsername?: string;
     buyerId?: string;
+    buyerUsername?: string;
     buyerAddress?: string;
     status?: OrderStatus;
     tokenCode?: string;
@@ -49,7 +51,10 @@ export interface OrderResponse {
 
 export interface PaymentMethod {
     type: string;
-    username: string;
+    alias?: string;
+    cbu?: string;
+    fullName?: string;
+    entity?: string;
 }
 
 export interface CreateOrderRequest {
@@ -66,6 +71,7 @@ export interface CreateOrderRequest {
     priceMargin?: number;
     walletAddress?: string;
     creatorId?: string;
+    creatorUsername?: string;
 }
 
 export interface GetOrdersParams {
@@ -82,6 +88,7 @@ export interface TakeSellOrderRequest {
     userId: string;
     buyerAddress?: string;
     fiatAmount?: string;
+    username?: string;
 }
 
 export interface TakeBuyOrderRequest {
@@ -89,6 +96,8 @@ export interface TakeBuyOrderRequest {
     orderId: string;
     userId: string;
     amount: string;
+    username?: string;
+    paymentMethod?: PaymentMethod[];
 }
 
 export interface CreateUserRequest {
@@ -98,6 +107,11 @@ export interface CreateUserRequest {
 export interface UpdateOrderRequest {
     status: string;
     orderId: string;
+    sellerId?: string;
+    takenAt?: string;
+    isLocked?: boolean;
+    txLock?: string;
+    txRelease?: string;
 }
 
 export interface OrderLockedEvent {

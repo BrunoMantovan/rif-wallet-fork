@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { CreateOrderRequest, CreateUserRequest, GetOrdersParams, Order, OrderLockedEvent, OrderResponse, OrderStatus, ReleaseOrderEvent as OrderReleasedEvent, TakeOrderRequest, TestEventParams, UpdateOrderRequest } from './types';
+import { CreateOrderRequest, CreateUserRequest, GetOrdersParams, Order, OrderLockedEvent, OrderResponse, ReleaseOrderEvent as OrderReleasedEvent, TakeOrderRequest, TestEventParams, UpdateOrderRequest, TransactionStatusResponse } from './types';
 import { isPlainObject, camelCase, snakeCase, transform } from 'lodash';
 
 class P2PMarketplaceAPIClient {
@@ -91,18 +91,6 @@ class P2PMarketplaceAPIClient {
         return this.post<OrderResponse>(url, order, headers);
     }
 
-    public async deleteOrder(orderId: string, headers?: Record<string, string>): Promise<void> {
-        const url = `/api/orders/${orderId}`;
-        const config = this.createConfig(headers);
-        try {
-            await this.client.delete<void>(url, config);
-            console.log(`Order ${orderId} deleted successfully.`);
-        } catch (error) {
-            console.error(`DELETE request to ${url} failed:`, error);
-            throw error;
-        }
-    }
-    
     public async takeOrder(order: TakeOrderRequest, headers?: Record<string, string>): Promise<OrderResponse> {
         const url = '/api/orders/take';
         return this.post<OrderResponse>(url, order, headers);
@@ -167,6 +155,26 @@ class P2PMarketplaceAPIClient {
             console.error("Error releasing funds:", error);
             throw new Error("Failed to release funds");
         }
+    }
+
+    public async releaseFunds(order: Order, testParams?: TestEventParams, headers?: Record<string, string>): Promise<string> {
+        const body = {
+            orderId: order.id ?? "",
+            isAdmin: true
+        };
+
+        const url = "api/orders/release"
+        try {
+            return await this.post<string>(url, body, headers);
+        } catch (error) {
+            console.error("Error releasing funds:", error);
+            throw new Error("Failed to release funds");
+        }
+    }
+
+    public async getTransactionStatus(txHash: string, headers?: Record<string, string>): Promise<TransactionStatusResponse> {
+        const url = `/api/blockchain/transactions/${txHash}`;
+        return this.get<TransactionStatusResponse>(url, headers);
     }
 
 }

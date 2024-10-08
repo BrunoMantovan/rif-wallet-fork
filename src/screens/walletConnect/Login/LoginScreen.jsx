@@ -7,12 +7,15 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
 
-  const { setLogged } = useMarket();
+  const { setLogged, setUsername } = useMarket();
 
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(null)
   const [password, setPassword] = useState("")
   const navigation = useNavigation()
-  const onSignIn = () => { setLogged(true)}
+  const onSignIn = () => { if(email !== null){
+    setUsername(email)
+    setLogged(true)} 
+  }
   const onSignUp = () => {
     navigation.navigate('signUp')
   }

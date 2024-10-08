@@ -29,7 +29,7 @@ export default function CreateOrder() {
     {text: "DoC", image: require('../../../images/slides/doc.png')},
     {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
 ]
-  const [payment_method, setpayment_method] = useState("Método de pago")
+  const [payment_method, setpayment_method] = useState([])
   const [data, setData] = useState(null)
   const [open, setOpen] = useState(null)
   const [step1, setStep1] = useState(false)
@@ -37,11 +37,9 @@ export default function CreateOrder() {
   const { setHideTab } = useMarket()
   const navigation = useNavigation()
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-  const { addPayment, payments} = useMarket();
+  const { addPayment, payments, removePayment} = useMarket();
 
-  function hola(){
-    const num1 = parseFloat(num);
-  }
+
 
   const handleNumberChange = (inputValue, input) => {
     if(input == 1){
@@ -59,6 +57,11 @@ export default function CreateOrder() {
     }
   };
 
+  useEffect(()=>{
+    console.log("payments ", payments);
+    setpayment_method(payments)
+  }, [payments])
+
   useEffect(() => {
     if(type == "BUY"){
       if (type && crypto && price && total ) {
@@ -67,58 +70,28 @@ export default function CreateOrder() {
         setSpecs(false);
       }
     }else if(type === "SELL"){
-      if (type && crypto && price && total && payment_method != "Método de pago" ) {
+      if (type && crypto && price && total && payment_method.length > 0) {
         setSpecs(true);
       } else {
         setSpecs(false);
       }
     }
-   /*  if(type == "Comprar"){
-      if(total && minAmm && maxAmm && payment_method != "Método de pago" && (total >= maxAmm) && (maxAmm >= minAmm)){
-        setSpecs2(true);
-      } else {setSpecs2(false)}
-    }else if(type === "Vender"){
-      if (total && minAmm && maxAmm && (total >= maxAmm) && (maxAmm >= minAmm)) {
-        setSpecs2(true)
-      } else {setSpecs2(false)}
-    } */
 
   }, [type, crypto, price, total, payment_method]);
 
-  /* function handleSubmit(){
+  function onPressing(){
     const order = {
       price: price,
       crypto: crypto,
       username: username,
       order_type: type,
+      total: total,
+      order_type_for_self: type,
+      payment_methods: type === "SELL" ? payment_method : []
     }
-
-    firestore()
-    .collection('Users')
-    .doc(username)
-    .update({
-      orders: firestore.FieldValue.arrayUnion(order) // Add the new order to the orders array
-    })
-
-    const collection = type == "comprar" ? "buy" + crypto : "sell" + crypto
-    firestore()
-    .collection(collection)
-    .add(order);
-  } */
-
-  function onPressing(){
-      const order = {
-        price: price,
-        crypto: crypto,
-        username: username,
-        order_type: type,
-        total: total,
-        order_type_for_self: type,
-        payment_method: payments.find((e => e.alias == payment_method))
-      }
       
-      navigation.navigate('Resumen', { order: order })
-      setHideTab(true)
+    navigation.navigate('Resumen', { order: order })
+    setHideTab(true)
   }
 
   function selectType(value){
@@ -132,7 +105,7 @@ export default function CreateOrder() {
       setCryptoPlaceholder(value);
       setOpen(null);
     }else{
-      setpayment_method(value)
+      setpayment_method(payments)
       toggleOpen()
     }
   }
@@ -141,16 +114,21 @@ export default function CreateOrder() {
     maxHeight ? setMaxHeight(maxHeight) : setMaxHeight(null)
     setOpen(!open)
   }
-  function handleConfirm(cbu, alias, ref, owner){
+  function handleConfirm(cbu, alias, ref, owner, accountType){
     const payment = {
-      cbu: cbu,
+      type: accountType,
       alias: alias,
-      text: ref + "("+ alias +")",
-      titular: owner,
-      bacno: ref,
+      cbu: cbu,
+      fullName: owner,
+      entity: ref,
     }
     addPayment(payment); 
     toggleOpen();
+  }
+
+  function handleEliminate(alias){
+    removePayment(alias)
+    toggleOpen()
   }
 
   /* function handleNotification(){
@@ -201,7 +179,7 @@ export default function CreateOrder() {
         </View>
         {type === "SELL" ? (
           <View style={{flexDirection:"row", alignItems: "center", justifyContent: "space-between", marginBottom: 12}}>
-          <Dropdown onPress={() => toggleOpen(700)} placeholder={payment_method} width={"85%"} right={true}/>
+          <Dropdown onPress={() => toggleOpen(700)} placeholder={"Métodos de pago"} width={"85%"} right={true}/>
           <TouchableOpacity style={styles.addPayment} onPress={() => toggleOpen(null, 1)}>
             <Text style={{fontSize:35, fontWeight: "700", color: sharedColors.bablue}}>+</Text>
           </TouchableOpacity>
@@ -214,7 +192,7 @@ export default function CreateOrder() {
       {open && (
         <>
           <AnimatedPressable style={[styles.backdrop, {zIndex: 3}]} entering={FadeIn} exiting={FadeOut} onPress={() => toggleOpen(null)} />
-          <BottomSheet data={data} title={'Elegir moneda'} onSelect={handleSelect} maxHeight={maxHeight} onConfirm={handleConfirm}/>
+          <BottomSheet data={data} title={'Tus métodos de pago'} onSelect={handleSelect} maxHeight={maxHeight} onConfirm={handleConfirm} onEliminate={handleEliminate}/>
         </>
       )}
     </GestureHandlerRootView>)

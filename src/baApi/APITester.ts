@@ -1,10 +1,10 @@
 import axios from 'axios';
-import BolsilloArgentoAPIClient from './BolsilloArgentoAPIClient';
+import P2PMarketplaceAPIClient from './P2PMarketplaceAPIClient';
 import { CreateOrderRequest, CreateUserRequest, OrderStatus, TakeSellOrderRequest, UpdateOrderRequest } from './types';
 
 const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com'; // Replace with your actual base URL
 // const BASE_URL = 'http://localhost:8080'; // Replace with your actual base URL
-const client = new BolsilloArgentoAPIClient(BASE_URL);
+const client = new P2PMarketplaceAPIClient(BASE_URL);
 
 async function runTest(testFunction: () => Promise<void>) {
     try {
@@ -54,7 +54,7 @@ async function testCreateOrder() {
         paymentMethods: [
             {
                 type: 'MERCADO_PAGO',
-                username: 'blas'
+                alias: 'blas'
             }
         ],
         creatorId: '7b74abef-f1b2-4431-aa95-ce565893d47c'

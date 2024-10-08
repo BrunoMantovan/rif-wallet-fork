@@ -8,7 +8,7 @@ import { useNavigation} from '@react-navigation/native';
 import { useMarket } from '../MarketContext';
 import { sharedColors } from 'src/shared/constants';
 import { LoadingScreen } from 'src/components/loading/LoadingScreen';
-import { BolsilloArgentoAPIClient } from 'src/baApi';
+import { P2PMarketplaceAPIClient} from 'src/baApi';
 
 /* 
 interface Order {
@@ -20,18 +20,23 @@ interface Order {
   export default function OrderSearch({route}) {
     
     const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
-    const client = new BolsilloArgentoAPIClient(BASE_URL);
+    const client = new P2PMarketplaceAPIClient(BASE_URL);
 
     const [orders, setOrders] = useState/* <Order[]> */(null)
     const navigation = useNavigation()
-    const { setHideTab } = useMarket();
+    const { setHideTab, username } = useMarket();
     const {search} = route.params
     
     useEffect(() =>{
         async function getOrders() {
             const response = await client.getOrders({ status: ['PENDING'] });
             const type = search.type == "Vender" ? "BUY" : "SELL"
-            setOrders(response.orders);
+            const userResponse = await client.createUser({username: username});
+            const filteredOrders = response.orders.filter(order => 
+                order.type === type && order.userId !== userResponse.id
+            );
+            setOrders(filteredOrders);
+            console.log(filteredOrders);
         }
         getOrders()
     }, [search])

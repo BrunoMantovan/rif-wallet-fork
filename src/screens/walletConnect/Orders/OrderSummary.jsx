@@ -11,12 +11,12 @@ import { selectProfile } from 'src/redux/slices/profileSlice';
 import { selectChainId } from 'src/redux/slices/settingsSlice';
 import { WalletContext } from 'src/shared/wallet';
 import { shortAddress } from 'src/lib/utils';
-import { BolsilloArgentoAPIClient } from 'src/baApi';
+import { P2PMarketplaceAPIClient} from 'src/baApi';
+import { useMarket } from '../MarketContext';
 
 export default function OrderSummary({route, navigation}) {
 
   const {order} = route.params
-  const username = "usuario 987"
   const [isAddressLoading, setIsAddressLoading] = useState(true);
   const [address, setAddress] = useState('');
   const { token, networkId } = route.params;
@@ -26,7 +26,8 @@ export default function OrderSummary({route, navigation}) {
   const chainId = useAppSelector(selectChainId);
   const profile = useAppSelector(selectProfile);
   const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
-  const client = new BolsilloArgentoAPIClient(BASE_URL);
+  const client = new P2PMarketplaceAPIClient(BASE_URL);
+  const { username } = useMarket();
 
   const rskAddress = useMemo(() => {
     if (wallet && chainId) {
@@ -81,7 +82,7 @@ export default function OrderSummary({route, navigation}) {
   async function handleSubmit(){
     try {
       const user = {
-        username: address
+        username: username
       }
       const userReponse = await client.createUser(user);
       console.log("userReponse", userReponse);
@@ -95,8 +96,9 @@ export default function OrderSummary({route, navigation}) {
         status: "PENDING",
         fiatCode: "ARS",
         walletAddress: order.order_type == "BUY" ? address : undefined,
-        ...(order.payment_method !== undefined && { paymentMethods: [order.payment_method] }),
-        creatorId: userReponse.id
+        paymentMethods: order.payment_methods,
+        creatorId: userReponse.id,
+        creatorUsername: username
       }
       console.log("newOrder", newOrder);
     
@@ -120,7 +122,7 @@ export default function OrderSummary({route, navigation}) {
       <Text style={styles.text}>Moneda de {order.order_type_for_self == "Comprar" ? "compra" : "cobro"}: <Text style={styles.innetText}>ARS</Text></Text>
       <Text style={styles.text}>Precio unitario: <Text style={styles.innetText}>${order.price}</Text></Text>
       <Text style={styles.text}>Cantidad total: <Text style={styles.innetText}>{order.total} {order.crypto}</Text></Text>
-      {order.order_type == "Comprar" ? <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.payment_method.text}</Text></Text> : null}
+      {order.order_type == "Comprar" ? <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.payment_method.entity + " (" + order.payment_method.alias + ")"}</Text></Text> : null}
       <Text style={styles.text}>Billetera: <Text style={styles.innetText}>{shortAddress(address, 10)}</Text></Text>
       <View style={{flex: 1, justifyContent: "flex-end"}}><ButtonCustom onPress={()=> handleSubmit()} text="Publicar" type="green"/></View>
     </View>

@@ -8,19 +8,20 @@ interface Props extends CircleSnailPropTypes {
 
 export const AppSpinner = ({
   size,
-  color = sharedColors.white,
-  thickness = size / 7,
+  color = sharedColors.bagreen,
+  thickness = 20,
   ...props
 }: Props) => {
   return (
     <CircleSnail
-      size={size}
+      size={size + (thickness ? thickness * 2 : 20 * 2)}
       thickness={thickness}
-      strokeCap={'square'}
+      strokeCap={'butt'}
       indeterminate={true}
       color={color}
       direction={'clockwise'}
       {...props}
+      style={{ backgroundColor: 'transparent' }} 
     />
   )
 }
