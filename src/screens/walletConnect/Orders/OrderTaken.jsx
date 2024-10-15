@@ -11,6 +11,7 @@ import { LoadingScreen } from 'src/components/loading/LoadingScreen'
 import ButtonCustom from '../Login/ButtonCustom'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { P2PMarketplaceAPIClient } from 'src/baApi'
+import DropdownList from './DropdownList'
 
 export default function OrderTaken({route, navigation}) {
   const {takeOrderRequest} = route.params
@@ -33,6 +34,17 @@ export default function OrderTaken({route, navigation}) {
       console.log(e)
     }
   }
+
+  const formatNumberWithDots = (number) => {
+    // Convert the number to a string
+    let numString = number.toString();
+    // Split the string into integer and decimal parts
+    const [integerPart, decimalPart] = numString.split('.');
+    // Add commas to the integer part (thousands separator)
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    // Return the formatted number with optional decimal part
+    return decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger;
+};
 
   useEffect(() =>{
     setLoading(true);
@@ -81,7 +93,7 @@ export default function OrderTaken({route, navigation}) {
               color={"#19AD79"}
             />
             <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 8}}>
-              <Text style={[styles.mainText, {fontSize: 30}]}>{order.amount} </Text>
+              <Text style={[styles.mainText, {fontSize: 30}]}>{formatNumberWithDots(order.amount)} </Text>
               <Text style={[styles.mainText, {fontSize: 30}]}>{order.tokenCode}</Text>
             </View>
             <Text style={[styles.mainText, {fontSize: 18, letterSpacing: 0.25, marginTop: 8, textAlign: "center"}]}>Tus crypto fueron depositadas en tu cuenta exitosamente</Text>
@@ -93,7 +105,7 @@ export default function OrderTaken({route, navigation}) {
         </View>
       </View>
     ) : (
-      <View style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
+      <ScrollView style={{flex: 1, backgroundColor: sharedColors.mainWhite, paddingHorizontal: "5%"}}>
         <AppButton
           accessibilityLabel={testIDs.newContact}
           onPress={() => navigation.navigate("Market")}
@@ -109,17 +121,17 @@ export default function OrderTaken({route, navigation}) {
         
         <View style={{flex: 1}}>
             <View style={styles.total}>
-              <Text style={styles.mainText}>{order.amount}</Text>
+              <Text style={styles.mainText}>{formatNumberWithDots(order.amount)}</Text>
               <Text style={[styles.mainText, {fontSize: 18, letterSpacing: 0.25}]}>{order.tokenCode}</Text>
             </View>
             <View style={{marginBottom: 8}}>
               <View style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5"}]}>Precio por unidad</Text> 
-                <Text style={[styles.mainText, {fontSize: 20}]}>${order.fiatAmount} ARS</Text>
+                <Text style={[styles.mainText, {fontSize: 20}]}>${formatNumberWithDots(order.fiatAmount/order.amount)} ARS</Text>
               </View>
               <View style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5"}]}>Monto total</Text> 
-                <Text style={[styles.mainText, {fontSize: 20}]}>${order.fiatAmount} ARS</Text>
+                <Text style={[styles.mainText, {fontSize: 20}]}>${formatNumberWithDots(order.fiatAmount)} ARS</Text>
               </View>
               <View style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 8}}>
                 <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5"}]}>Método de pago</Text> 
@@ -138,32 +150,19 @@ export default function OrderTaken({route, navigation}) {
               </View>              
             </View>
           ) :  (order.status == "ACTIVE" && order.type == "SELL") ? (
-            <View>
-              {/* <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
+            <ScrollView>
+              <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
               <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5", marginVertical: 14, fontWeight: "400"}]}>
                 Utiliza los siguientes datos para realizar la transferencia bancaria desde tu banco o billetera virtual</Text>
+              <View>
+                <DropdownList data={order.paymentMethods} />  
 
-              <View style={{flexDirection: "row", marginVertical: 8}}>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Titular</Text>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_methods.fullName}</Text>              
               </View>
-              <View style={{flexDirection: "row", marginVertical: 8}}>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Banco</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_methods.entity}</Text>
-              </View>
-              <View style={{flexDirection: "row", marginVertical: 8}}>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>CBU/CVU</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_methods.cbu}</Text>
-              </View>
-              <View style={{flexDirection: "row", marginVertical: 8}}>
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#5B6369"}]}>Alias</Text> 
-                <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5,  color: sharedColors.inputBorder}]}>   {order.payment_methods.alias}</Text>
-              </View> */}
               <View style={{flexDirection: "column",alignContent: "flex-end"}}>
                 <Text style={[styles.mainText, {fontSize: 18, letterSpacing:0.5, color: "#5B6369", textAlign: "center"}]}>Una vez realizada la transferencia de los fondos a haz click en el boton de abajo</Text>
                 <ButtonCustom text="He realizado el pago" type={"green"} onPress={()=>fiatSent()} />          
               </View>
-            </View>
+            </ScrollView>
           ) : (order.status == "FIAT_SENT" && order.type == "SELL") ? (
             <View style={styles.awaitingPayment}>
               <View>
@@ -174,11 +173,8 @@ export default function OrderTaken({route, navigation}) {
           ) : order.type == "BUY" ? (
             <View><Text>Status is pending</Text></View>
           ) : null}
-        </View>
-
-        
-        
-      </View>
+        </View>        
+      </ScrollView>
     )
   )
 }

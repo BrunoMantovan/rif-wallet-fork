@@ -21,7 +21,7 @@ export const AppSpinner = ({
       color={color}
       direction={'clockwise'}
       {...props}
-      style={{ backgroundColor: 'transparent' }} 
+      style={{ backgroundColor: sharedColors.mainWhite }} 
     />
   )
 }
