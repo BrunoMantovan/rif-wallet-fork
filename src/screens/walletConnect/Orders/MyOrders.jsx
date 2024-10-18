@@ -29,7 +29,7 @@ import { P2PMarketplaceAPIClient} from "src/baApi";
 export default function MyOrders() {
   const [orders, setOrders] = useState([])
   const navigation = useNavigation()
-  const { setHideTab, username } = useMarket();
+  const { setHideTab, userInfo } = useMarket();
   const [mnemonic, setMnemonic] = useState("")
 
   const { wallet, walletIsDeployed } = useWalletState()
@@ -44,18 +44,9 @@ export default function MyOrders() {
       async function testCreateUser() {
         setLoading(true);
         const smartWalletAddress = wallet.smartWalletAddress
-        console.log(smartWalletAddress);
-        
-        const user = {
-          username: username
-        }
-        console.log("user", user);
-        
-        const response = await client.createUser(user);
-        console.log(response);
-        
+        console.log(smartWalletAddress);        
 
-        const ordersFetch = await client.getOrders({ status: [status], user:response.id});  
+        const ordersFetch = await client.getOrders({ status: [status], user:userInfo.id});  
         console.log("orders", ordersFetch);
         
         setOrders(ordersFetch.orders)

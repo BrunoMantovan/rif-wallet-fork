@@ -27,7 +27,7 @@ export default function OrderSummary({route, navigation}) {
   const profile = useAppSelector(selectProfile);
   const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
   const client = new P2PMarketplaceAPIClient(BASE_URL);
-  const { username } = useMarket();
+  const { userInfo } = useMarket();
 
   const rskAddress = useMemo(() => {
     if (wallet && chainId) {
@@ -80,13 +80,7 @@ export default function OrderSummary({route, navigation}) {
   
 
   async function handleSubmit(){
-    try {
-      const user = {
-        username: username
-      }
-      const userReponse = await client.createUser(user);
-      console.log("userReponse", userReponse);
-      
+    try {      
       const newOrder = {
         type: order.order_type,
         description: "",
@@ -97,8 +91,8 @@ export default function OrderSummary({route, navigation}) {
         fiatCode: "ARS",
         walletAddress: order.order_type == "BUY" ? address : undefined,
         paymentMethods: order.payment_methods,
-        creatorId: userReponse.id,
-        creatorUsername: username
+        creatorId: userInfo.id,
+        creatorUsername: userInfo.username
       }
       console.log("newOrder", newOrder);
     

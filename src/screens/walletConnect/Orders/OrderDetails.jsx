@@ -34,7 +34,7 @@ export default function OrderDetails({route, navigation}) {
   const [maxHeight, setMaxHeight] = useState(null)
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
   const [data, setData] = useState(null)
-  const { addPayment, payments, setOrderId, username, removePayment} = useMarket();
+  const { addPayment, payments, setOrderId, userInfo, removePayment} = useMarket();
   const [specs, setSpecs] = useState(false)
   
   const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
@@ -115,30 +115,25 @@ export default function OrderDetails({route, navigation}) {
         fiatTotal: fiatTotal,
       }
 
-      const user = {
-        username: username
-      }
-
-      const userReponse = await client.createUser(user);
       let takeOrderRequest 
       console.log("order", order)
       if(order.type == "BUY"){
         takeOrderRequest = {
           type: order.type, //string
           orderId: order.id, //string
-          userId: userReponse.id, //string
+          userId: userInfo.id, //string
           amount: order.fiatAmount, //string
-          username: userReponse.username, //string
+          username: userInfo.username, //string
           paymentMethod: payment_method
         };
       }else{
         takeOrderRequest = {
           type: order.type, //string
           orderId: order.id, //string
-          userId: userReponse.id, //string 
+          userId: userInfo.id, //string 
           buyerAddress: "0xd97D397BfF4610AA208936A5D42C640604570372", //string
           fiatAmount: order.fiatAmount, //string
-          username: userReponse.username //string
+          username: userInfo.username //string
         };
       }
       console.log("take order request: " ,takeOrderRequest);

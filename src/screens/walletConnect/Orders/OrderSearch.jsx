@@ -24,19 +24,21 @@ interface Order {
 
     const [orders, setOrders] = useState/* <Order[]> */(null)
     const navigation = useNavigation()
-    const { setHideTab, username } = useMarket();
+    const { setHideTab, userInfo } = useMarket();
     const {search} = route.params
     
     useEffect(() =>{
         async function getOrders() {
+            console.log("userID: ", userInfo.id)            
+            
             const response = await client.getOrders({ status: ['PENDING'] });
             const type = search.type == "Vender" ? "BUY" : "SELL"
-            const userResponse = await client.createUser({username: username});
+            console.log("orderType: ", type);
             const filteredOrders = response.orders.filter(order => 
-                order.type === type && order.userId !== userResponse.id
+                order.type === type && order.creatorId !== userInfo.id
             );
             setOrders(filteredOrders);
-            console.log(filteredOrders);
+            console.log("filteredOrders: ", filteredOrders);
         }
         getOrders()
     }, [search])

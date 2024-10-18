@@ -4,16 +4,26 @@ import InputText from './InputText'
 import ButtonCustom from './ButtonCustom'
 import { useMarket } from '../MarketContext';
 import { useNavigation } from '@react-navigation/native';
+import { P2PMarketplaceAPIClient } from 'src/baApi';
 
 export default function LoginScreen() {
 
-  const { setLogged, setUsername } = useMarket();
-
+  const { setLogged, setUserInfo } = useMarket();
+  const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com';
+  const client = new P2PMarketplaceAPIClient(BASE_URL);
   const [email, setEmail] = useState(null)
   const [password, setPassword] = useState("")
   const navigation = useNavigation()
-  const onSignIn = () => { if(email !== null){
-    setUsername(email)
+  const onSignIn = async () => { if(email !== null){
+
+    const user = {
+      username: email
+    }
+    console.log("user", user);
+    
+    const response = await client.createUser(user);
+    console.log(response);
+    setUserInfo(response)
     setLogged(true)} 
   }
   const onSignUp = () => {

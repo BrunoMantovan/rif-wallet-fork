@@ -8,18 +8,22 @@ interface Payment {
   full_name: string;
   entity: string;
 }
+interface UserInfo {
+  id: string;
+  username: string;
+}
 interface MarketContextType {
   logged: boolean;
   orderId: any;
   hideTab: boolean;
   payments: Payment[];
-  username: string;
   setLogged: React.Dispatch<React.SetStateAction<boolean>>;
   setOrderId: React.Dispatch<React.SetStateAction<any>>;
   setHideTab: React.Dispatch<React.SetStateAction<boolean>>;
   addPayment: (payment: Payment) => void;
   removePayment: (cbu: string) => void;
-  setUsername: (name: string) => void;
+  userInfo: UserInfo | null;
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfo | null>>;
 }
 
 const MarketContext = createContext<MarketContextType | undefined>(undefined);
@@ -37,7 +41,7 @@ export const useMarket = () => {
     const [orderId, setOrderId] = useState<any>(null);
     const [hideTab, setHideTab] = useState<boolean>(false)
     const [payments, setPayments] = useState<Payment[]>([]);
-    const [username, setUsername] = useState<string>('');
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const addPayment = (payment: Payment) => {
       setPayments((prevPayments) => [...prevPayments, payment]);
     };
@@ -73,7 +77,7 @@ export const useMarket = () => {
     }, [payments]);
 
     return (
-      <MarketContext.Provider value={{ logged, setLogged, hideTab, setHideTab, payments, addPayment, removePayment, orderId, setOrderId, username,setUsername }}>
+      <MarketContext.Provider value={{ logged, setLogged, hideTab, setHideTab, payments, addPayment, removePayment, orderId, setOrderId, userInfo, setUserInfo }}>
         {children}
       </MarketContext.Provider>
     );

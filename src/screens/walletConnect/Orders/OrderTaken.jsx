@@ -12,10 +12,12 @@ import ButtonCustom from '../Login/ButtonCustom'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { P2PMarketplaceAPIClient } from 'src/baApi'
 import DropdownList from './DropdownList'
+import SellNotCreator from "../Components/orderScreens/sellNotCreator"
+import SellCreator from '../Components/orderScreens/sellCreator'
 
 export default function OrderTaken({route, navigation}) {
   const {takeOrderRequest} = route.params
-  const {orderId} = useMarket();
+  const {orderId, userInfo} = useMarket();
   const [order, setOrder] = useState()
   const [loading, setLoading] = useState(true); 
 
@@ -59,9 +61,9 @@ export default function OrderTaken({route, navigation}) {
     return () => clearInterval(intervalId);
   }, [])
 
-  async function fiatSent(){
+  async function orderUpdate(newStatus){
     const updateOrderRequest = {
-      status: 'FIAT_SENT',
+      status: newStatus,
       orderId: order.id
     };
 
@@ -143,35 +145,14 @@ export default function OrderTaken({route, navigation}) {
               </View>
               <View style={{borderBottomWidth:1, width: "100%", borderBottomColor: sharedColors.bagreen, marginVertical: 24}}></View>
           </View>
-          {(order.status == "WAITING_PAYMENT" && order.type == "SELL") ? (
-            <View style={styles.awaitingPayment}>
-              <View>
-                <Text style={styles.awaitingTxt}>Esperando a que el vendedor asegure las criptomonedas</Text>
-              </View>              
-            </View>
-          ) :  (order.status == "ACTIVE" && order.type == "SELL") ? (
-            <ScrollView>
-              <Text style={[styles.mainText, {fontSize: 20, letterSpacing:0.5, color: "#464D51"}]}>Datos del vendedor</Text>
-              <Text style={[styles.mainText, {fontSize: 16, letterSpacing:0.5, color: "#B0B3B5", marginVertical: 14, fontWeight: "400"}]}>
-                Utiliza los siguientes datos para realizar la transferencia bancaria desde tu banco o billetera virtual</Text>
-              <View>
-                <DropdownList data={order.paymentMethods} />  
-
-              </View>
-              <View style={{flexDirection: "column",alignContent: "flex-end"}}>
-                <Text style={[styles.mainText, {fontSize: 18, letterSpacing:0.5, color: "#5B6369", textAlign: "center"}]}>Una vez realizada la transferencia de los fondos a haz click en el boton de abajo</Text>
-                <ButtonCustom text="He realizado el pago" type={"green"} onPress={()=>fiatSent()} />          
-              </View>
-            </ScrollView>
-          ) : (order.status == "FIAT_SENT" && order.type == "SELL") ? (
-            <View style={styles.awaitingPayment}>
-              <View>
-                <Text style={styles.awaitingTxt}>Has marcado la orden como pagada</Text>
-                <Text style={styles.awaitingTxt}>Esperando a que el vendedor libere las criptomonedas</Text>
-              </View>
-            </View>
-          ) : order.type == "BUY" ? (
-            <View><Text>Status is pending</Text></View>
+          {(order.type == "SELL" && userInfo.id != order.creatorId) ? (
+            <SellNotCreator status={order.status} onPress={()=>orderUpdate("FIAT_SENT")}/>
+          ) : (order.type == "SELL" && userInfo.id == order.creatorId) ? (
+            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={()=>orderUpdate("ACTIVE")} onRelease={()=>orderUpdate("RELEASED")}/>
+          ) : (order.type == "BUY" && userInfo.id != order.creatorId) ? (
+            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={()=>orderUpdate("ACTIVE")} onRelease={()=>orderUpdate("RELEASED")}/>
+          ) : (order.type == "BUY" && userInfo.id == order.creatorId) ? (
+            <SellNotCreator status={order.status} onPress={()=>orderUpdate("FIAT_SENT")}/>
           ) : null}
         </View>        
       </ScrollView>

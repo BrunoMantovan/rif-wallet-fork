@@ -24,7 +24,6 @@ export default function CreateOrder() {
   const [total, setTotal] = useState()
   const [minAmm, setMinAmm] = useState()
   const [maxAmm, setMaxAmm] = useState()
-  const username = "usuario 987"
   const cryptos = [
     {text: "DoC", image: require('../../../images/slides/doc.png')},
     {text: "rBtc", image: require('../../../images/slides/rbtc.png')}
