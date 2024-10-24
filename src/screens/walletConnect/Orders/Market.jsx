@@ -26,7 +26,7 @@ export default function BuyOrders() {
     const [orders, setOrders] = useState/* <Order[]> */([])
 /*     const [tipo, setTipo] = useState("DoC") */
     const navigation = useNavigation()
-    const { setHideTab } = useMarket();
+    const { setHideTab, userInfo } = useMarket();
     const [type, setType] = useState(null)
     const [crypto, setCrypto] = useState(null)
     const [method, setMethod] = useState(null)
@@ -46,6 +46,7 @@ export default function BuyOrders() {
     const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
     useFocusEffect(
+        
         React.useCallback(() => {
             setHideTab(false)
             setType(null)
@@ -55,9 +56,11 @@ export default function BuyOrders() {
             setCryptoPlaceholder('Activo digital');
             setMethodPlaceholder('Método de pago');            
         }, [])
+        
     );
 
     useEffect(() => {
+        console.log(userInfo)
         if (type && crypto && method) {
             setSpecs(true);
         } else {

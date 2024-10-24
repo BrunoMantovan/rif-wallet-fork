@@ -12,17 +12,76 @@ import ButtonCustom from '../Login/ButtonCustom'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { P2PMarketplaceAPIClient } from 'src/baApi'
 import DropdownList from './DropdownList'
-import SellNotCreator from "../Components/orderScreens/sellNotCreator"
-import SellCreator from '../Components/orderScreens/sellCreator'
+import SellCreator from '../Components/orderScreens/SellCreator'
+import SellNotCreator from '../Components/orderScreens/SellNotCreator'
+
+import { ITokenWithBalance } from '@rsksmart/rif-wallet-services';
+import { useWalletState } from 'shared/wallet'
+import { handleTransactionStatusChange } from 'store/shared/utils';
+import { useAppDispatch, useAppSelector } from 'store/storeUtils';
+import { approve, escrow } from 'src/screens/send/escrowTokens'
+import { usePaymentExecutor } from 'src/screens/send/usePaymentExecutor';
+import { createHash, randomBytes } from 'crypto';
+import { selectBalances } from 'store/slices/balancesSlice/selectors';
 
 export default function OrderTaken({route, navigation}) {
   const {takeOrderRequest} = route.params
   const {orderId, userInfo} = useMarket();
   const [order, setOrder] = useState()
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const wallet = useWalletState();
+
+  const balances = Object.values(useAppSelector(selectBalances)); // Obtener balances
+  const isAssetBitcoin = (asset) => 'bips' in asset; // Función para verificar si es Bitcoin
+  const assets = balances.filter(b => isAssetBitcoin(b)); // Filtrar activos
+  const { executePayment } = usePaymentExecutor(assets.find(isAssetBitcoin)); // Usar executePayment
 
   const BASE_URL = "https://bolsillo-argento-586dfd80364d.herokuapp.com";
   const client = new P2PMarketplaceAPIClient(BASE_URL);
+
+  const handleApproveAndEscrow = async () => {
+    console.log("inicio");
+    console.log("order: ", order);
+    console.log("wallet: ", wallet);
+    
+    
+    if (!order || !wallet) return;
+
+    const token = {
+      name: "Testnet RIF Token",
+      symbol: "tRIF",
+      address: '0x19f64674d8a5b4e652319f5e239efd3bc969a1fe',
+      decimals: 18,
+      bips: []
+    };
+
+    const buyerSecret = randomBytes(32);
+    const sellerSecret = randomBytes(32);
+    const buyerHashBuffer = createHash('sha256').update(buyerSecret).digest();
+    const sellerHashBuffer = createHash('sha256').update(sellerSecret).digest();
+    const buyerHashBytes32 = '0x' + buyerHashBuffer.toString('hex');
+    const sellerHashBytes32 = '0x' + sellerHashBuffer.toString('hex');
+
+    try {
+      console.log("inicio intento execute");
+      
+       // Llama a executePayment aquí
+      executePayment({
+        token: token, // Pasa el token correctamente
+        amount: 1, // Asegúrate de que el monto sea el correcto
+        to: order.buyerAddress, // Dirección del comprador
+        wallet: wallet,
+        chainId: 31, // Asegúrate de que el chainId sea el correcto
+        orderId: orderId
+    });
+
+      console.log('Approve and escrow completed successfully');
+    } catch (error) {
+      console.error('Error in approve and escrow:', error);
+    }
+  };
+
 
   async function GetOrderById() {
     try{        
@@ -148,9 +207,9 @@ export default function OrderTaken({route, navigation}) {
           {(order.type == "SELL" && userInfo.id != order.creatorId) ? (
             <SellNotCreator status={order.status} onPress={()=>orderUpdate("FIAT_SENT")}/>
           ) : (order.type == "SELL" && userInfo.id == order.creatorId) ? (
-            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={()=>orderUpdate("ACTIVE")} onRelease={()=>orderUpdate("RELEASED")}/>
+            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={handleApproveAndEscrow} onRelease={()=>orderUpdate("RELEASED")}/>
           ) : (order.type == "BUY" && userInfo.id != order.creatorId) ? (
-            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={()=>orderUpdate("ACTIVE")} onRelease={()=>orderUpdate("RELEASED")}/>
+            <SellCreator status={order.status} fiatAmount={order.fiatAmount} onLock={handleApproveAndEscrow} onRelease={()=>orderUpdate("RELEASED")}/>
           ) : (order.type == "BUY" && userInfo.id == order.creatorId) ? (
             <SellNotCreator status={order.status} onPress={()=>orderUpdate("FIAT_SENT")}/>
           ) : null}

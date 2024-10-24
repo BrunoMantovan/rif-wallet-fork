@@ -36,7 +36,7 @@ export default function CreateOrder() {
   const { setHideTab } = useMarket()
   const navigation = useNavigation()
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-  const { addPayment, payments, removePayment} = useMarket();
+  const { addPayment, payments, removePayment, userInfo} = useMarket();
 
 
 
@@ -82,7 +82,6 @@ export default function CreateOrder() {
     const order = {
       price: price,
       crypto: crypto,
-      username: username,
       order_type: type,
       total: total,
       order_type_for_self: type,

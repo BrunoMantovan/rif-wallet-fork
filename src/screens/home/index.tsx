@@ -87,9 +87,7 @@ export const HomeScreen = ({
     })
   const [showInfoBar, setShowInfoBar] = useState<boolean>(true)
 
-  const balancesArray = Object.values(tokenBalances)
-  console.log("balances: ", balancesArray);
-  
+  const balancesArray = Object.values(tokenBalances)  
 
   // token or undefined
   const selected = selectedAddress ? tokenBalances[selectedAddress] : undefined

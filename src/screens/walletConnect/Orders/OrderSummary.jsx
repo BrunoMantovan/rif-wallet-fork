@@ -9,7 +9,7 @@ import { selectBalances } from 'src/redux/slices/balancesSlice';
 import { useAppSelector } from 'src/redux/storeUtils';
 import { selectProfile } from 'src/redux/slices/profileSlice';
 import { selectChainId } from 'src/redux/slices/settingsSlice';
-import { WalletContext } from 'src/shared/wallet';
+import { useWalletState, WalletContext } from 'src/shared/wallet';
 import { shortAddress } from 'src/lib/utils';
 import { P2PMarketplaceAPIClient} from 'src/baApi';
 import { useMarket } from '../MarketContext';
@@ -17,8 +17,7 @@ import { useMarket } from '../MarketContext';
 export default function OrderSummary({route, navigation}) {
 
   const {order} = route.params
-  const [isAddressLoading, setIsAddressLoading] = useState(true);
-  const [address, setAddress] = useState('');
+  const [isAddressLoading, setIsAddressLoading] = useState(false);
   const { token, networkId } = route.params;
   const [selectedAsset, setSelectedAsset] = useState();
   const tokenBalances = useAppSelector(selectBalances);
@@ -35,49 +34,6 @@ export default function OrderSummary({route, navigation}) {
     }
     return null;
   }, [wallet, chainId]);
-  
-  useEffect(() => {    
-    const tokenSelected = Object.values(tokenBalances).find(e => 
-      order.tokenCode == "RBTC" ? e.name == "RBTC" : e.name == "Dollar on Chain"
-    );
-    setSelectedAsset(tokenSelected);
-    console.log(selectedAsset);
-    console.log("token balances" + tokenBalances);
-    
-  }, []);
-
-  useEffect(()=>{
-    onGetAddress(selectedAsset);
-  }, [selectedAsset])
-
-  const onGetAddress = useCallback(
-    (asset) => {
-      console.log('onGetAddress called with asset:', asset);
-      if (asset) {
-        setIsAddressLoading(true);
-        if ('bips' in asset) {
-          asset.bips[0]
-            .fetchExternalAvailableAddress({})
-            .then((addressReturned) => {
-              console.log('Fetched address:', addressReturned);
-              setAddress(addressReturned);
-            })
-            .finally(() => {
-              setIsAddressLoading(false);
-              console.log('Address loading finished');
-            });
-        } else {
-          setAddress(rskAddress?.checksumAddress || '');
-          setIsAddressLoading(false);
-          console.log('RSK address set:', rskAddress?.checksumAddress);
-        }
-      }
-    },
-    [rskAddress?.checksumAddress],
-  );
-
-
-  
 
   async function handleSubmit(){
     try {      
@@ -89,7 +45,7 @@ export default function OrderSummary({route, navigation}) {
         fiatAmount: (order.price * order.total).toString(),
         status: "PENDING",
         fiatCode: "ARS",
-        walletAddress: order.order_type == "BUY" ? address : undefined,
+        walletAddress: order.order_type == "BUY" ? wallet.smartAddress : undefined,
         paymentMethods: order.payment_methods,
         creatorId: userInfo.id,
         creatorUsername: userInfo.username
@@ -117,7 +73,7 @@ export default function OrderSummary({route, navigation}) {
       <Text style={styles.text}>Precio unitario: <Text style={styles.innetText}>${order.price}</Text></Text>
       <Text style={styles.text}>Cantidad total: <Text style={styles.innetText}>{order.total} {order.crypto}</Text></Text>
       {order.order_type == "Comprar" ? <Text style={styles.text}>Método de pago: <Text style={styles.innetText}>{order.payment_method.entity + " (" + order.payment_method.alias + ")"}</Text></Text> : null}
-      <Text style={styles.text}>Billetera: <Text style={styles.innetText}>{shortAddress(address, 10)}</Text></Text>
+      <Text style={styles.text}>Billetera: <Text style={styles.innetText}>{shortAddress(wallet.smartAddress, 10)}</Text></Text>
       <View style={{flex: 1, justifyContent: "flex-end"}}><ButtonCustom onPress={()=> handleSubmit()} text="Publicar" type="green"/></View>
     </View>
   )
