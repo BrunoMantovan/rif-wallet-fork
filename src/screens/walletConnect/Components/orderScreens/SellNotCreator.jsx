@@ -5,7 +5,7 @@ import ButtonCustom from '../../Login/ButtonCustom'
 import DropdownList from '../../Orders/DropdownList'
 import { ScrollView } from 'react-native-gesture-handler'
 
-export default function sellNotCreator(props) {
+export default function SellNotCreator(props) {
   return (
     <>
         {props.status == "WAITING_PAYMENT" ? (
