@@ -108,6 +108,8 @@ export const SendScreen = ({
   }, [backScreen, navigation])
 
   useEffect(() => {
+    console.log("wallet: ", wallet);    
+    
     if (!isDeployed && !loading) {
       // clean up the stack and navigate to the deploy screen
       navigation.reset({
@@ -137,7 +139,7 @@ export const SendScreen = ({
   }, [loading, t, navigation])
 
   // if there's an ongoing transaction
-  useEffect(() => {
+  useEffect(() => {    
     if (
       pendingTransactions.length > 0 &&
       currentTransaction?.status === undefined &&

@@ -92,6 +92,8 @@ export const usePaymentExecutor = (
     wallet,
     chainId,
   }: ExecutePayment) => {
+    console.log("wallet: ", wallet, "chainid: ", chainId, "amount: ", amount, "to: ", to);
+    
     if ('bips' in token) {
       const hasError = checkBitcoinPaymentForErrors(utxos, amount)
       if (hasError) {
@@ -141,7 +143,7 @@ export const usePaymentExecutor = (
          onSetTransactionStatusChange:
          handleTransactionStatusChange(dispatch),
        })
-     const orderId = "23dcf5f5-e2c1-4d2c-9241-4e90416ertter";
+     /* const orderId = "23dcf5f5-e2c1-4d2c-9241-42";
      console.log("orderId: ", orderId);
      
       escrow({
@@ -158,7 +160,7 @@ export const usePaymentExecutor = (
         onSetCurrentTransaction: setCurrentTransaction,
         onSetError: setError,
         onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
-      })
+      }) */
     }
   }
   // When bitcoin network changes - fetch utxos
