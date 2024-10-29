@@ -25,6 +25,7 @@ import { createHash, randomBytes } from 'crypto';
 import { selectBalances } from 'store/slices/balancesSlice/selectors';
 import { get } from 'axios'
 import { toChecksumAddress } from '@rsksmart/rsk-utils'
+import {approve, escrow} from "../../send/escrowTokens"
 
 export default function OrderTaken({route, navigation}) {
   const {takeOrderRequest} = route.params
@@ -47,23 +48,55 @@ export default function OrderTaken({route, navigation}) {
     
     
     const token = assets[0];
-    console.log(token);
     
-    const amountToApprove = parseFloat(order.amount);
+    
+    const amountToApprove = order.amount;
     const to = toChecksumAddress(order.buyerAddress);
     const walletReal = wallet.wallet
-    
+
+    const buyerSecret = randomBytes(32)
+    const sellerSecret = randomBytes(32)
+    const buyerHashBuffer = createHash('sha256').update(buyerSecret).digest()
+    const sellerHashBuffer = createHash('sha256').update(sellerSecret).digest()
+    const buyerHashBytes32 = '0x' + buyerHashBuffer.toString('hex')
+    const sellerHashBytes32 = '0x' + sellerHashBuffer.toString('hex')
+
+    const escrowOrder = {
+      orderId: order.id,
+      amount: amountToApprove,
+      token,
+      buyerAddress: order.buyerAddress,
+      buyerHash: buyerHashBytes32,
+      sellerHash: sellerHashBytes32, 
+    }
+
+    console.log(escrowOrder);
     console.log("wallet: ", walletReal, "amount: ", amountToApprove , "to: ", to);
-  
-    const result = executePayment({
+
+    const resultApprove = await approve({
+      token,
+      amount: amountToApprove,
+      to,
+      wallet: walletReal,
+      chainId,
+    })
+    console.log("result approve: ", resultApprove);
+
+    const resultEscrow = await escrow({
+      order: escrowOrder,
+      wallet: walletReal,
+      chainId,
+    })
+    console.log("result escrow: ", resultEscrow);
+
+    /* const result = executePayment({
       token,
       amount: amountToApprove,
       to,
       wallet:walletReal,
       chainId,
-    });
-
-    console.log("result: ", result);
+    }); */
+    console.log("completed");
     
   };
 

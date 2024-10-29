@@ -76,36 +76,46 @@ export const escrow = async ({
     onSetCurrentTransaction,
     onSetTransactionStatusChange,
 }: IEscrowParams) => {
+    console.log('Iniciando la función escrow con los parámetros:', { order, wallet, chainId });
     onSetError?.(null)
     onSetCurrentTransaction?.({ status: TransactionStatus.USER_CONFIRM })
 
     const escrowContract = new Contract(escrowContractAddress, escrowABI, wallet)
+    console.log('Contrato de escrow creado:', escrowContractAddress);
 
-    // handle both ERC20 tokens and the native token (gas)
     const transferMethod =
         order.token.symbol === 'RBTC'
             ? makeRBTCToken(wallet, chainId)
             : convertToERC20Token(order.token, wallet)
+    console.log('Método de transferencia seleccionado:', transferMethod);
 
     try {
-
         const orderId = order.orderId
+        console.log('ID de la orden:', orderId);
+        
         const decimals = await transferMethod.decimals()
+        console.log('Decimales del token:', decimals);
+        
         const tokenAmount = BigNumber.from(
             utils.parseUnits(sanitizeMaxDecimalText(order.amount, decimals), decimals),
         )
+        console.log('Cantidad de tokens a transferir:', tokenAmount.toString());
+        
         const feeAmount = tokenAmount.div(100)
         const totalAmount = tokenAmount.add(feeAmount)
+        console.log('Cantidad total (incluyendo tarifas):', totalAmount.toString());
 
         let txPending
         if (!orderId || !transferMethod.address || !order.buyerAddress || !order.buyerHash || !order.sellerHash || !tokenAmount || !feeAmount) {
+            console.error('Error: Parámetros requeridos no definidos');
             throw new Error('One or more required parameters for escrowERC20 are undefined')
         } else if (order.token.symbol === 'RBTC') {
+            console.log('Ejecutando escrowRBTC...');
             txPending = await escrowContract.escrowRBTC(
                 orderId,
                 order.buyerAddress.toLowerCase(),
-                order.buyerHash,//buyerHashBytes32,
-                order.sellerHash,//sellerHashBytes32,
+                order.buyerHash,
+                order.sellerHash,
                 tokenAmount,
                 feeAmount,
                 {
@@ -114,13 +124,14 @@ export const escrow = async ({
                 },
             )
         } else {
+            console.log('Ejecutando escrowERC20...');
             try {
                 txPending = await escrowContract.escrowERC20(
                     orderId,
                     toChecksumAddress(transferMethod.address.toLowerCase()),
                     toChecksumAddress(order.buyerAddress.toLowerCase()),
-                    order.buyerHash,//buyerHashBytes32,
-                    order.sellerHash,//sellerHashBytes32,
+                    order.buyerHash,
+                    order.sellerHash,
                     tokenAmount,
                     feeAmount,
                     {
@@ -129,11 +140,11 @@ export const escrow = async ({
                     }
                 )
             } catch (err) {
-                console.log(err)
+                console.error('Error al ejecutar escrowERC20:', err);
             }
-
         }
 
+        console.log('Transacción pendiente:', txPending);
         const { wait: waitForTransactionToComplete, ...txPendingRest } = txPending
 
         onSetTransactionStatusChange?.({
@@ -158,6 +169,7 @@ export const escrow = async ({
 
         waitForTransactionToComplete()
             .then(contractReceipt => {
+                console.log('Transacción confirmada:', contractReceipt.transactionHash);
                 onSetCurrentTransaction?.({ ...current, status: TransactionStatus.SUCCESS })
                 onSetTransactionStatusChange?.({
                     txStatus: 'CONFIRMED',
@@ -168,7 +180,8 @@ export const escrow = async ({
                     ...contractReceipt,
                 })
             })
-            .catch(() => {
+            .catch(err => {
+                console.error('Error en la espera de la transacción:', err);
                 onSetCurrentTransaction?.({ ...current, status: TransactionStatus.FAILED })
                 onSetTransactionStatusChange?.({
                     txStatus: TransactionStatus.FAILED,
@@ -176,8 +189,7 @@ export const escrow = async ({
                 })
             })
     } catch (err) {
-        console.log('ERROR!!!')
-        console.log(err)
+        console.error('ERROR en la función escrow:', err);
         onSetError?.(err as Error)
         onSetCurrentTransaction?.(null)
     }

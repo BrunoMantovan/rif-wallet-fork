@@ -24,7 +24,7 @@ const defaultMainnetTokens: ITokenWithoutLogo[] = Object.keys(mainnetContracts)
   })
 const defaultTestnetTokens: ITokenWithoutLogo[] = Object.keys(testnetContracts)
   .filter(address =>
-    ['tRIF', 'USDRIF', 'DOC'].includes(testnetContracts[address].symbol),
+    ['tRIF', 'USDRIF', 'DOC', 'TRBTC', 'RBTC'].includes(testnetContracts[address].symbol),
   )
   .map(address => {
     const { decimals, name, symbol } = testnetContracts[address]
