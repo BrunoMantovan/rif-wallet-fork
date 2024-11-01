@@ -1,6 +1,19 @@
 import mainnetContracts from '@rsksmart/rsk-contract-metadata'
 import testnetContracts from '@rsksmart/rsk-testnet-contract-metadata'
 
+// Define the new token details
+const newTokenAddress = '0xeE5E8291B551603a19eF41eEA69ae49592eD14f8'
+const newTokenDetails = {
+  name: 'PDOC',
+  logo: 'path/to/logo.png', // Optional: provide a path to the logo if available
+  erc20: true,
+  symbol: 'PDOC',
+  decimals: 18,
+}
+
+// Add the new token to the testnetContracts
+testnetContracts[newTokenAddress] = newTokenDetails
+
 import { ChainID } from 'lib/eoaWallet'
 
 import { ITokenWithoutLogo } from 'store/slices/balancesSlice/types'
@@ -24,7 +37,9 @@ const defaultMainnetTokens: ITokenWithoutLogo[] = Object.keys(mainnetContracts)
   })
 const defaultTestnetTokens: ITokenWithoutLogo[] = Object.keys(testnetContracts)
   .filter(address =>
-    ['tRIF', 'USDRIF', 'DOC', 'TRBTC', 'RBTC'].includes(testnetContracts[address].symbol),
+    ['tRIF', 'USDRIF', 'DOC', 'TRBTC', 'RBTC', 'PDOC'].includes(
+      testnetContracts[address].symbol,
+    ),
   )
   .map(address => {
     const { decimals, name, symbol } = testnetContracts[address]
@@ -37,6 +52,7 @@ const defaultTestnetTokens: ITokenWithoutLogo[] = Object.keys(testnetContracts)
       usdBalance: 0,
     }
   })
+
 export const getDefaultTokens = (chainId: ChainID) => {
   return chainId === 30 ? defaultMainnetTokens : defaultTestnetTokens
 }
@@ -89,6 +105,7 @@ enum TokenSymbol {
   BTC = 'BTC',
   BTCT = 'BTCT',
   USDRIF = 'USDRIF',
+  PDOC = 'PDOC',
 }
 
 export const bitcoinFeeMap = new Map([

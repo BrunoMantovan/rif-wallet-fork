@@ -14,6 +14,7 @@ import {
 } from 'react-native-screenshot-prevent'
 import { useTranslation } from 'react-i18next'
 import { useIsFocused } from '@react-navigation/native'
+import { createHash, randomBytes } from 'crypto'
 
 import { ErrorWithMessage } from '../types'
 
@@ -193,6 +194,19 @@ export const usePreventScreenshot = (
     enabled(false)
     disableSecureView()
   }, [isFocused])
+}
+
+export function generateSecretAndHash(): {
+  secret: Buffer
+  hash: Buffer
+  hashHex: string
+} {
+  const secret: Buffer = randomBytes(32)
+  const hash: Buffer = createHash('sha256')
+    .update(new Uint8Array(secret))
+    .digest()
+  const hashHex = '0x' + hash.toString('hex')
+  return { secret, hash, hashHex }
 }
 
 export * from './tokenValues'

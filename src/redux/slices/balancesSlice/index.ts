@@ -56,6 +56,8 @@ export const addOrUpdateBalances = createAsyncThunk<
   AsyncThunkWithTypes
 >('balances/addOrUpdateBalancesThunk', async (payload, thunkAPI) => {
   try {
+    console.log("addOrUpdateBalances: Start");
+    console.log(payload)
     const { usdPrices, settings } = thunkAPI.getState()
     const bitcoin = settings.bitcoin
     const balances: TokenBalanceObject[] = payload.map(t => {

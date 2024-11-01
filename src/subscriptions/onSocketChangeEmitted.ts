@@ -105,6 +105,8 @@ export const onSocketChangeEmitted =
           })
           break
         case 'newBalance':
+          console.log("newBalance")
+          console.log(payload)
           dispatch(addOrUpdateBalances([payload]))
           break
         case 'init':
@@ -158,6 +160,7 @@ export const onSocketChangeEmitted =
           dispatch(setUsdPrices(prices))
           dispatch(fetchBitcoinTransactions({}))
           dispatch(addNewTransactions(deserializedTransactions))
+          console.log("INIT INIT INIT INIT", tokens)
           dispatch(addOrUpdateBalances(tokens))
           break
         default:

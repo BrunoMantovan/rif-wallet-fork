@@ -73,8 +73,12 @@ export const rifSockets = ({
     }
 
     const defaultTokens = getDefaultTokens(chainId)
+    console.log("DEFAULT", defaultTokens)
     const defaultTokensWithBalance = defaultTokens.map(t => {
+      console.log("DEFAULT BALANCES", balances)
       const tokenBalance = balances[t.contractAddress]
+      // console.log("DEFAULT TOKEN", t)
+      console.log("DEFAULT TOKEN BALANCE", tokenBalance)
       return {
         ...t,
         logo: '', // remove warning
