@@ -124,6 +124,7 @@ export enum TokenSymbol {
   XUSD = 'XUSD',
   FISH = 'FISH',
   RBTC = 'RBTC',
+  PDOC = 'PDOC',
 }
 
 export const getTransparentIconSource = (

@@ -124,7 +124,7 @@ const initializeApp = async (
   )
 
   //await sslPinning(chainId)
-
+  console.log("INITIALIZE APP", balances.tokenBalances)
   // connect to sockets
   rifSockets({
     address: addressToUse(wallet),
@@ -317,6 +317,9 @@ export const unlockApp = createAsyncThunk<
     thunkAPI.dispatch(setUnlocked(true))
 
     const { usdPrices, balances } = thunkAPI.getState()
+
+    console.log("XXXXXXX")
+    console.log(balances.tokenBalances)
 
     await initializeApp(
       keys.mnemonic ?? keys.privateKey,

@@ -5,6 +5,8 @@ import { ITokenWithBalance } from '@rsksmart/rif-wallet-services'
 import { toChecksumAddress } from '@rsksmart/rsk-utils'
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { providers } from 'ethers'
+const { parseUnits } = utils;
+import { createHash } from 'crypto'
 
 import { ChainID } from 'lib/eoaWallet'
 import { sanitizeMaxDecimalText } from 'lib/utils'
@@ -19,6 +21,7 @@ import {
     OnSetTransactionStatusChange,
     TransactionStatus,
 } from 'store/shared/types'
+import { Order } from 'src/baApi';
 
 import { getWalletSetting } from '../../core/config'
 import { SETTINGS } from '../../core/types'
@@ -31,7 +34,8 @@ import {
 
 
 interface IEscrowParams {
-    order: EscrowOrder
+    order: Order
+    token: ITokenWithBalance
     wallet: Wallet
     chainId: number
     onSetError?: OnSetErrorFunction
@@ -41,21 +45,12 @@ interface IEscrowParams {
 
 interface IApproveParams {
     token: ITokenWithBalance
-    amount: string
+    amount: BigNumber
     wallet: Wallet
     chainId: number
     onSetError?: OnSetErrorFunction
     onSetCurrentTransaction?: OnSetCurrentTransactionFunction
     onSetTransactionStatusChange?: OnSetTransactionStatusChange
-}
-
-export interface EscrowOrder {
-    orderId: string;
-    amount: string;
-    token: ITokenWithBalance
-    buyerAddress: string;
-    buyerHash: string;
-    sellerHash: string;
 }
 
 interface IAllowanceParams {
@@ -67,73 +62,126 @@ interface IAllowanceParams {
 
 const gasLimit = BigNumber.from(6800000)
 
+function hexStringToByteArray(hexString: string): Uint8Array {
+    if (hexString.length % 2 !== 0) {
+        throw new Error('Invalid hex string. Length must be even.');
+    }
+
+    const byteArray = new Uint8Array(hexString.length / 2);
+
+    for (let i = 0; i < hexString.length; i += 2) {
+        byteArray[i / 2] = parseInt(hexString.substr(i, 2), 16);
+    }
+
+    return byteArray;
+}
+
+export const releaseFunds = async (order: Order, wallet : any) => {
+    try {
+        console.log("Starting Release")
+        console.log(order)
+        const escrowContract = new Contract(escrowContractAddress, escrowABI, wallet)
+        const tx = await escrowContract.releaseToBuyer(
+            order.id,
+            '0x' + order.buyerHash,
+            {
+                value: BigNumber.from(0),
+                gasLimit: gasLimit,
+            },
+        )
+        console.log("Release",tx)
+
+    } catch (error) {
+      console.error('Error releasing funds:', error);
+      return Promise.reject(error);
+    }
+  }
+
 
 export const escrow = async ({
     order,
+    token,
     wallet,
     chainId,
     onSetError,
     onSetCurrentTransaction,
     onSetTransactionStatusChange,
 }: IEscrowParams) => {
-    console.log('Iniciando la función escrow con los parámetros:', { order, wallet, chainId });
+
     onSetError?.(null)
     onSetCurrentTransaction?.({ status: TransactionStatus.USER_CONFIRM })
 
-    const escrowContract = new Contract(escrowContractAddress, escrowABI, wallet)
-    console.log('Contrato de escrow creado:', escrowContractAddress);
-
-    const transferMethod =
-        order.token.symbol === 'RBTC'
-            ? makeRBTCToken(wallet, chainId)
-            : convertToERC20Token(order.token, wallet)
-    console.log('Método de transferencia seleccionado:', transferMethod);
-
     try {
-        const orderId = order.orderId
+
+        const escrowContract = new Contract(escrowContractAddress, escrowABI, wallet)
+        console.log('Contrato de escrow creado:', escrowContractAddress);
+        console.log('TOKEN', token)
+
+        const transferMethod =
+            order.tokenCode === 'RBTC'
+                ? makeRBTCToken(wallet, chainId)
+                : convertToERC20Token(token, wallet)
+
+        const amountInt = parseUnits(order.amount ?? '0', 18); // Ensure order.amount is not undefined
+        const feeInt = amountInt.div(BigNumber.from(100)); // Calculate the fee using BigNumber division
+        const totalAmount = amountInt.add(feeInt); // Sum using BigNumber addition
+
+        await approve({token, wallet, amount: totalAmount, chainId})
+
+        const orderId = order.id
         console.log('ID de la orden:', orderId);
-        
+
         const decimals = await transferMethod.decimals()
         console.log('Decimales del token:', decimals);
-        
+
         const tokenAmount = BigNumber.from(
-            utils.parseUnits(sanitizeMaxDecimalText(order.amount, decimals), decimals),
+            utils.parseUnits(sanitizeMaxDecimalText(order.amount!, decimals), decimals),
         )
         console.log('Cantidad de tokens a transferir:', tokenAmount.toString());
-        
-        const feeAmount = tokenAmount.div(100)
-        const totalAmount = tokenAmount.add(feeAmount)
+
+        // const feeAmount = tokenAmount.div(100)
+        // const totalAmount = tokenAmount.add(feeAmount)
         console.log('Cantidad total (incluyendo tarifas):', totalAmount.toString());
 
         let txPending
-        if (!orderId || !transferMethod.address || !order.buyerAddress || !order.buyerHash || !order.sellerHash || !tokenAmount || !feeAmount) {
+        if (!orderId || !transferMethod.address || !order.buyerAddress || !order.buyerHash || !order.sellerHash || !amountInt || !feeInt) {
             console.error('Error: Parámetros requeridos no definidos');
             throw new Error('One or more required parameters for escrowERC20 are undefined')
-        } else if (order.token.symbol === 'RBTC') {
+        } else if (order.tokenCode === 'RBTC') {
             console.log('Ejecutando escrowRBTC...');
             txPending = await escrowContract.escrowRBTC(
                 orderId,
                 order.buyerAddress.toLowerCase(),
                 order.buyerHash,
                 order.sellerHash,
-                tokenAmount,
-                feeAmount,
+                amountInt,
+                feeInt,
                 {
-                    value: totalAmount,
+                    value: amountInt,
                     gasLimit: gasLimit,
                 },
             )
         } else {
             console.log('Ejecutando escrowERC20...');
             try {
+                const ba = hexStringToByteArray(order.buyerHash!)
+                const sa = hexStringToByteArray(order.sellerHash!)
+
+                const buyerHashBuffer = ba
+                    ? createHash('sha256').update(ba).digest('hex')
+                    : undefined;
+
+                const sellerHashBuffer = sa
+                    ? createHash('sha256').update(sa).digest('hex')
+                    : undefined;
                 txPending = await escrowContract.escrowERC20(
-                    orderId,
+                    order.id,
                     toChecksumAddress(transferMethod.address.toLowerCase()),
-                    toChecksumAddress(order.buyerAddress.toLowerCase()),
-                    order.buyerHash,
-                    order.sellerHash,
-                    tokenAmount,
-                    feeAmount,
+                    toChecksumAddress(order.buyerAddress),
+                    `0x${buyerHashBuffer}`,
+                    `0x${sellerHashBuffer}`,
+                    amountInt,
+                    feeInt,
                     {
                         gasLimit: gasLimit,
                         value: '0x0',
@@ -156,6 +204,7 @@ export const escrow = async ({
             enhancedAmount: order.amount,
             original: txPendingRest,
         })
+
         const current: TransactionInformation = {
             to: escrowContractAddress,
             value: order.amount,
@@ -168,7 +217,7 @@ export const escrow = async ({
         onSetCurrentTransaction?.(current)
 
         waitForTransactionToComplete()
-            .then(contractReceipt => {
+            .then((contractReceipt: any) => {
                 console.log('Transacción confirmada:', contractReceipt.transactionHash);
                 onSetCurrentTransaction?.({ ...current, status: TransactionStatus.SUCCESS })
                 onSetTransactionStatusChange?.({
@@ -180,7 +229,7 @@ export const escrow = async ({
                     ...contractReceipt,
                 })
             })
-            .catch(err => {
+            .catch((err: Error) => {
                 console.error('Error en la espera de la transacción:', err);
                 onSetCurrentTransaction?.({ ...current, status: TransactionStatus.FAILED })
                 onSetTransactionStatusChange?.({
@@ -212,28 +261,19 @@ export const approve = async ({
     wallet,
     amount,
     chainId,
-    onSetError,
-    onSetCurrentTransaction,
-    onSetTransactionStatusChange,
 }: IApproveParams) => {
-    onSetError?.(null)
-    onSetCurrentTransaction?.({ status: TransactionStatus.USER_CONFIRM })
-
     try {
         const transferMethod = convertToERC20Token(token, wallet)
-        const decimals = await transferMethod.decimals()
-        const tokenAmount = BigNumber.from(
-            utils.parseUnits(sanitizeMaxDecimalText(amount, decimals), decimals),
-        )
-
         const erc20Contract = new Contract(transferMethod.address, erc20ABI, wallet)
         const currentAllowance = await getAllowance({ spender: escrowContractAddress, tokenAddress: transferMethod.address, wallet, chainId })
 
-        if (currentAllowance.lt(tokenAmount)) {
+        console.log(currentAllowance)
+
+        if (currentAllowance.lt(amount)) {
 
             const approveData = erc20Contract.interface.encodeFunctionData(
                 'approve',
-                [escrowContractAddress, tokenAmount]
+                [escrowContractAddress.toLowerCase(), amount]
             )
 
             const transactionRequest: TransactionRequest = {
@@ -248,55 +288,23 @@ export const approve = async ({
 
             console.log('Approval transaction sent:', txPending.hash)
 
-            const { wait: waitForTransactionToComplete, ...txPendingRest } = txPending
-
-            onSetTransactionStatusChange?.({
-                txStatus: TransactionStatus.PENDING,
-                ...txPendingRest,
-                value: tokenAmount,
-                symbol: transferMethod.symbol,
-                finalAddress: escrowContractAddress,
-                enhancedAmount: amount,
-                original: txPendingRest,
-            })
-
-            const current: TransactionInformation = {
-                to: transferMethod.address,
-                value: tokenAmount.toString(),
-                symbol: transferMethod.symbol,
-                hash: txPending.hash,
-                status: TransactionStatus.PENDING,
-                original: txPendingRest,
-            }
-            onSetCurrentTransaction?.(current)
+            const { wait: waitForTransactionToComplete } = txPending
 
             const contractReceipt = await waitForTransactionToComplete()
-            console.log('Approval transaction confirmed:', contractReceipt.transactionHash)
-            onSetCurrentTransaction?.({ ...current, status: TransactionStatus.SUCCESS })
-            onSetTransactionStatusChange?.({
-                txStatus: TransactionStatus.USER_CONFIRM,
-                original: {
-                    ...txPendingRest,
-                    hash: contractReceipt.transactionHash,
-                },
-                ...contractReceipt,
-            })
 
-            onSetTransactionStatusChange?.({
-                txStatus: TransactionStatus.FAILED,
-                ...txPendingRest,
-            })
+            console.log('Contract receipt: ', txPending.hash)
+
+            return contractReceipt
 
         } else {
             console.log('Sufficient allowance already exists')
-            onSetCurrentTransaction?.({ status: TransactionStatus.SUCCESS })
+            return null
         }
     } catch (err) {
         console.error('Error in approve function:', err)
         if (err instanceof Error) {
             console.error('Error message:', err.message)
         }
-        onSetError?.(err as Error)
-        onSetCurrentTransaction?.(null)
+        return null
     }
 }

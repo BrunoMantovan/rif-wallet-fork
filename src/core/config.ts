@@ -1,4 +1,6 @@
-import testnetContracts from '@rsksmart/rsk-testnet-contract-metadata'
+import testnetContracts, {
+  ITokenMetadata,
+} from '@rsksmart/rsk-testnet-contract-metadata'
 import mainnetContracts from '@rsksmart/rsk-contract-metadata'
 import config from 'config.json'
 import ReactNativeConfig from 'react-native-config'
@@ -39,7 +41,18 @@ export const getWalletSetting = (
 export const getEnvSetting = (setting: SETTINGS) => ReactNativeConfig[setting]
 
 export const getTokenAddress = (symbol: TokenSymbol, chainId: ChainID) => {
-  const contracts = chainId === 31 ? testnetContracts : mainnetContracts
+  const contracts: ITokenMetadata =
+    chainId === 31 ? testnetContracts : mainnetContracts
+
+  // Assuming contracts is of type ITokenMetadata
+  // Add a new contract
+  // contracts['0xee5e8291b551603a19ef41eea69ae49592ed14f8'] = {
+  //   name: 'PDOC',
+  //   logo: 'path/to/logo.png', // Optional: provide a path to the logo if available
+  //   erc20: true,
+  //   symbol: 'PDOC',
+  //   decimals: 18,
+  // }
 
   const result = Object.keys(contracts).find(
     (address: string) =>

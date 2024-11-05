@@ -6,8 +6,10 @@ import {
 import { ITokenWithBalance } from '@rsksmart/rif-wallet-services'
 import { useTranslation } from 'react-i18next'
 import { createHash, randomBytes } from 'crypto'
+import { utils, BigNumber } from 'ethers'
+import { generateSecretAndHash } from 'shared/utils'
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import { useAppDispatch, useAppSelector } from 'store/storeUtils'
 import { fetchBitcoinTransactions } from 'store/slices/transactionsSlice'
 import {
@@ -23,9 +25,11 @@ import { handleTransactionStatusChange } from 'store/shared/utils'
 import { Wallet } from 'shared/wallet'
 
 import { transferBitcoin } from './transferBitcoin'
-import { transfer } from './transferTokens'
 import { TransactionInformation } from './types'
-import { approve, escrow } from './escrowTokens'
+import { approve, escrow, releaseFunds } from './escrowTokens'
+import { Order } from 'src/baApi'
+
+const { parseUnits } = utils
 
 interface ExecutePayment {
   token: TokenBalanceObject
@@ -34,9 +38,7 @@ interface ExecutePayment {
   wallet: Wallet
   chainId: number
 }
-/**
- * This function will make sure that the user has enough inputs (balance) to send a payment
- */
+
 const checkBitcoinPaymentForErrors = (
   utxos: UnspentTransactionType[],
   amountToSend: number,
@@ -85,6 +87,28 @@ export const usePaymentExecutor = (
     }, 3000)
   }
 
+  const escrowToken = async (
+    token: ITokenWithBalance,
+    order: Order,
+    wallet: any,
+    chainId: any,
+  ) => {
+    console.log('EscrowToken - PaymentExecutor')
+    escrow({
+      order: order,
+      token: token as unknown as ITokenWithBalance,
+      wallet: wallet,
+      chainId,
+      onSetCurrentTransaction: setCurrentTransaction,
+      onSetError: setError,
+      onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
+    })
+  }
+
+  const releaseToken = async (order: Order, wallet: any) => {
+    await releaseFunds(order, wallet)
+  }
+
   const executePayment = ({
     token,
     amount,
@@ -92,8 +116,17 @@ export const usePaymentExecutor = (
     wallet,
     chainId,
   }: ExecutePayment) => {
-    console.log("wallet: ", wallet, "chainid: ", chainId, "amount: ", amount, "to: ", to);
-    
+    console.log(
+      'wallet: ',
+      wallet,
+      'chainid: ',
+      chainId,
+      'amount: ',
+      amount,
+      'to: ',
+      to,
+    )
+
     if ('bips' in token) {
       const hasError = checkBitcoinPaymentForErrors(utxos, amount)
       if (hasError) {
@@ -112,16 +145,6 @@ export const usePaymentExecutor = (
         onBitcoinTransactionSuccess,
       })
     } else {
-      const buyerSecret = randomBytes(32)
-      const sellerSecret = randomBytes(32)
-      const buyerHashBuffer = createHash('sha256').update(buyerSecret).digest()
-      const sellerHashBuffer = createHash('sha256')
-        .update(sellerSecret)
-        .digest()
-
-      const buyerHashBytes32 = '0x' + buyerHashBuffer.toString('hex')
-      const sellerHashBytes32 = '0x' + sellerHashBuffer.toString('hex')
-
       // transfer({
       //   token: token as unknown as ITokenWithBalance,
       //   amount: amount.toString(),
@@ -132,35 +155,56 @@ export const usePaymentExecutor = (
       //   onSetError: setError,
       //   onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
       // })
-      
-       approve({
-         amount: amount.toString(),
-         wallet: wallet,
-         token: token as unknown as ITokenWithBalance,
-         chainId,
-         onSetCurrentTransaction: setCurrentTransaction,
-         onSetError: setError,
-         onSetTransactionStatusChange:
-         handleTransactionStatusChange(dispatch),
-       })
-     /* const orderId = "23dcf5f5-e2c1-4d2c-9241-42";
-     console.log("orderId: ", orderId);
-     
+
+      const { secret: secretSeller } = generateSecretAndHash()
+      const { secret: secretBuyer } = generateSecretAndHash()
+
+      console.log('TOKEN', token)
+
+      const order1: Order = {
+        fiatCode: 'ars',
+        type: 'SELL',
+        amount: amount.toString(),
+        id: 'bc035a46-b511-4102-9198-8427b3effb42',
+        buyerAddress: '0xd97D397BfF4610AA208936A5D42C640604570372',
+        tokenCode: 'trif',
+        sellerHash: secretSeller.toString('hex'),
+        buyerHash: secretBuyer.toString('hex'),
+      }
+
+      const amountInt = parseUnits(amount.toString() ?? '0', 18) // Ensure order.amount is not undefined
+      const feeInt = amountInt.div(BigInt(100)) // Calculate the fee as a BigInt
+      const totalAmount = amountInt.add(feeInt) // Sum is also a BigInt
+
+      console.log(order1)
+      console.log(BigNumber.from(totalAmount).toString())
+
+      approve({
+        token: token as unknown as ITokenWithBalance,
+        wallet: wallet,
+        amount: totalAmount,
+        chainId,
+        onSetCurrentTransaction: setCurrentTransaction,
+        onSetError: setError,
+        onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
+      })
+
       escrow({
-        order: {
-          amount: amount.toString(),
-          orderId: orderId,
-          buyerAddress: to,
-          buyerHash: buyerHashBytes32,
-          sellerHash: sellerHashBytes32,
-          token: token as unknown as ITokenWithBalance,
-        },
+        order: order1,
+        token: token as unknown as ITokenWithBalance,
         wallet: wallet,
         chainId,
         onSetCurrentTransaction: setCurrentTransaction,
         onSetError: setError,
         onSetTransactionStatusChange: handleTransactionStatusChange(dispatch),
-      }) */
+      })
+
+      /* const orderId = "23dcf5f5-e2c1-4d2c-9241-42";
+      console.log("orderId: ", orderId);
+
+
+
+       */
     }
   }
   // When bitcoin network changes - fetch utxos
@@ -184,6 +228,8 @@ export const usePaymentExecutor = (
     currentTransaction,
     error,
     executePayment,
+    escrowToken,
+    releaseToken,
     bitcoinBalance,
   }
 }
