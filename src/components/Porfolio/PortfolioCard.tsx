@@ -106,7 +106,7 @@ export const PortfolioCard = ({
   const hideBalance = useAppSelector(selectHideBalance)
   return (
     <AppTouchable
-      width={100}
+      width={131}
       disabled={disabled}
       style={[styles.topContainer, { backgroundColor: color }]}
       accessibilityLabel={primaryText}
@@ -130,11 +130,16 @@ export const PortfolioCard = ({
 const styles = StyleSheet.create({
   topContainer: {
     width: 120,
-    height: 72,
+    height: 78,
     borderRadius: 10,
-    margin: 8,
+    marginHorizontal: 8,
     padding: 10,
     backgroundColor: sharedColors.white,
+    shadowColor: '#000', // Color de la sombra
+    shadowOffset: { width: 0, height: 2 }, // Desplazamiento de la sombra
+    shadowOpacity: 0.25, // Opacidad de la sombra
+    shadowRadius: 2, // Radio de la sombra
+    elevation: 3, // Elevación para Android
   },
 })
 

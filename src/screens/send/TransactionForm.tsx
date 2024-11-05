@@ -411,7 +411,6 @@ export const TransactionForm = ({
             style={styles.marginTop10}
             firstValue={firstBalance}
             secondValue={secondBalance}
-            color={sharedColors.black}
             error={hasEnoughBalance ? t('transaction_form_error_balance') : ''}
             onSwap={onSwapBalance}
             editable
@@ -422,30 +421,12 @@ export const TransactionForm = ({
           <Input
             containerStyle={styles.marginTop10}
             inputName={'balance'}
-            label={`${selectedToken.symbol} ${t(
-              'transaction_form_balance_label',
-            )}`}
+            label={`Balance de ${selectedToken.symbol} `}
             placeholder={`${currentBalance} ${selectedToken.symbol}`}
             isReadOnly
             rightIcon={AlertIconIfBalanceBtc}
           />
-          <AppTouchable
-            width={'100%'}
-            onPress={toggleShowTx}
-            accessibilityLabel={'ChangeTxAsset'}
-            style={styles.assetToggleRow}>
-            <>
-              <Typography type={'h3'}>
-                {t('transaction_form_tx_dropdown')}
-              </Typography>
-              <Icon
-                name={showTxSelector ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color={sharedColors.bablue}
-              />
-            </>
-          </AppTouchable>
-          {showTxSelector ? (
+          
             <PortfolioComponent
               style={styles.txSelector}
               setSelectedAddress={onChangeSelectedTokenAddress}
@@ -454,7 +435,7 @@ export const TransactionForm = ({
               totalUsdBalance={totalUsdBalance}
               showTotalCard={false}
             />
-          ) : null}
+          
           {firstBalance.balance ? (
             <Input
               inputName={'fee'}
@@ -541,7 +522,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   }),
-  txSelector: castStyle.view({ marginTop: 22 }),
+  txSelector: castStyle.view({ marginTop: 22, height: 80 }),
   statusText: castStyle.text({
     marginBottom: 10,
     textAlign: 'center',

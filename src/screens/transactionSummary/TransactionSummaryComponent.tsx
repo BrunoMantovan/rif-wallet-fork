@@ -171,7 +171,7 @@ export const TransactionSummaryComponent = ({
                   <TokenImage
                     symbol={fee.symbol || tokenValue.symbol}
                     transparent
-                    size={12}
+                    size={18}
                   />
                   <Typography type={'body2'} style={[sharedStyles.textCenter]}>
                     {formatTokenValue(fee.tokenValue)} {fee.symbol}
@@ -184,7 +184,7 @@ export const TransactionSummaryComponent = ({
                   type={'body2'}
                   style={[
                     sharedStyles.textRight,
-                    { color: sharedColors.labelLight },
+                    { color: sharedColors.bablue },
                   ]}>
                   {formatFiatValue(fee.usdValue)}
                 </Typography>
@@ -205,7 +205,7 @@ export const TransactionSummaryComponent = ({
             </Typography>
 
             <View style={sharedStyles.row}>
-              <TokenImage symbol={tokenValue.symbol} size={12} transparent />
+              <TokenImage symbol={tokenValue.symbol} size={18} transparent />
               <Typography type={'body2'} style={[sharedStyles.textCenter]}>
                 {formatTokenValue(totalToken)} {tokenValue.symbol}{' '}
                 {tokenValue.symbol !== fee.symbol &&
@@ -214,16 +214,16 @@ export const TransactionSummaryComponent = ({
               </Typography>
             </View>
           </View>
-          <View style={styles.dollarAmountWrapper}>
+          {/* <View style={styles.dollarAmountWrapper}>
             <Typography
               type={'body2'}
               style={[
                 sharedStyles.textRight,
-                { color: sharedColors.labelLight },
+                { color: sharedColors.black },
               ]}>
               {formatFiatValue(totalUsd)}
             </Typography>
-          </View>
+          </View> */}
           {/* arrive value */}
           <View style={[styles.summaryAlignment]}>
             <Typography type={'body2'} style={[sharedStyles.textLeft]}>
@@ -303,7 +303,7 @@ export const TransactionSummaryComponent = ({
           <AppButton
             onPress={goBack}
             title={t('transaction_summary_default_button_text')}
-            color={sharedColors.white}
+            color={sharedColors.dangerLight}
             textColor={sharedColors.black}
             accessibilityLabel="Close"
           />
@@ -316,7 +316,7 @@ export const TransactionSummaryComponent = ({
 const styles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 22,
   }),
   contentPadding: castStyle.view({ paddingBottom: 114 }),
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     height: 1,
     width: '100%',
-    backgroundColor: sharedColors.white,
+    backgroundColor: "#de822c",
     opacity: 0.4,
   }),
   fullAddress: castStyle.view({

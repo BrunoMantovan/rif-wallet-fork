@@ -107,7 +107,7 @@ export const AppButton = ({
   onPress,
   color = sharedColors.inputInactive,
   textColor = sharedColors.white,
-  textType = 'button1',
+  textType = 'body1',
   backgroundVariety = AppButtonBackgroundVarietyEnum.DEFAULT,
   widthVariety = AppButtonWidthVarietyEnum.FULL,
   cornerVariety = AppButtonCornerVarietyEnum.ROUND,

@@ -45,7 +45,7 @@ interface QRGeneratorProps {
  */
 export const QRGenerator = ({
   value,
-  qrWidth = 248,
+  qrWidth = 176,
   iconProps,
   imageSource,
   qrBackgroundColor = sharedColors.black,

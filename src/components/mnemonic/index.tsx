@@ -72,7 +72,7 @@ export const MnemonicComponent = ({
           style={styles.pillContainer}
           accessibilityLabel="mnemonic container">
           {words.map((word, index) => {
-            const pillText = `${index + 1}.${word}`
+            const pillText = `${index + 1}. ${word}`
             if (!isMnemonicVisible && index >= 12) {
               return null
             }
@@ -82,17 +82,17 @@ export const MnemonicComponent = ({
                 width={'auto'}
                 style={styles.wordPill}
                 textStyle={styles.wordPillText}
-                textType={'body3'}
+                textType={'body1'}
                 title={pillText}
                 textColor={
                   isMnemonicVisible
                     ? sharedColors.white
-                    : sharedColors.inputActive
+                    : sharedColors.bagreen
                 }
                 color={
                   isMnemonicVisible
-                    ? sharedColors.primary
-                    : sharedColors.inputActive
+                    ? "#de822c"
+                    : sharedColors.bagreen
                 }
                 widthVariety={AppButtonWidthVarietyEnum.INLINE}
                 accessibilityLabel={`${index}.${word}`}

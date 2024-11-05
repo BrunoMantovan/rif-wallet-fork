@@ -343,7 +343,7 @@ export const AddressInput = ({
         rightIcon={
           !(value.address || value.displayAddress)
             ? {
-                name: 'copy',
+                name: 'clone',
                 size: 16,
               }
             : undefined

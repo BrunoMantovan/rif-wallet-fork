@@ -231,9 +231,10 @@ const styles = StyleSheet.create({
   label: castStyle.text({
     marginTop: 10,
     marginBottom: 4,
-    color: sharedColors.inputLabelColor,
+    color: sharedColors.labelLight,
     fontFamily: "Roboto-Medium",
     fontWeight: "500",
+    fontSize: 14,
   }),
   valueContainer: castStyle.view({
     flex: 1,
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
   }),
   placeholderText: castStyle.text({
     flex: 1,
-    color: sharedColors.black,
+    color: sharedColors.bablue,
     fontFamily: "Roboto-Medium",
     fontWeight: "500",
   }),
