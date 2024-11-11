@@ -311,7 +311,7 @@ export const HomeScreen = ({
           hideable={true}
           hide={hideBalance}
           onHide={() => dispatch(setHideBalance(!hideBalance))}
-          color={backgroundColor.backgroundColor}
+          
         />
         <HomeBarButtonGroup
           onPress={handleSendReceive}
@@ -350,21 +350,23 @@ export const HomeScreen = ({
         </TouchableOpacity>
 
         {showPortfolio && (
-        <Animated.View style={[styles.animatedContainer, animatedStyle]}>
+        <Animated.View style={[styles.animatedContainer, animatedStyle, {overflow: "visible"}]}>
+          <View style={{height: 85, alignItems:"center", justifyContent: "center", }}> 
           <PortfolioComponent
             selectedAddress={selectedAddress}
             setSelectedAddress={setSelectedAddress}
             balances={balancesArray}
             totalUsdBalance={totalUsdBalance}
           />
+          </View>
         </Animated.View>
         )}
 
         <TouchableOpacity style={{width: "100%"}} onPress={goToLink}>
-          <View style={styles.linkBox}>
-            <Text style={{fontSize: 18, color: sharedColors.blue, fontFamily: "Roboto-Medium", fontWeight: "500"}}>Conseguir DOC </Text>
-            <Image source={require("../../images/linktree.png")} style={styles.linktree}/>
-          </View>
+          <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}}  colors={['#DCE6AAB2', '#C0DDF0B2']} style={[styles.linkBox]}>
+            <Text style={{fontSize: 20, color: sharedColors.bablue, fontFamily: "Roboto-Medium", fontWeight: "bold"}}>Mi comunidad </Text>
+            {/* <Image source={require("../../images/linktree.png")} style={styles.linktree}/> */}
+          </LinearGradient>
         </TouchableOpacity>
 
         <Typography style={styles.transactionsLabel} type={'h3'}>
@@ -426,6 +428,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 16,
     zIndex: 1,
+    shadowColor: '#000', // Color de la sombra
+    shadowOffset: { width: 0, height: 2 }, // Desplazamiento de la sombra
+    shadowOpacity: 0.25, // Opacidad de la sombra
+    shadowRadius: 2, // Radio de la sombra
+    elevation: 3, // Elevación para Android
   },
   tokenBalance: castStyle.view({
     paddingLeft: 24,
@@ -473,15 +480,23 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 24,
   },
-  linkBox:{flexDirection: "row",
+  linkBox: {
+    flexDirection: "row",
     width: "100%",
-    borderRadius: 16,
+    borderRadius: 57,
     backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    justifyContent: "space-between",
-    borderColor: sharedColors.inputBorder,
-    borderWidth: 1,
+    justifyContent: "center",
+    height: 57,
+    shadowColor: "#000", // Color de la sombra
+    shadowOffset: {
+      width: 0,
+      height: 2, // Altura de la sombra
+    },
+    shadowOpacity: 0.25, // Opacidad de la sombra
+    shadowRadius: 3.5, // Difuminado de la sombra
+    elevation: 5, 
   },
   linktree: {
     width: 24,

@@ -336,9 +336,9 @@ const resources = {
       wallet_deploy_deploying_alert_title: 'Wallet deployment is in progress',
       wallet_deploy_deploying_alert_body:
         'You need to wait until this process is finished before making transactions',
-      receive_screen_username_label: 'Username',
-      received_from: 'Received from',
-      sent_to: 'Sent to',
+      receive_screen_username_label: 'Nombre de usuario',
+      received_from: 'Recibido de',
+      sent_to: 'Enviado a',
       camera_alert_title: 'For this feature we need your camera',
       camera_alert_body:
         'You denied permissions to use the camera, please allow to continue',
@@ -353,9 +353,9 @@ const resources = {
       send_alert_ongoing_transaction_body:
         'Please, wait for previous transaction to succeed or fail before making the next one',
       send_screen_sending_transaction: 'Sending transaction...',
-      send_screen_return_to_home: 'Return to Home Screen',
-      security_info_header: 'Security Information',
-      security_info_user_agreement: 'User agreement',
+      send_screen_return_to_home: 'Volver al inicio',
+      security_info_header: 'información de seguridad',
+      security_info_user_agreement: 'Acuerdo de usuario',
       security_info_disclaimer:
         '"IOV Labs cannot be held responsible for any loss or theft of your funds.',
       security_info_disclaimer2:
@@ -364,20 +364,20 @@ const resources = {
         'We cannot assist with recovering or reversing any unauthorized or mistaken transactions.',
       security_info_disclaimer4:
         'We strongly advise exercising caution, employing the best security practices,and safeguarding your assets diligently."',
-      security_i_agree: 'I agree with the conditions. ',
-      security_info_btn: 'Continue',
-      security_terms_and_conditions: 'Terms and Conditions',
-      android_qr_alert_title: 'Error reading QR',
-      android_qr_alert_desc: 'The QR could not be parsed. Please try again.',
-      android_qr_loading_camera: 'Loading camera',
-      offline_screen_title: 'Ops! You are offline.',
+      security_i_agree: 'Acepto los términos y condiciones. ',
+      security_info_btn: 'Continuar',
+      security_terms_and_conditions: 'Términos y condiciones',
+      android_qr_alert_title: 'Error escaneando QR',
+      android_qr_alert_desc: 'El QR no se pudo parsear. Porfavor intenta nuevamente.',
+      android_qr_loading_camera: 'Cargando cámara',
+      offline_screen_title: 'Estas offline.',
       offline_screen_description_1:
-        'RIF Wallet needs an internet connection to work properly.',
+        'Bolsillo argento necesita internet para funcionar correctamente.',
       offline_screen_description_2:
-        'Please check your connection and try again.',
+        'por favor verifica tu conexión y vuelve a intentarlo.',
       dapps_requirements_not_met:
         'The Dapp you tried to connect does not meet our requirements.',
-      dapps_session_rejected: 'Session rejected',
+      dapps_session_rejected: 'Sesión rechazada',
       dapps_error_pairing_title: 'Error when trying to connect to Dapp',
       dapps_error_pairing_message: 'Please refresh the QR and try again.',
       dapps_wc_connect: 'Connect',
@@ -390,9 +390,9 @@ const resources = {
         'Register your username to allow others to send you funds without worrying about mistyping or inputting wrong address',
       popup_link_text: 'Get username here',
       wallet_deployment_label: 'Rif Wallet Deployment',
-      wallet_backup_title: 'Warning!',
+      wallet_backup_title: 'Advertencia!',
       wallet_backup_message:
-        'We have disabled the ability to take a picture of the mnemonic because it is important that you keep it private. Please write it down instead',
+        'Hemos deshabilitado la posibilidad de tomar una foto del mnemotécnico porque es importante que mantengaslo privado. Por favor escribe en su lugar',
     },
   },
   es: {

@@ -24,7 +24,7 @@ export const TokenImage = ({
   symbol,
   size = 18,
   transparent = false,
-  color = sharedColors.black,
+  color = "transparent",
   white,
 }: Props) => {
   let finalSymbol = symbol
@@ -136,21 +136,21 @@ export const getTransparentIconSource = (
   switch (symbol.toUpperCase()) {
     case 'RBTC':
     case 'TRBTC':
-      return require('../../images/rbtc-transparent.png')
+      return require('../../images/rbtc.png')
     case 'RIF':
     case 'TRIF':
-      return require('../../images/rif-transparent.png')
+      return require('../../images/rif.png')
     case 'RIFWHITE':
     case 'TRIFWHITE':
       return require('../../images/rif-white.png')
     case 'RDOC':
       return require('./../../images/rdoc-transparent.png')
     case 'USDRIF':
-      return require('./../../images/usdrif-transparent.png')
+      return require('./../../images/usdrif.png')
     case 'BTCCB':
     case 'BTCT':
     case 'BTC':
-      return require('./../../images/btc-transparent.png')
+      return require('./../../images/btc.png')
     default:
       return undefined
   }

@@ -92,7 +92,7 @@ export const AccountBox = ({
             </Typography>
             <AppTouchable width={110} onPress={onEdit}>
               <Typography type={'h4'} style={styles.accountEditButton}>
-                {t('accounts_screen_edit_name_label')}
+                {t('settings_screen_edit_name_label')}
               </Typography>
             </AppTouchable>
           </View>
@@ -117,12 +117,12 @@ export const AccountBox = ({
         )}
       </View>
       <View style={styles.statusContainer}>
-        <Typography type={'h4'}>{t('accounts_screen_status_label')}</Typography>
+        <Typography type={'h4'}>{t('settings_screen_status_label')}</Typography>
         <View style={styles.status}>
           <Typography type={'h4'} style={styles.statusText}>
             {walletIsDeployed.isDeployed
-              ? t('accounts_screen_deployed_label')
-              : t('accounts_screen_not_deployed_label')}
+              ? t('settings_screen_deployed_label')
+              : t('settings_screen_not_deployed_label')}
           </Typography>
           {walletIsDeployed.isDeployed ? (
             <Icon
@@ -143,15 +143,15 @@ export const AccountBox = ({
         style={sharedStyles.marginTop20}
         label={
           smartWalletAddressObject
-            ? t('accounts_screen_eoa_account_label')
-            : t('accounts_screen_address_label')
+            ? t('settings_screen_eoa_account_label')
+            : t('settings_screen_address_label')
         }
         inputName={'EOA Address'}
         rightIcon={
           <Icon
-            name={'copy'}
+            name={'clone'}
             style={styles.copyIcon}
-            color={sharedColors.white}
+            color={sharedColors.bablue}
             size={defaultIconSize}
             onPress={() =>
               Clipboard.setString(eoaAddressObject.checksumAddress || '')
@@ -165,13 +165,13 @@ export const AccountBox = ({
       {smartWalletAddressObject && (
         <Input
           style={sharedStyles.marginTop20}
-          label={t('accounts_screen_smart_wallet_address_label')}
+          label={t('settings_screen_smart_wallet_address_label')}
           inputName="Smart Wallet Address"
           rightIcon={
             <Icon
-              name={'copy'}
+              name={'clone'}
               style={styles.copyIcon}
-              color={sharedColors.white}
+              color={sharedColors.bablue}
               size={defaultIconSize}
               onPress={() =>
                 Clipboard.setString(
@@ -191,16 +191,14 @@ export const AccountBox = ({
           key={publicKey.publicKey}
           style={sharedStyles.marginTop20}
           label={`${publicKey.networkName} ${t(
-            'accounts_screen_public_key_label',
+            'settings_screen_public_key_label',
           )}`}
-          inputName={`${publicKey.networkName} ${t(
-            'accounts_screen_public_key_label',
-          )}`}
+          inputName={`${publicKey.networkName} Llave pública`}
           rightIcon={
             <Icon
-              name={'copy'}
+              name={'clone'}
               style={styles.copyIcon}
-              color={sharedColors.white}
+              color={sharedColors.bablue}
               size={defaultIconSize}
               onPress={() => Clipboard.setString(publicKey.publicKey || '')}
             />

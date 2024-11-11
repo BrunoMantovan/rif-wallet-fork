@@ -5,6 +5,7 @@ import {
   View,
   Share,
   ActivityIndicator,
+  Text
 } from 'react-native'
 import { FormProvider, useForm } from 'react-hook-form'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -140,7 +141,7 @@ export const ReceiveScreen = ({
       <FormProvider {...methods}>
         {/* Change Asset Component */}
         <View style={styles.flexRow}>
-          <Typography type="h3">{t('change_asset')}</Typography>
+          <Text style={{fontSize:20, fontFamily: "Roboto-Medium", color: sharedColors.bablue, fontWeight: "bold"}}>Seleccionar activos</Text>
           <FontAwesome5Icon
             name={shouldShowAssets ? 'chevron-up' : 'chevron-down'}
             size={14}
@@ -161,7 +162,8 @@ export const ReceiveScreen = ({
                 : sharedColors.white
 
               return (
-                <PortfolioCard
+                <View style={{height: 85, alignItems:"center", justifyContent: "center",}}>
+                  <PortfolioCard
                   key={asset.symbol}
                   onPress={onChangeSelectedAsset(asset)}
                   color={color}
@@ -169,20 +171,22 @@ export const ReceiveScreen = ({
                   secondaryText={asset.balance}
                   isSelected={isSelected}
                   disabled={isAddressLoading}
-                />
+                  />
+                </View>
               )
             })}
           </ScrollView>
         )}
         {/* QR Component */}
         {address !== '' && !isAddressLoading && (
-          <QRGenerator
-            key={selectedAsset?.symbol}
-            value={address}
-            imageSource={getIconSource(selectedAsset?.symbol || '')}
-            logoBackgroundColor={sharedColors.black}
-            accessibilityLabel={TestID.QRCodeDisplay}
-          />
+          <View style={styles.qrViewSryle}>
+            <QRGenerator
+              key={selectedAsset?.symbol}
+              value={address}
+              logoBackgroundColor={sharedColors.black}
+              accessibilityLabel={TestID.QRCodeDisplay}
+            />
+          </View>
         )}
         {isAddressLoading && (
           <View style={styles.addressLoadingView}>
@@ -226,7 +230,7 @@ export const ReceiveScreen = ({
         )}
         {!isAddressLoading && (
           <Input
-            label="Address"
+            label="Mi dirección"
             inputName="address"
             rightIcon={
               <Ionicons
@@ -299,4 +303,22 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   }),
   usernameInput: castStyle.view({ marginTop: 30 }),
+  qrViewSryle: castStyle.view({
+    padding: 32,
+    backgroundColor: sharedColors.mainWhite,
+    width:248,
+    height: 248,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    borderColor: sharedColors.grey,
+    borderWidth: 1.5,
+    marginTop: 16,
+    shadowColor: '#000', // Color de la sombra
+    shadowOffset: { width: 0, height: 2 }, // Desplazamiento de la sombra
+    shadowOpacity: 0.25, // Opacidad de la sombra
+    shadowRadius: 3.5, // Radio de la sombra
+    elevation: 5, // Elevación para Android
+    marginBottom: 20,
+  })
 })
