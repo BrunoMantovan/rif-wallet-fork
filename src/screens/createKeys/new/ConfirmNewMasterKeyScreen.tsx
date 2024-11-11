@@ -197,7 +197,7 @@ export const ConfirmNewMasterKeyScreen = ({ route }: ConfirmNewMasterKey) => {
         style={styles.button}
         title={t('confirm_key_button')}
         onPress={handleSubmit(onSubmitEditing)}
-        color={sharedColors.white}
+        color={sharedColors.bagreen}
         textColor={sharedColors.black}
       />
       {!formIsValid || hasFormSuccess ? (
@@ -206,7 +206,7 @@ export const ConfirmNewMasterKeyScreen = ({ route }: ConfirmNewMasterKey) => {
           <Typography
             style={styles.feedbackText}
             type={'h2'}
-            color={sharedColors.white}>
+            color={sharedColors.bablue}>
             {hasFormSuccess ? t('confirm_key_success') : t('confirm_key_error')}
           </Typography>
           <Icon
@@ -227,12 +227,12 @@ export const ConfirmNewMasterKeyScreen = ({ route }: ConfirmNewMasterKey) => {
 const styles = StyleSheet.create({
   screen: castStyle.view({
     flex: 1,
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
     paddingHorizontal: 24,
   }),
   titleText: castStyle.text({ marginTop: 58, letterSpacing: -0.3 }),
   backgroundOverlay: castStyle.view({
-    backgroundColor: sharedColors.black,
+    backgroundColor: sharedColors.mainWhite,
   }),
   firstInputContainer: castStyle.view({ marginTop: 32 }),
   button: castStyle.view({

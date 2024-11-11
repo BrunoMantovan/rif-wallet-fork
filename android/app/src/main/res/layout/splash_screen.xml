@@ -2,18 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#F9F9FF">
 
     <ImageView
         android:id="@+id/logoImageView"
-        android:layout_width="230dp"
+        android:layout_width="261dp"
         android:layout_height="176dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:paddingBottom="50dp"
         android:src="@drawable/bootsplash_logo" />
 
-    <TextView
+    <!-- <TextView
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,16 +21,16 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
         android:text="@string/splash_title"
-        android:textColor="#FFFFFF"
-        android:textSize="36sp" />
+        android:textColor="#F6941A"
+        android:textSize="36sp" /> -->
 
-    <ImageView
+    <!-- <ImageView
         android:id="@+id/poweredBy"
         android:layout_width="199dp"
         android:layout_height="21dp"
         android:layout_below="@+id/titleTextView"
         android:layout_centerInParent="true"
         android:layout_marginTop="18dp"
-        android:src="@drawable/powered" />
+        android:src="@drawable/powered" /> -->
 
 </RelativeLayout>

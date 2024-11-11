@@ -14,8 +14,11 @@ import { sanitizeMaxDecimalText } from 'lib/utils'
 import { Wallet } from 'shared/wallet'
 import erc20ABI from 'src/ERC20.json'
 import escrowABI from 'src/escrowABI.json'
+import { P2PMarketplaceAPIClient } from 'src/baApi'
 
 const escrowContractAddress = toChecksumAddress('0x47856aD652444563c69Fb2e48384fb633d51C21a')
+const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com'
+const client = new P2PMarketplaceAPIClient(BASE_URL)
 
 import {
     OnSetTransactionStatusChange,
@@ -44,6 +47,7 @@ interface IEscrowParams {
 }
 
 interface IApproveParams {
+    order: Order
     token: ITokenWithBalance
     amount: BigNumber
     wallet: Wallet
@@ -126,7 +130,7 @@ export const escrow = async ({
         const feeInt = amountInt.div(BigNumber.from(100)); // Calculate the fee using BigNumber division
         const totalAmount = amountInt.add(feeInt); // Sum using BigNumber addition
 
-        await approve({token, wallet, amount: totalAmount, chainId})
+        await approve({token, wallet, amount: totalAmount, chainId, order})
 
         const orderId = order.id
         console.log('ID de la orden:', orderId);
@@ -237,6 +241,7 @@ export const escrow = async ({
                     ...txPendingRest,
                 })
             })
+            
     } catch (err) {
         console.error('ERROR en la función escrow:', err);
         onSetError?.(err as Error)
@@ -261,6 +266,7 @@ export const approve = async ({
     wallet,
     amount,
     chainId,
+    order,
 }: IApproveParams) => {
     try {
         const transferMethod = convertToERC20Token(token, wallet)
@@ -300,6 +306,7 @@ export const approve = async ({
             console.log('Sufficient allowance already exists')
             return null
         }
+
     } catch (err) {
         console.error('Error in approve function:', err)
         if (err instanceof Error) {
@@ -307,4 +314,23 @@ export const approve = async ({
         }
         return null
     }
+}
+
+
+async function orderUpdate(newStatus: string, order: Order) {
+    if (!order.id) {
+        throw new Error('El ID de la orden no puede ser undefined');
+    }
+    console.log("comenzo el order update", "orderID: ", order.id, "status: ", newStatus);
+    
+    const updateOrderRequest = {
+      status: newStatus,
+      orderId: order.id,
+    }
+
+    const response = await client.updateOrder(updateOrderRequest, {
+      'x-api-secret': 'test',
+      'x-blockchain': 'rsk_testnet',
+    })
+    console.log('Order Updated:', response)
 }

@@ -90,8 +90,8 @@ export const SecurityInformation = ({
           style={styles.button}
           title={t('security_info_btn')}
           disabled={!isCheckboxActive}
-          color={sharedColors.white}
-          textColor={sharedColors.black}
+          color={sharedColors.bagreen}
+          textColor={!isCheckboxActive ? sharedColors.white : sharedColors.black}
           accessibilityLabel={TestID.ContinueButton}
         />
       </View>
@@ -132,5 +132,5 @@ const styles = StyleSheet.create({
   }),
   agreementView: castStyle.view({ flexDirection: 'row', alignSelf: 'center' }),
   agreeText: castStyle.text({ marginLeft: 10 }),
-  button: castStyle.view({ marginTop: 22 }),
+  button: castStyle.view({ marginTop: 22, marginBottom: 22 }),
 })

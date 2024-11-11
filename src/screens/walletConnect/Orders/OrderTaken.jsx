@@ -29,7 +29,7 @@ import { approve, escrow } from '../../send/escrowTokens'
 
 export default function OrderTaken({ route, navigation }) {
   const { takeOrderRequest } = route.params
-  const { orderId, userInfo } = useMarket()
+  const { orderId, userInfo, } = useMarket()
   const [order, setOrder] = useState()
   const [loading, setLoading] = useState(true)
   const dispatch = useAppDispatch()
@@ -44,9 +44,9 @@ export default function OrderTaken({ route, navigation }) {
   const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com'
   const client = new P2PMarketplaceAPIClient(BASE_URL)
 
-  const handleApprove = async () => {
+  const handleApprove = async () => {    
     const token = assets[0]
-    await escrowToken(token, order, wallet, chainId)
+    await escrowToken(token, order, wallet, chainId)    
   }
 
   const handleRelease = async () => {
@@ -54,7 +54,6 @@ export default function OrderTaken({ route, navigation }) {
     await releaseToken(order, wallet)
   }
 
-  useEffect(() => {}, [order])
   async function GetOrderById() {
     try {
       console.log('takeOrderRequest: ', takeOrderRequest)
@@ -80,7 +79,6 @@ export default function OrderTaken({ route, navigation }) {
 
   useEffect(() => {
     setLoading(true)
-
     GetOrderById()
 
     const intervalId = setInterval(() => {
@@ -103,7 +101,7 @@ export default function OrderTaken({ route, navigation }) {
     console.log('Order Updated:', response)
   }
 
-  return loading ? (
+  return (loading || order.status == ('WAITING_APPROVE' || 'WAITING_ESCROW')) ? (
     <LoadingScreen />
   ) : order.status == 'COMPLETED_BY_ADMIN' || order.status == 'RELEASED' ? (
     <View

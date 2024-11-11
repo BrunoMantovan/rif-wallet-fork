@@ -45,7 +45,8 @@ export const sharedColors = {
   inputText: "#464D51",
   inputBorder: "#8C9094",
   mainWhite1: "#f9f9ff80",
-  balightblue1: "#73b8ea80"
+  balightblue1: "#73b8ea80",
+  baorange: "#F6941A"
 }
 
 export const tokenColors = {

@@ -271,5 +271,6 @@ const styles = StyleSheet.create({
   }),
   deleteButton: castStyle.view({
     marginTop: 24,
+    backgroundColor: sharedColors.bablue
   }),
 })
