@@ -116,7 +116,6 @@ export const escrow = async ({
     onSetCurrentTransaction?.({ status: TransactionStatus.USER_CONFIRM })
 
     try {
-
         const escrowContract = new Contract(escrowContractAddress, escrowABI, wallet)
         console.log('Contrato de escrow creado:', escrowContractAddress);
         console.log('TOKEN', token)

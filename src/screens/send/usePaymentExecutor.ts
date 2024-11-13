@@ -94,7 +94,7 @@ export const usePaymentExecutor = (
     chainId: any,
   ) => {
     console.log('EscrowToken - PaymentExecutor')
-    escrow({
+    await escrow({
       order: order,
       token: token as unknown as ITokenWithBalance,
       wallet: wallet,

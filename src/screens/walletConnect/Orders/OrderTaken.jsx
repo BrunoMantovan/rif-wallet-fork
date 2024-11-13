@@ -44,9 +44,12 @@ export default function OrderTaken({ route, navigation }) {
   const BASE_URL = 'https://bolsillo-argento-586dfd80364d.herokuapp.com'
   const client = new P2PMarketplaceAPIClient(BASE_URL)
 
-  const handleApprove = async () => {    
+  const handleApprove = async () => {
+    setLoading(true)
     const token = assets[0]
-    await escrowToken(token, order, wallet, chainId)    
+    await escrowToken(token, order, wallet, chainId)
+    console.log("escrow completado");
+    setLoading(false)
   }
 
   const handleRelease = async () => {
